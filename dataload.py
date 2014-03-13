@@ -3,6 +3,7 @@ __author__ = 'tobi'
 import numpy as np
 from datetime import datetime
 import csv
+import os
 from io import StringIO
 import codecs
 from matplotlib.mlab import rec_append_fields,rec_drop_fields
@@ -73,6 +74,9 @@ def load_MasterCardExtract(filename):
         (numpy.rec.recarray) table with data, columns: date, description, amount
 
     """
+    # parse pdf to text
+    os.system('./SecuredPDF2txt.sh '+filename)
+    filename=filename.replace('.pdf','.txt')
 
     column_headers=['Datum','Text','Belastungen','Gutschriften','Datum']
     align=[0,0,1,1,1,2]

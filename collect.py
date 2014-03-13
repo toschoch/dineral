@@ -16,7 +16,7 @@ if __name__=='__main__':
     # add load from expenses
 
     list1=load_PostFinanceExtract(r'2014-01.txt')
-    list2=load_MasterCardExtract(r'Januar.txt')
+    list2=load_MasterCardExtract(r'Januar.pdf')
     list3=load_VisaCardTransaction(r'transactions.csv')
 
     # join table
@@ -43,12 +43,11 @@ if __name__=='__main__':
 
         row['Kategorie']=cat[i_chosen]
 
-        # E-Finance transaction open corresponding zahlungsbestätigung
+        # E-Finance transaction open corresponding zahlungsbestaetigung
 
-        # funktion Text ändern
+        # funktion Text aendern
         # funktion split entry in zwei entries
         # funktion remove entry
 
-    np.
 
     print joined

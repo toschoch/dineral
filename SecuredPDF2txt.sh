@@ -1,7 +1,6 @@
 #!/bin/bash
 
 trunk="${1%.pdf}"
-echo $trunk
 convert -density 300 $1 "$trunk.png"
 textfile="$trunk.txt"
 touch $textfile
