@@ -2,6 +2,22 @@ __author__ = 'tobi'
 
 import numpy as np
 from datetime import datetime
+import csv
+from io import StringIO
+import codecs
+from matplotlib.mlab import rec_append_fields,rec_drop_fields
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
+    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
+                            dialect=dialect, **kwargs)
+    for row in csv_reader:
+        # decode UTF-8 back to Unicode, cell by cell:
+        yield [unicode(cell, 'utf-8') for cell in row]
+
+def utf_8_encoder(unicode_csv_data):
+    for line in unicode_csv_data:
+        yield line.encode('utf-8')
 
 def load_VisaCardTransaction(filename):
     """ load data from a transaction csv file
@@ -15,13 +31,35 @@ def load_VisaCardTransaction(filename):
         (numpy.rec.recarray) table with data, columns: date, description, amount
 
     """
-    headers=["Date","Transaction","Sector/Partner","Invoiced","Debit","Credit"]
+    data=[]
+    with codecs.open(filename, 'rb',"utf-16") as f:
+        reader = unicode_csv_reader(f,quotechar='"',delimiter='\t')
+        for i,row in enumerate(reader):
+            if i==0:
+                header=row
+            else:
+                data.append(row)
 
-    data=np.loadtxt(filename,
-                    dtype={'names': headers, 'formats': ('S200', 'S200','S200', 'S200', 'f8','S2')},
-                    skiprows=1)
 
-    return data
+    data=np.rec.fromrecords(data,names=header)
+    conv1 = lambda x: datetime.strptime(x,'%d.%m.%Y')
+    conv2 = lambda x: float(x)
+    conv3 = lambda x: x.replace('\r\n','\n')
+    cdata=[]
+    for i,c in enumerate(header):
+        if i==0:
+            cdata.append(map(conv1,data[c]))
+        elif i==len(header)-2:
+            cdata.append(map(conv2,data[c]))
+        else:
+            cdata.append(map(conv3,data[c]))
+
+    rec = np.rec.fromarrays(cdata,names=('Datum', 'Text', 'Sektor', 'Rechnung', 'Lastschrift', 'Gutschrift'))
+    rec = rec_drop_fields(rec,['Sektor','Rechnung','Gutschrift'])
+
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+
+    return rec
 
 def load_MasterCardExtract(filename):
     """ loads data from a pdf file and parses the information respect to the format description
@@ -39,7 +77,7 @@ def load_MasterCardExtract(filename):
     column_headers=['Datum','Text','Belastungen','Gutschriften','Datum']
     align=[0,0,1,1,1,2]
 
-    with open(filename,'r') as fp:
+    with codecs.open(filename,'r','utf-8') as fp:
 
         lines = fp.read().splitlines()
 
@@ -106,7 +144,9 @@ def load_MasterCardExtract(filename):
 
     # crop and convert types
     headers=['Datum','Text','Lastschrift']
-    rec=np.rec.fromrecords(table,names=column_headers)
+    rec=np.rec.fromrecords(table,names=headers)
+
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
 
     return rec
 
@@ -126,7 +166,7 @@ def load_PostFinanceExtract(filename):
     column_headers=['Datum','Text','Gutschrift','Lastschrift','Valuta','Saldo']
     align=[0,0,1,1,1,2]
 
-    with open(filename,'r') as fp:
+    with codecs.open(filename,'rb','utf-8') as fp:
 
         lines = fp.read().splitlines()
 
@@ -203,5 +243,7 @@ def load_PostFinanceExtract(filename):
     I = (rec.Text<>'Total')
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
+
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
 
     return rec
