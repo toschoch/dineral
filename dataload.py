@@ -82,8 +82,10 @@ def load_MasterCardExtract(filename):
     align=[0,0,1,1,1,2]
 
     with codecs.open(filename,'r','utf-8') as fp:
-
         lines = fp.read().splitlines()
+
+    # remove the text file
+    os.remove(filename)
 
     table=[]
 
@@ -166,6 +168,9 @@ def load_PostFinanceExtract(filename):
         (numpy.rec.recarray) table with data, columns: date, description, amount
 
     """
+    os.system('pdftotext -layout '+filename)
+
+    filename = filename.replace('.pdf','.txt')
 
     column_headers=['Datum','Text','Gutschrift','Lastschrift','Valuta','Saldo']
     align=[0,0,1,1,1,2]
@@ -173,6 +178,8 @@ def load_PostFinanceExtract(filename):
     with codecs.open(filename,'rb','utf-8') as fp:
 
         lines = fp.read().splitlines()
+
+    os.remove(filename)
 
     table=[]
 

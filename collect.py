@@ -15,7 +15,7 @@ if __name__=='__main__':
 
     # add load from expenses
 
-    list1=load_PostFinanceExtract(r'2014-01.txt')
+    list1=load_PostFinanceExtract(r'2014-01.pdf')
     list2=load_MasterCardExtract(r'Januar.pdf')
     list3=load_VisaCardTransaction(r'transactions.csv')
 
