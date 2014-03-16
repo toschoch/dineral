@@ -1,9 +1,11 @@
+# -- coding: utf-8 --
 __author__ = 'tobi'
 
 import numpy as np
 from datetime import datetime
 import csv
 import os
+import subprocess
 from io import StringIO
 import codecs
 from matplotlib.mlab import rec_append_fields,rec_drop_fields
@@ -19,6 +21,45 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 def utf_8_encoder(unicode_csv_data):
     for line in unicode_csv_data:
         yield line.encode('utf-8')
+
+def load_Expenses(filename):
+    """ load data from a expenses csv file
+
+        Parameters
+        ----------
+        filename:           (str) path to file to be loaded
+
+        Returns
+        -------
+        (numpy.rec.recarray) table with data, columns: date, description, amount
+
+    """
+
+    convert={
+        'Date':lambda x: datetime.strptime(x,'%d.%m.%Y'),
+        'Amount': lambda x: float(x.rstrip(' CHF').replace('.','').replace(',','.')),
+        'Note': lambda x: x.strip("'")}
+
+    # read data
+    with codecs.open(filename, 'r','utf-8') as f:
+        lines=f.read().splitlines()
+
+    header=lines.pop(0).split(';')
+    data=[]
+    for line in lines:
+
+        dline=[]
+        for c,h in zip(line.split(';'),header):
+            try:
+                dline.append(convert[h](c))
+            except KeyError:
+                dline.append(c)
+        data.append(dline)
+
+    rec = np.rec.fromrecords(data,names=['Datum','Kategorie','Unterkategorie','Lastschrift','Text'])
+    return rec
+
+
 
 def load_VisaCardTransaction(filename):
     """ load data from a transaction csv file
@@ -168,7 +209,7 @@ def load_PostFinanceExtract(filename):
         (numpy.rec.recarray) table with data, columns: date, description, amount
 
     """
-    os.system('pdftotext -layout '+filename)
+    subprocess.call(['pdftotext','-layout',filename])
 
     filename = filename.replace('.pdf','.txt')
 
@@ -254,6 +295,93 @@ def load_PostFinanceExtract(filename):
     I = (rec.Text<>'Total')
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
+
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+
+    return rec
+
+def xx  load_PostFinancePaymentConfirmation(filename):
+    """ loads data from a pdf file and parses the information respect to the format description
+
+        Parameters
+        ----------
+        filename:           (str) path to file to be loaded
+
+        Returns
+        -------
+        (numpy.rec.recarray) table with data, columns: date, description, amount
+
+    """
+    subprocess.call(['pdftotext','-layout',filename])
+
+    filename = filename.replace('.pdf','.txt')
+
+    column_headers=[u'Whg',u'Transaktionsart',u'Betrag',u'Währung',u'Betrag',u'Kurs',u'Betrag in CHF']
+
+    align=[0,0,1,1,1,2]
+
+    with codecs.open(filename,'rb','utf-8') as fp:
+
+        lines = fp.read().splitlines()
+
+    # os.remove(filename)
+
+    table=[]
+
+    it = iter(lines)
+
+    try:
+        while True:
+
+            line = it.next()
+
+            if line.lstrip().startswith('Total'):
+                break
+
+            if line.find(u'Ausführungsdatum:')>=0:
+                data=line.split(':')[-1].strip()
+                data=datetime.strptime(data,"%d.%m.%Y")
+
+            # search for column headers
+            col_index = [line.find(col) for col in column_headers]
+
+
+            # if column headers found -> store indices
+            if min(col_index)>=0:
+
+                line = it.next()
+                line = it.next()
+                line = it.next()
+
+                # while no new page started, first character not space
+                while not line.lstrip().startswith('Total'):
+
+                    if line=='':
+                        line=it.next()
+                        continue
+
+                    # while no new entry started
+                    dataentry=[None,[],None]
+                    dataentry[2]=float(line.split()[-1])
+                    dataentry[0]=data
+                    firstline = False
+                    line = it.next()
+                    while not line.lstrip().startswith('CHF') and len(line)>0:
+
+                        # parse columns
+                        dataentry[1].append(line.strip().replace('   ',''))
+
+                        line = it.next()
+
+                    dataentry[1]='\n'.join(dataentry[1])
+
+                    # append to table
+                    table.append(dataentry)
+
+    except StopIteration:
+        pass
+
+    rec = np.rec.fromrecords(table,names=['Datum','Text','Lastschrift'])
 
     rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
 
