@@ -1,13 +1,72 @@
 # -- coding: utf-8 --
-__author__ = 'tobi'
-
+from subprocess import Popen, PIPE
 import numpy as np
 import glob, os
 from dataload import *
 import numpy.lib.recfunctions as recfun
+import fnmatch
+import locale
+
+__author__ = 'tobi'
 
 confirmation_path = ur'/home/tobi/Finance/Konto Dokumente/Kontos Post/Zahlungsbestätigungen'
 extract_path = ur'/home/tobi/Finance/Konto Dokumente/Kontos Post/Konto Auszüge Postkonto'
+mastercard_path=ur'/home/tobi/Finance/e-Rechnungen/Mastercard'
+visa_path=ur'/home/tobi/Finance/e-Rechnungen/Visa/transaction'
+path_on_phone=ur'/mnt/sdcard/expenses'
+
+class ADBException(EnvironmentError):
+    def __init__(self,exitcode,strout,strerr):
+        self.exitcode,self.strout,self.strerror=exitcode,strout,strerr
+    def __str__(self):
+        return "error in adb command occured, exitcode {0:d}, output: {1:s}, errors: {2:s}".format(self.exitcode,self.strout,self.strerror)
+
+def load_Expenses_from_phone(start,stop):
+    """ load data from phone through adb """
+
+    datafilename='export.csv'
+
+    def call(cmd):
+        """
+        Execute the external command and get its exitcode, stdout and stderr.
+        """
+
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        proc.wait()
+        out, err = proc.communicate()
+        exitcode = proc.returncode
+        #
+        return exitcode, out, err
+
+
+    # create temporary folder
+    tmpdir='.tmpdata'
+    os.mkdir(tmpdir)
+    os.chdir(tmpdir)
+    exitcode, out, err = call(['adb','pull','mnt/sdcard/expenses'])
+    if exitcode>0:
+        os.chdir('..')
+        os.rmdir(tmpdir)
+        raise ADBException(exitcode,out,err)
+
+    files_pulled=[e.split('/')[-1] for e in err.splitlines() if e.startswith('pull') and e.find('->')>0]
+    # remove files not needed
+    for f in files_pulled:
+        if f<>datafilename:
+            os.remove(f)
+
+    data=load_Expenses(datafilename)
+
+    os.remove(datafilename)
+    os.chdir('..')
+    os.rmdir(tmpdir)
+
+    I = np.logical_and(data.Datum>=start,data.Datum<=stop)
+    data=data[I]
+
+    return data
+
+
 
 
 def expand_EFinance(data):
@@ -42,12 +101,13 @@ def expand_EFinance(data):
     return new
 
 
-def load_PostFinanceData(datum,data=None):
+def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):
     """ load all data from postfinance account extracts
 
         Parameters
         ----------
-        datum:           (str) datum from when the data shall be loaded e.g. '01-01-2014'
+        start:           (datetime.datetime) date from when the data shall be loaded e.g. '01-01-2014'
+        stop:            (datetime.datetime)
 
         Returns
         -------
@@ -59,14 +119,78 @@ def load_PostFinanceData(datum,data=None):
         new=[data]
     else:
         new = []
-    for fname in glob.glob(os.path.join(extract_path, '*.pdf')):
+
+    matches=glob.glob(os.path.join(extract_path, '*.pdf'))
+
+    files2load=[]
+    for fname in matches:
 
         _, name = os.path.split(fname)
         name, _ = os.path.splitext(name)
 
-        if datetime.strptime(name, '%Y-%m') >= datum:
-            newrows = load_PostFinanceExtract(fname)
-            new.append(newrows)
+        month=datetime.strptime(name, '%Y-%m')
+        if month>= start and month<=stop:
+            files2load.append(fname)
+
+    prog=0
+    dprog=100./len(files2load)
+
+    for fname in files2load:
+        newrows = load_PostFinanceExtract(fname)
+        new.append(newrows)
+        prog+=dprog
+        if callback is not None:
+            callback(prog)
 
     return recfun.stack_arrays(new, autoconvert=True)
 
+def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
+    """ load all data from mastercard extracts
+
+        Parameters
+        ----------
+        start:           (datetime.datetime) date from when the data shall be loaded e.g. '01-01-2014'
+        stop:            (datetime.datetime)
+
+        Returns
+        -------
+        (numpy.rec.recarray) table with data, columns: date, description, amount
+
+    """
+
+    if data is not None:
+        new=[data]
+    else:
+        new = []
+
+    locale.setlocale(locale.LC_TIME,'de_CH.UTF-8')
+
+    files2load = []
+    for root, _, filenames in os.walk(mastercard_path):
+        for filename in fnmatch.filter(filenames, '*.pdf'):
+            fname=os.path.join(root, filename)
+            name = '/'.join(fname.split('/')[-2:])
+            name, _ = os.path.splitext(name)
+
+            try:
+                month=datetime.strptime(name.encode('utf-8'), '%Y/%B')
+            except ValueError:
+                name=name.split('/')[-1]
+                month=datetime.strptime(name.encode('utf-8'),'%Y-%m')
+
+            if month>= start and month<=stop:
+                files2load.append(fname)
+
+    prog=0
+    dprog=100./len(files2load)
+    for fname in files2load:
+
+        newrows = load_MasterCardExtract(fname)
+        new.append(newrows)
+        prog+=dprog
+        if callback is not None:
+            callback(prog)
+
+    locale.setlocale(locale.LC_TIME,'')
+
+    return recfun.stack_arrays(new, autoconvert=True)

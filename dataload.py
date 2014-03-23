@@ -1,6 +1,5 @@
 # -- coding: utf-8 --
-__author__ = 'tobi'
-
+from utf8csv import unicode_csv_reader
 import numpy as np
 from datetime import datetime
 import csv
@@ -10,17 +9,7 @@ from io import StringIO
 import codecs
 from matplotlib.mlab import rec_append_fields,rec_drop_fields
 
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
-    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
-    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
-                            dialect=dialect, **kwargs)
-    for row in csv_reader:
-        # decode UTF-8 back to Unicode, cell by cell:
-        yield [unicode(cell, 'utf-8') for cell in row]
-
-def utf_8_encoder(unicode_csv_data):
-    for line in unicode_csv_data:
-        yield line.encode('utf-8')
+__author__ = 'tobi'
 
 def load_Expenses(filename):
     """ load data from a expenses csv file
@@ -37,7 +26,7 @@ def load_Expenses(filename):
 
     convert={
         'Date':lambda x: datetime.strptime(x,'%d.%m.%Y'),
-        'Amount': lambda x: float(x.rstrip(' CHF').replace('.','').replace(',','.')),
+        'Amount': lambda x: -float(x.rstrip(' CHF').replace('.','').replace(',','.')),
         'Note': lambda x: x.strip("'")}
 
     # read data
@@ -181,7 +170,7 @@ def load_MasterCardExtract(filename):
 
                         except (IndexError,ValueError):
                             if line=='':continue
-                            if line.find('UEBERTRAG AUF DIE NAECHSTE SEITE')>=0 or line.find('Saldo zu unseren Gunsten')>=0:
+                            if line.find('UEBERTRAG AUF NAECHSTE SEITE')>=0 or line.find('Saldo zu unseren Gunsten')>=0:
                                 table.append([date,'\n'.join(text),amount])
                                 break
                             text.append(line)
@@ -291,8 +280,11 @@ def load_PostFinanceExtract(filename):
     I = amount <> 0.
     rec = np.rec.fromarrays([date,text,amount],names=out_columns)[I]
 
-    # remove total
+    # remove total, Bargeldbezug, Kreditkarten
     I = (rec.Text<>'Total')
+    I = np.logical_and(I,rec.Text.find('BARGELD')<0)
+    I = np.logical_and(I,rec.Text.find('Bargeld')<0)
+    I = np.logical_and(I,rec.Text.find('KREDIT')<0)
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
 
@@ -300,7 +292,7 @@ def load_PostFinanceExtract(filename):
 
     return rec
 
-def xx  load_PostFinancePaymentConfirmation(filename):
+def load_PostFinancePaymentConfirmation(filename):
     """ loads data from a pdf file and parses the information respect to the format description
 
         Parameters
@@ -324,7 +316,7 @@ def xx  load_PostFinancePaymentConfirmation(filename):
 
         lines = fp.read().splitlines()
 
-    # os.remove(filename)
+    os.remove(filename)
 
     table=[]
 
