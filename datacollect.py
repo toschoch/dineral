@@ -176,7 +176,8 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
 
     """
 
-    start = firstOf('month',start)
+    start = firstOf('month',start
+    )
 
     if data is not None:
         new=[data]

@@ -103,7 +103,10 @@ if __name__=='__main__':
 
                 table = texttable.Texttable(max_width=100)
                 table.set_deco(0)
-                table.add_row([row['Datum'].strftime('%a, %d, %B %Y'), unidecode(row['Text']), 'CHF {0:.0f}'.format(row['Lastschrift']), row['Kategorie']])
+                text = unidecode(row['Text'])
+                if len(text.splitlines())>5:
+                    text='\n'.join(text.splitlines()[:5])
+                table.add_row([row['Datum'].strftime('%a, %d, %B %Y'), text, 'CHF {0:.0f}'.format(row['Lastschrift']), row['Kategorie']])
                 code, tag = d.menu(text+table.draw(),height=30,width=108,menu_height=10,choices=choices)
 
             elif tag=='Delete':
