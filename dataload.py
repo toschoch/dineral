@@ -137,7 +137,7 @@ def load_MasterCardExtract(filename):
 
 
                 # while no new page started, first character not space
-                while line.find('UEBERTRAG AUF DIE NAECHSTE SEITE')<0 or line.find('Saldo zu unseren Gunsten')<0:
+                while line.find('UEBERTRAG AUF NAECHSTE SEITE')<0 or line.find('Saldo zu unseren Gunsten')<0:
 
                     # try to parse date
                     try:
@@ -275,7 +275,8 @@ def load_PostFinanceExtract(filename):
     rec=np.rec.fromrecords(table,names=column_headers)
     out_columns=['Datum','Text','Lastschrift']
     date = [datetime.strptime(d_str,'%d.%m.%y') for d_str in rec.Datum]
-    amount = np.array([float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Lastschrift ])
+    amount  = np.array([float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Lastschrift ])
+    amount += np.array([-float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Gutschrift ])
     text = [t_str for t_str in rec.Text]
     I = amount <> 0.
     rec = np.rec.fromarrays([date,text,amount],names=out_columns)[I]

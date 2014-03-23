@@ -6,6 +6,7 @@ from dataload import *
 import numpy.lib.recfunctions as recfun
 import fnmatch
 import locale
+from utils import firstOf
 
 __author__ = 'tobi'
 
@@ -14,6 +15,21 @@ extract_path = ur'/home/tobi/Finance/Konto Dokumente/Kontos Post/Konto Auszüge 
 mastercard_path=ur'/home/tobi/Finance/e-Rechnungen/Mastercard'
 visa_path=ur'/home/tobi/Finance/e-Rechnungen/Visa/transaction'
 path_on_phone=ur'/mnt/sdcard/expenses'
+
+def load_VisaCardTransactionData(start,stop):
+    """ load transaction data from visa card
+    """
+    files = glob.glob(visa_path+'/*.csv')
+
+    dates=[datetime.strptime(f.split('/')[-1],'%d.%m.%y.csv')   for f in files]
+    I = np.argmax(dates).tolist()
+    data = load_VisaCardTransaction(files[I])
+
+    I = np.logical_and(data.Datum>=start,data.Datum<=stop)
+    data=data[I]
+
+    return data
+
 
 class ADBException(EnvironmentError):
     def __init__(self,exitcode,strout,strerr):
@@ -115,6 +131,8 @@ def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):
 
     """
 
+    start = firstOf('month',start)
+
     if data is not None:
         new=[data]
     else:
@@ -157,6 +175,8 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
         (numpy.rec.recarray) table with data, columns: date, description, amount
 
     """
+
+    start = firstOf('month',start)
 
     if data is not None:
         new=[data]
