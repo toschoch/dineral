@@ -6,6 +6,7 @@ from dataload import *
 import numpy.lib.recfunctions as recfun
 import fnmatch
 import locale
+from datasave import load_data
 from utils import firstOf
 
 __author__ = 'tobi'
@@ -14,6 +15,7 @@ confirmation_path = ur'/home/tobi/Finance/Konto Dokumente/Kontos Post/Zahlungsbe
 extract_path = ur'/home/tobi/Finance/Konto Dokumente/Kontos Post/Konto Auszüge Postkonto'
 mastercard_path=ur'/home/tobi/Finance/e-Rechnungen/Mastercard'
 visa_path=ur'/home/tobi/Finance/e-Rechnungen/Visa/transaction'
+budget_path=ur'/home/tobi/Finance/Budget'
 path_on_phone=ur'/mnt/sdcard/expenses'
 
 def load_VisaCardTransactionData(start,stop):
@@ -176,8 +178,7 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
 
     """
 
-    start = firstOf('month',start
-    )
+    start = firstOf('month',start)
 
     if data is not None:
         new=[data]
@@ -215,3 +216,17 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
     locale.setlocale(locale.LC_TIME,'')
 
     return recfun.stack_arrays(new, autoconvert=True)
+
+def load_budget(start,stop=datetime.today()):
+    """loads a budget file with categories """
+
+    year_from = start.strftime('%y')
+    year_to = stop.strftime('%y')
+
+    if year_from == year_to:
+        year_from = '{0:02d}'.format(int(year_from)-1)
+
+    fpath = os.path.join(budget_path,year_from+year_to)
+    filename =os.path.join(fpath,'Budget.csv')
+
+    return load_data(filename)

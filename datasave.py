@@ -4,6 +4,7 @@ from datetime import datetime
 import numpy as np
 from unidecode import unidecode
 from utf8csv import unicode_csv_reader
+from matplotlib.mlab import rec_drop_fields
 
 __author__ = 'tobi'
 
@@ -59,23 +60,16 @@ def load_data(filename,delimiter=';'):
                         line.append(d.replace('\\\\','\n'))
                     elif col in ['Kategorie','Unterkategorie']:
                         line.append(d)
-                    elif col in ['Lastschrift']:
+                    elif col in ['Lastschrift','Summe','Total','Jahresbudget']:
                         line.append(float(d))
                     elif col in ['Deleted']:
-                        line.append(bool(d))
+                        if d == 'True':
+                            line.append(True)
+                        else:
+                            line.append(False)
                     else:
-                        line.append(str(d))
+                        line.append(unicode(d))
                 data.append(line)
             i+=1
 
     return np.rec.fromrecords(data,names=header)
-
-def load_categories(filename):
-    """loads a csv file containing the categories"""
-
-    cat = []
-    with codecs.open(filename,'rb','utf-8') as fp:
-        csvreader=unicode_csv_reader(fp, delimiter=';')
-        for row in csvreader:
-            cat.append(row)
-    return  cat

@@ -1,25 +1,35 @@
 # -- coding: utf-8 --
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
+import texttable
 from unidecode import unidecode
-from dataplot import calculate_statistics, plot_category
-from datasave import load_categories, load_data
+from datacollect import load_budget
+from dataplot import calculate_statistics, plot_category, create_report
+from datasave import load_data, save_data
 import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.mlab import rec_append_fields,rec_join
 
 __author__ = 'tobi'
 
 
 if __name__ == '__main__':
 
-    categories = load_categories('categories.txt')
-    data = load_data(ur'categorized.csv')
-    # print load_MasterCardExtract(ur'/home/tobi/Finance/e-Rechnungen/Mastercard/2014/Februar.pdf')
+    start = datetime(year=2013,month=9,day=1)
+    database = 'data/categorized.csv'
 
-    red_data = calculate_statistics(data)
+    now = datetime.today()
 
-    cats=np.unique(red_data.Kategorie)
-    for category,desc in categories:
-        if unidecode(category) not in cats: continue
-        print unidecode(category)
-        plot_category(category,red_data,None)
-        plt.savefig('figures/'+category.replace('/','-')+'.pdf')
+    data = load_data(database)
+    budget = load_budget(start)
+
+    I = np.logical_not(data.Deleted)
+
+    red_data,budget = calculate_statistics(data[I],start=start,budget=budget)
+
+    save_data('figures/monthly_data.csv',red_data)
+
+    save_data('figures/total_data.csv',budget)
+
+    create_report(start,red_data,budget,stop=now)

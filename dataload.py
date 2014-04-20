@@ -105,7 +105,7 @@ def load_MasterCardExtract(filename):
 
     """
     # parse pdf to text
-    os.system('./SecuredPDF2txt.sh '+filename)
+    os.system('./SecuredPDF2txt.sh '+filename.encode('utf-8'))
     filename=filename.replace('.pdf','.txt')
 
     column_headers=['Datum','Text','Belastungen','Gutschriften','Datum']
@@ -283,9 +283,9 @@ def load_PostFinanceExtract(filename):
 
     # remove total, Bargeldbezug, Kreditkarten
     I = (rec.Text<>'Total')
-    I = np.logical_and(I,rec.Text.find('BARGELD')<0)
-    I = np.logical_and(I,rec.Text.find('Bargeld')<0)
-    I = np.logical_and(I,rec.Text.find('KREDIT')<0)
+    # I = np.logical_and(I,rec.Text.find('BARGELD')<0)
+    # I = np.logical_and(I,rec.Text.find('Bargeld')<0)
+    # I = np.logical_and(I,rec.Text.find('KREDIT')<0)
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
 
