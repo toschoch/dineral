@@ -13,12 +13,13 @@ from utils import firstOf, lastOf
 
 __author__ = 'tobi'
 
-def calculate_statistics(data, start=None, months=12, budget=None):
+def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
 
     if start is None:
         start = np.min(data['Datum'])
         start = firstOf('month',start)
-    stop = np.max(data['Datum'])
+    if stop is None:
+        stop = np.max(data['Datum'])
 
     # find data
     rr = rrule.rrule(rrule.MONTHLY,dtstart=start,count=months)

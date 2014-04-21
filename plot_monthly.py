@@ -6,6 +6,7 @@ from unidecode import unidecode
 from datacollect import load_budget
 from dataplot import calculate_statistics, plot_category, create_report
 from datasave import load_data, save_data
+from utils import firstOf,lastOf
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -16,17 +17,17 @@ __author__ = 'tobi'
 
 if __name__ == '__main__':
 
-    start = datetime(year=2013,month=9,day=1)
+    start = datetime(year=2014,month=1,day=1)
     database = 'data/categorized.csv'
 
-    now = datetime.today()
+    now = lastOf('month',datetime.now())-relativedelta(months=1)
 
     data = load_data(database)
     budget = load_budget(start)
 
     I = np.logical_not(data.Deleted)
 
-    red_data,budget = calculate_statistics(data[I],start=start,budget=budget)
+    red_data,budget = calculate_statistics(data[I],start=start, stop=now,budget=budget)
 
     save_data('figures/monthly_data.csv',red_data)
 

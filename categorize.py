@@ -84,72 +84,80 @@ if __name__=='__main__':
     if os.path.isfile(database):
         dblookup = True
         db=load_data(database)
+        dbnew=[row for row in db]
     else:
         with codecs.open(database,'w+','utf-8') as fp:
             fp.write(';'.join(data.dtype.names)+'\n')
 
-    with codecs.open(database,'a','utf-8') as fp:
-        for i,row in enumerate(data):
+
+    for i,row in enumerate(data):
+
+        table = texttable.Texttable(max_width=100)
+        table.set_deco(0)
+
+        hashtag = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8'))+' '+unidecode(row['Text'])+' '+'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
+        if dblookup:
+            I=np.nonzero(db.Hash==hashtag)[0]
+            if len(I)>0:
+                category = db['Kategorie'][I][0]
+                default_item = category
+                if category == "Keine" and db['Deleted'][I][0]:
+                    default_item = "Delete"
+                    category = "DELETED"
+                row = dbnew[I[0]]
+            else:
+                category = row['Kategorie']
+                default_item = categories[0][0]
+                row['Hash'] = hashtag
+                dbnew.append(row)
+        else:
+            category = row['Kategorie']
+            default_item = categories[0][0]
+            row['Hash'] = hashtag
+
+        text = unidecode(row['Text']).encode('utf-8')
+        textlines=text.splitlines()
+        if len(textlines)>maxlines:
+            text = '\n'.join(textlines[:maxlines])+'...'
+
+        table.add_row([row['Datum'].strftime('%a, %d, %B %Y').decode('utf-8').encode('utf-8'), text, 'CHF {0:.0f}'.format(row['Lastschrift']), category.encode('utf-8')])
+
+        text = "Choose category\n\nEntry number {0:d}\n\n".format(i+1)
+
+        print text
+        print default_item
+
+        text2 = table.draw()
+
+        code, tag = d.menu(text+text2,height=30,width=109,menu_height=10,choices=choices,default_item=default_item)
+
+        if code==d.CANCEL:
+            break
+
+        if tag=='Edit':
+            code, row['Text'] = d.inputbox(text='Enter new text',init=unidecode(row['Text']))
+            code, val_str     = d.inputbox(text='Enter new amount ',init=str(row['Lastschrift']))
+            row['Lastschrift']= float(val_str)
 
             table = texttable.Texttable(max_width=100)
             table.set_deco(0)
 
-            hashtag = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8'))+' '+unidecode(row['Text'])+' '+'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
-            if dblookup:
-                I=np.nonzero(db.Hash==hashtag)[0]
-                if len(I)>0:
-                    category = db['Kategorie'][I][0]
-                    default_item = category
-                    if category == "Keine" and db['Deleted'][I][0]:
-                        default_item = "Delete"
-                        category = "DELETED"
-
-
-            else:
-                row['Hash'] = hashtag
-
-                category = row['Kategorie']
-                default_item = categories[0][0]
-
-            text = unidecode(row['Text']).encode('utf-8')
+            text = row['Text'].decode('utf-8').encode('utf-8')
             textlines=text.splitlines()
             if len(textlines)>maxlines:
                 text = '\n'.join(textlines[:maxlines])+'...'
 
             table.add_row([row['Datum'].strftime('%a, %d, %B %Y').decode('utf-8').encode('utf-8'), text, 'CHF {0:.0f}'.format(row['Lastschrift']), category.encode('utf-8')])
+            code, tag = d.menu(text+table.draw(),height=30,width=108,menu_height=10,choices=choices,cr_wrap=True)
 
-            text = "Choose category\n\nEntry number {0:d}\n\n".format(i+1)
+        elif tag=='Delete':
+            row['Deleted']=True
 
-            print text
-            print default_item
+        else:
+            row['Kategorie']=tag
 
-            text2 = table.draw()
-
-            code, tag = d.menu(text+text2,height=30,width=109,menu_height=10,choices=choices,default_item=default_item)
-
-            if code==d.CANCEL:
-                break
-
-            if tag=='Edit':
-                code, row['Text'] = d.inputbox(text='Enter new text',init=unidecode(row['Text']))
-                code, val_str     = d.inputbox(text='Enter new amount ',init=str(row['Lastschrift']))
-                row['Lastschrift']= float(val_str)
-
-                table = texttable.Texttable(max_width=100)
-                table.set_deco(0)
-
-                text = row['Text'].decode('utf-8').encode('utf-8')
-                textlines=text.splitlines()
-                if len(textlines)>maxlines:
-                    text = '\n'.join(textlines[:maxlines])+'...'
-
-                table.add_row([row['Datum'].strftime('%a, %d, %B %Y').decode('utf-8').encode('utf-8'), text, 'CHF {0:.0f}'.format(row['Lastschrift']), category.encode('utf-8')])
-                code, tag = d.menu(text+table.draw(),height=30,width=108,menu_height=10,choices=choices,cr_wrap=True)
-
-            elif tag=='Delete':
-                row['Deleted']=True
-
-            else:
-                row['Kategorie']=tag
-
-            save_data_row(fp,row,data.dtype)
+        if not dblookup:
+            with codecs.open(database,'a','utf-8') as fp:
+                save_data_row(fp,row,data.dtype)
+        else:
+            save_data(database,dbnew)

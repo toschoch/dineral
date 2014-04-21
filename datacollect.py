@@ -153,7 +153,10 @@ def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):
             files2load.append(fname)
 
     prog=0
-    dprog=100./len(files2load)
+    if len(files2load)>0:
+        dprog=100./len(files2load)
+    else:
+        dprog=0
 
     for fname in files2load:
         newrows = load_PostFinanceExtract(fname)
@@ -204,7 +207,11 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
                 files2load.append(fname)
 
     prog=0
-    dprog=100./len(files2load)
+    if len(files2load)>0:
+        dprog=100./len(files2load)
+    else:
+        dprog=0
+
     for fname in files2load:
 
         newrows = load_MasterCardExtract(fname)

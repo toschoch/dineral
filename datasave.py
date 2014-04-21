@@ -14,10 +14,10 @@ def save_data(filename,data,delimiter=';'):
     with codecs.open(filename,'w+','utf-8') as fp:
 
         # write header
-        fp.write(delimiter.join(data.dtype.names)+'\n')
+        fp.write(delimiter.join(data[0].dtype.names)+'\n')
 
         for row in data:
-            save_data_row(fp,row,data.dtype,delimiter)
+            save_data_row(fp,row,row.dtype,delimiter)
 
 
 def save_data_row(fp,row,dtype,delimiter=';'):

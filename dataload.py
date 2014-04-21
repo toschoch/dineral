@@ -355,7 +355,7 @@ def load_PostFinancePaymentConfirmation(filename):
 
                     # while no new entry started
                     dataentry=[None,[],None]
-                    dataentry[2]=float(line.split()[-1])
+                    dataentry[2]=float(line[col_index[6]:].replace(' ',''))
                     dataentry[0]=data
                     firstline = False
                     line = it.next()
