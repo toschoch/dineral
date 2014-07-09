@@ -146,6 +146,7 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
             table.append([row['Kategorie'],"{0:d}".format(int(eff)),"{0:d}".format(int(bud_prop)),
                           "{0:d}".format(int(row['Differenz'])),"{0:.0%}".format(row['RelativeDifferenz']),
                           "{0:.0%}".format(row['TeilVomJahresbudget'])])
+        #table.append(['TOTAL:',"{0:.0f}".format(sum(budget['Summe'])),"{0:0.f}".format(sum(budget['BudgetPeriode'])),"-","-","-"])
         columns = ['Kategorie','Total','Budget','Differenz','Abweichung','% Jahresbudget']
         # colwidths = [.25,0.2,0.2,0.2,0.2,0.2]
         plt.table(cellText=table,colLabels=columns,loc="lower center",cellLoc='center')#,colWidths=colwidths)

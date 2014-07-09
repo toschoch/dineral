@@ -92,12 +92,13 @@ def load_VisaCardTransaction(filename):
 
     return rec
 
-def load_MasterCardExtract(filename):
+def load_MasterCardExtract(filename,resolution):
     """ loads data from a pdf file and parses the information respect to the format description
 
         Parameters
         ----------
         filename:           (str) path to file to be loaded
+        resolution:         (int) resolution dpi for converting the pdf to png
 
         Returns
         -------
@@ -105,7 +106,7 @@ def load_MasterCardExtract(filename):
 
     """
     # parse pdf to text
-    os.system('./SecuredPDF2txt.sh '+filename.encode('utf-8'))
+    os.system('./SecuredPDF2txt.sh '+filename.encode('utf-8')+' '+str(resolution))
     filename=filename.replace('.pdf','.txt')
 
     column_headers=['Datum','Text','Belastungen','Gutschriften','Datum']

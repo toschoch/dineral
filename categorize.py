@@ -54,14 +54,23 @@ if __name__=='__main__':
 
     d.gauge_start("load data from PostFinance extracts... \nPlease wait one moment!",cr_wrap=True)
     callback=lambda x:d.gauge_update(int(x))
-    dlist+=(load_PostFinanceData(start,stop,callback=callback),)
+    try:
+        dlist+=(load_PostFinanceData(start,stop,callback=callback),)
+    except Exception as err:
+        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
     d.gauge_stop()
 
     d.gauge_start("load data from MasterCard extracts... \nPlease wait one moment!",cr_wrap=True)
-    dlist+=(load_MasterCardData(start,stop,callback=callback),)
+    try:
+        dlist+=(load_MasterCardData(start,stop,callback=callback),)
+    except Exception as err:
+        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err))+"\nMaybe you should try to increase the resolution for the ocr step...")
     d.gauge_stop()
 
-    dlist+=(load_VisaCardTransactionData(start,stop),)
+    try:
+        dlist+=(load_VisaCardTransactionData(start,stop),)
+    except Exception as err:
+        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
 
     # join table
     data = recfun.stack_arrays(dlist, autoconvert=True)
