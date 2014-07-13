@@ -58,7 +58,7 @@ def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
         budget = rec_join('Kategorie',Sum,budget)
 
 
-        budget = rec_append_fields(budget,'GutSchlecht',np.logical_or((budget.Summe-budget.BudgetPeriode)>=0,np.allclose(budget.Summe,budget.BudgetPeriode,atol=0.5)))
+        budget = rec_append_fields(budget,'GutSchlecht',np.logical_or((budget.Summe-budget.BudgetPeriode)>=0,np.isclose(budget.Summe,budget.BudgetPeriode,atol=0.1)))
         budget = rec_append_fields(budget,'RelativeDifferenz',(budget.Summe-budget.BudgetPeriode)/budget.BudgetPeriode)
         budget = rec_append_fields(budget,'Differenz',(budget.Summe-budget.BudgetPeriode)*np.sign(budget['Jahresbudget']))
         budget = rec_append_fields(budget,'TeilVomJahresbudget',budget.Summe/budget.Jahresbudget)

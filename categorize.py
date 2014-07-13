@@ -30,6 +30,10 @@ if __name__=='__main__':
     code, dates=d.calendar('choose end date of evaluation',year=now.year,month=now.month,day=now.day)
     stop = datetime(year=dates[2],month=dates[1],day=dates[0])
 
+    # ask for data sources
+    code, tags = d.checklist('choose data sources',choices=[("Phone","Mobile phone Expenses App",1),("Extracts","PostFinance monthly extract",1),
+                                               ("MasterCard","PostFinance MasterCard credit card extract",1),("Visa","Visa credit card extract",1)])
+
 
     # load categories
     categories = load_budget(start,stop)
@@ -38,39 +42,46 @@ if __name__=='__main__':
 
     choices= cats+[('Delete','Delete current entry'),('Edit','Edit text of current entry')]
 
-    # add load expenses from phone
-    success=False
-    d.msgbox("load data from phone.\nPlease export data in the Expenses App now...",cr_wrap=True)
-    while not success:
-        try:
-            d.msgbox("load data from phone \nPlease connect phone to usb and switch on USB debbuging...",cr_wrap=True)
-            dlist=(load_Expenses_from_phone(start,stop),)
-            success = True
-        except ADBException as err:
-            d.msgbox("No connection to phone: ({0:d}) {1:s}".format(err.exitcode,err.strerror))
+    dlist = []
+    for tag in tags:
 
-    # ask user to update his data
-    d.msgbox("load data from files on this computer \nPlease download newest documents from e-finance servers...",cr_wrap=True)
+        if tag == "Phone":
+            # add load expenses from phone
+            success=False
+            d.msgbox("load data from phone.\nPlease export data in the Expenses App now...",cr_wrap=True)
+            while not success:
+                try:
+                    d.msgbox("load data from phone \nPlease connect phone to usb and switch on USB debbuging...",cr_wrap=True)
+                    dlist.append(load_Expenses_from_phone(start,stop))
+                    success = True
+                except ADBException as err:
+                    d.msgbox("No connection to phone: ({0:d}) {1:s}".format(err.exitcode,err.strerror))
 
-    d.gauge_start("load data from PostFinance extracts... \nPlease wait one moment!",cr_wrap=True)
-    callback=lambda x:d.gauge_update(int(x))
-    try:
-        dlist+=(load_PostFinanceData(start,stop,callback=callback),)
-    except Exception as err:
-        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
-    d.gauge_stop()
+        elif tag == "Extracts":
+            # ask user to update his data
+            d.msgbox("load data from files on this computer \nPlease download newest documents from e-finance servers...",cr_wrap=True)
 
-    d.gauge_start("load data from MasterCard extracts... \nPlease wait one moment!",cr_wrap=True)
-    try:
-        dlist+=(load_MasterCardData(start,stop,callback=callback),)
-    except Exception as err:
-        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err))+"\nMaybe you should try to increase the resolution for the ocr step...")
-    d.gauge_stop()
+            d.gauge_start("load data from PostFinance extracts... \nPlease wait one moment!",cr_wrap=True)
+            callback=lambda x:d.gauge_update(int(x))
+            try:
+                dlist.append(load_PostFinanceData(start,stop,callback=callback))
+            except Exception as err:
+                d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
+            d.gauge_stop()
 
-    try:
-        dlist+=(load_VisaCardTransactionData(start,stop),)
-    except Exception as err:
-        d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
+        elif tag == "MasterCard":
+            d.gauge_start("load data from MasterCard extracts... \nPlease wait one moment!",cr_wrap=True)
+            try:
+                dlist.append(load_MasterCardData(start,stop,callback=callback))
+            except Exception as err:
+                d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err))+"\nMaybe you should try to increase the resolution for the ocr step...")
+            d.gauge_stop()
+
+        elif tag == "Visa":
+            try:
+                dlist.append(load_VisaCardTransactionData(start,stop))
+            except Exception as err:
+                d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
 
     # join table
     data = recfun.stack_arrays(dlist, autoconvert=True)
