@@ -125,20 +125,23 @@ if __name__=='__main__':
                     default_item = "Delete"
                     category = "DELETED"
                 row = dbnew[I[0]]
-            else:
+
+            else: # no entry in db
                 category = row['Kategorie']
                 default_item = categories[0][0]
                 row['Hash'] = hashtag
                 dbnew.append(row)
-        else:
+
+        else: # no db
             category = row['Kategorie']
             default_item = categories[0][0]
             row['Hash'] = hashtag
 
-        if len(category)==0:
-            category="Keine"
+        if category == "":
+            category = " "
+            default_item = categories[0][0]
 
-        text = unidecode(row['Text']).encode('utf-8')
+        text = row['Text'].encode('utf-8')
         textlines=text.splitlines()
         if len(textlines)>maxlines:
             text = '\n'.join(textlines[:maxlines])+'...'
@@ -178,6 +181,6 @@ if __name__=='__main__':
 
         if not dblookup:
             with codecs.open(database,'a','utf-8') as fp:
-                save_data_row(fp,row,data.dtype)
+                save_data_row(fp,row,db.dtype)
         else:
             save_data(database,dbnew)

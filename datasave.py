@@ -17,7 +17,7 @@ def save_data(filename,data,delimiter=';'):
         fp.write(delimiter.join(data[0].dtype.names)+'\n')
 
         for row in data:
-            save_data_row(fp,row,row.dtype,delimiter)
+            save_data_row(fp,row,data[0].dtype,delimiter)
 
 
 def save_data_row(fp,row,dtype,delimiter=';'):
