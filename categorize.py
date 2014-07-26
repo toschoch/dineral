@@ -135,6 +135,9 @@ if __name__=='__main__':
             default_item = categories[0][0]
             row['Hash'] = hashtag
 
+        if len(category)==0:
+            category="Keine"
+
         text = unidecode(row['Text']).encode('utf-8')
         textlines=text.splitlines()
         if len(textlines)>maxlines:
@@ -143,9 +146,6 @@ if __name__=='__main__':
         table.add_row([row['Datum'].strftime('%a, %d, %B %Y').decode('utf-8').encode('utf-8'), text, 'CHF {0:.0f}'.format(row['Lastschrift']), category.encode('utf-8')])
 
         text = "Choose category\n\nEntry number {0:d}\n\n".format(i+1)
-
-        print text
-        print default_item
 
         text2 = table.draw()
 
