@@ -1,4 +1,6 @@
 # -- coding: utf-8 --
+import pickle
+
 __author__ = 'tobi'
 
 import re
@@ -14,6 +16,7 @@ from dialog import Dialog
 from unidecode import unidecode
 
 database = 'data/categorized.csv'
+clf_file = 'data/classifier.pickle'
 maxlines=10
 
 if __name__=='__main__':
@@ -109,6 +112,12 @@ if __name__=='__main__':
         with codecs.open(database,'w+','utf-8') as fp:
             fp.write(';'.join(data.dtype.names)+'\n')
 
+    clf_available = False
+    if os.path.isfile(clf_file):
+        clf_available = True
+        with open(clf_file,'rb') as fp:
+            clf = pickle.load(fp)
+
 
     for i,row in enumerate(data):
 
@@ -128,7 +137,11 @@ if __name__=='__main__':
 
             else: # no entry in db
                 category = row['Kategorie']
-                default_item = categories[0][0]
+                # use classifier to get a guess
+                if clf_available:
+                    default_item = clf.classes_names[clf.predict(row['Text'])[0]]
+                else:
+                    default_item = categories[0][0]
                 row['Hash'] = hashtag
                 dbnew.append(row)
 
