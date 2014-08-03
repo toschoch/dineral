@@ -33,24 +33,24 @@ def main():
     log.info("database loaded")
 
     categories = list(set(data.Kategorie.tolist()))
-    counter = Counter(data.Kategorie.tolist())
-    print counter
     log.info("found categories: %s",categories)
     target = np.array([categories.index(cat) for cat in data.Kategorie.tolist()])
     log.info("assinged target index")
 
-    data_train, data_test, target_train, target_test = cross_validation.train_test_split(data.Text, target, test_size=0.2)
+    data_train, data_test, target_train, target_test = cross_validation.train_test_split(data.Text, target, test_size=0.1)
     log.info("split data into training- and testset")
 
     text_clf = Pipeline([('vect',CountVectorizer()),
                          ('tfidf',TfidfTransformer()),
                          ('clf', SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, n_iter=5))])
 
-    parameters = {'vect__ngram_range': [(1, 1), (1, 2),(1,3)],
-                  'tfidf__use_idf': (True, False),
+    parameters = {'vect__ngram_range': [(1,3),(1,4),(1,5)],
+                  'vect__analyzer':['char_wb'],
+                  'vect__lowercase': [True],
+                  'tfidf__use_idf': [True],
                   'clf__alpha': np.linspace(1e-2,1e-4,10)}
 
-    gs_clf = GridSearchCV(text_clf,parameters)
+    gs_clf = GridSearchCV(text_clf,parameters,cv=10,verbose=3)
     gs_clf.fit(data_train,target_train)
     log.info("classifier trained")
 

@@ -290,7 +290,7 @@ def load_PostFinanceExtract(filename):
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[u'Keine'+u' '*20]*len(rec),[u'Keine'+u' '*20]*len(rec)])
 
     return rec
 

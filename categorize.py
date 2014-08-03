@@ -139,7 +139,7 @@ if __name__=='__main__':
                 category = row['Kategorie']
                 # use classifier to get a guess
                 if clf_available:
-                    default_item = clf.classes_names[clf.predict(row['Text'])[0]]
+                    default_item = clf.classes_names[clf.predict([row['Text']])[0]]
                 else:
                     default_item = categories[0][0]
                 row['Hash'] = hashtag
