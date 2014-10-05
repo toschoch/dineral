@@ -214,13 +214,17 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
 
     for fname in files2load:
 
-        try:
-            newrows = load_MasterCardExtract(fname,200) # try with 200dpi
-        except Exception:
+        exceptions = []
+        succeeded = False
+        for resolution in [200,250,300,320]:
             try:
-                newrows = load_MasterCardExtract(fname,250) # try with 250 dpi
-            except Exception:
-                newrows = load_MasterCardExtract(fname,300) # try a last time with 300 dpi
+                newrows = load_MasterCardExtract(fname,resolution) # try with resolution
+                succeeded = True
+            except Exception as err:
+                exceptions.append(err)
+
+        if not succeeded:
+            raise exceptions[-1]
 
         new.append(newrows)
         prog+=dprog

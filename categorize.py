@@ -46,6 +46,7 @@ if __name__=='__main__':
     choices= cats+[('Delete','Delete current entry'),('Edit','Edit text of current entry')]
 
     dlist = []
+    callback=lambda x:d.gauge_update(int(x))
     for tag in tags:
 
         if tag == "Phone":
@@ -65,7 +66,6 @@ if __name__=='__main__':
             d.msgbox("load data from files on this computer \nPlease download newest documents from e-finance servers...",cr_wrap=True)
 
             d.gauge_start("load data from PostFinance extracts... \nPlease wait one moment!",cr_wrap=True)
-            callback=lambda x:d.gauge_update(int(x))
             try:
                 dlist.append(load_PostFinanceData(start,stop,callback=callback))
             except Exception as err:
@@ -85,6 +85,10 @@ if __name__=='__main__':
                 dlist.append(load_VisaCardTransactionData(start,stop))
             except Exception as err:
                 d.msgbox("Error occurred: {0:s}\n{1:s}".format(str(type(err)),str(err)))
+
+    if len(dlist)==0:
+        d.msgbox("No data loaded to categorize... \nquit program!")
+        exit(0)
 
     # join table
     data = recfun.stack_arrays(dlist, autoconvert=True)

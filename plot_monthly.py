@@ -34,3 +34,5 @@ if __name__ == '__main__':
     save_data('figures/total_data.csv',budget)
 
     create_report(start,red_data,budget,stop=now)
+
+    plt.close()
