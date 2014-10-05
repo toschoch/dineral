@@ -17,6 +17,7 @@ mastercard_path=ur'/home/tobi/Finance/e-Rechnungen/Mastercard'
 visa_path=ur'/home/tobi/Finance/e-Rechnungen/Visa/transaction'
 budget_path=ur'/home/tobi/Finance/Budget'
 path_on_phone=ur'/mnt/sdcard/expenses'
+dropbox_path = ur'/media/Media/Dropbox/expenses'
 
 def load_VisaCardTransactionData(start,stop):
     """ load transaction data from visa card
@@ -38,6 +39,21 @@ class ADBException(EnvironmentError):
         self.exitcode,self.strout,self.strerror=exitcode,strout,strerr
     def __str__(self):
         return "error in adb command occured, exitcode {0:d}, output: {1:s}, errors: {2:s}".format(self.exitcode,self.strout,self.strerror)
+
+
+def load_Expenses_from_Dropbox(start,stop):
+    """ load data from expenses app through dropbox """
+
+    datafilename='export.csv'
+
+    datafilename = os.path.join(dropbox_path,datafilename)
+
+    data=load_Expenses(datafilename)
+
+    I = np.logical_and(data.Datum>=start,data.Datum<=stop)
+    data=data[I]
+
+    return data
 
 def load_Expenses_from_phone(start,stop):
     """ load data from phone through adb """

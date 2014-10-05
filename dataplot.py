@@ -57,8 +57,22 @@ def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
 
         budget = rec_join('Kategorie',Sum,budget)
 
+        goodbad = np.logical_or((budget.Summe-budget.BudgetPeriode>=0),np.isclose(budget.Summe,budget.BudgetPeriode,rtol=0.01)).astype('int')
+        for i,category in enumerate(budget.Kategorie):
 
-        budget = rec_append_fields(budget,'GutSchlecht',np.logical_or((budget.Summe-budget.BudgetPeriode)>=0,np.isclose(budget.Summe,budget.BudgetPeriode,atol=0.1)))
+
+            if category in ['Lohn','Schulden','Vorsorge','Sparen','Steuern','Transport']:
+
+                a,b = abs(budget.Summe[i]),abs(budget.BudgetPeriode[i])
+                if a>=b and not np.isclose(a,b,rtol=0.01):
+                    goodbad[i] = 2
+
+            elif category in ['Steuern','Transport']:
+                a,b = abs(budget.Summe[i]),abs(budget.Jahresbudget[i])
+                if a>=b and not np.isclose(a,b,rtol=0.01):
+                    goodbad[i] = 0
+
+        budget = rec_append_fields(budget,'GutSchlecht',goodbad)
         budget = rec_append_fields(budget,'RelativeDifferenz',(budget.Summe-budget.BudgetPeriode)/budget.BudgetPeriode)
         budget = rec_append_fields(budget,'Differenz',(budget.Summe-budget.BudgetPeriode)*np.sign(budget['Jahresbudget']))
         budget = rec_append_fields(budget,'TeilVomJahresbudget',budget.Summe/budget.Jahresbudget)
@@ -180,8 +194,10 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
         cells = table.get_celld()
 
         headercolor = "grey" #"#d3d7cf"
-        goodcolor = "yellow"#"#FDFD96"
+        neutralcolor = "yellow"
+        goodcolor = "green"#"#FDFD96"
         badcolor = "red"#"#d75040"
+
         for i in range(len(columns)):
             cell = cells[0,i]
             cell.set_facecolor(headercolor)
@@ -192,7 +208,10 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
 
         for j in range(1,len(budget)+1):
 
-            if budget['GutSchlecht'][j-1]:
+            goodbad = budget['GutSchlecht'][j-1]
+            if goodbad==1:
+                color = neutralcolor
+            elif goodbad==2:
                 color = goodcolor
             else:
                 color = badcolor
@@ -212,9 +231,12 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
             if i%2==0:
                 cell.set_facecolor(headercolor)
             else:
-                cell.set_facecolor(goodcolor)
-            if i==len(columns)-1 and bilanz<0:
-                cell.set_facecolor(badcolor)
+                cell.set_facecolor(neutralcolor)
+            if i==len(columns)-1:
+                if bilanz<0:
+                    cell.set_facecolor(badcolor)
+                else:
+                    cell.set_facecolor(goodcolor)
 
             cell.set_alpha(0.4)
             cell.set_lw(0.3)

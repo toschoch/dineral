@@ -74,21 +74,24 @@ def load_VisaCardTransaction(filename):
 
     data=np.rec.fromrecords(data,names=header)
     conv1 = lambda x: datetime.strptime(x,'%d.%m.%Y')
-    conv2 = lambda x: float(x)
+    conv2 = lambda x: 0. if x=='' else float(x)
     conv3 = lambda x: x.replace('\r\n','\n')
     cdata=[]
     for i,c in enumerate(header):
         if i==0:
             cdata.append(map(conv1,data[c]))
-        elif i==len(header)-2:
+        elif i>=len(header)-2:
             cdata.append(map(conv2,data[c]))
         else:
             cdata.append(map(conv3,data[c]))
 
     rec = np.rec.fromarrays(cdata,names=('Datum', 'Text', 'Sektor', 'Rechnung', 'Lastschrift', 'Gutschrift'))
+    rec['Lastschrift']-=rec['Gutschrift']
     rec = rec_drop_fields(rec,['Sektor','Rechnung','Gutschrift'])
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[u'Keine']*len(rec),[u'Keine']*len(rec)])
+
+
 
     return rec
 

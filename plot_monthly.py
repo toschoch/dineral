@@ -1,16 +1,15 @@
 # -- coding: utf-8 --
-from datetime import datetime, date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import texttable
-from unidecode import unidecode
 from datacollect import load_budget
-from dataplot import calculate_statistics, plot_category, create_report
+from dataplot import calculate_statistics,  create_report
 from datasave import load_data, save_data
-from utils import firstOf,lastOf
+from utils import lastOf
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.mlab import rec_append_fields,rec_join
+import os
+
+from datacollect import dropbox_path
 
 __author__ = 'tobi'
 
@@ -33,6 +32,6 @@ if __name__ == '__main__':
 
     save_data('figures/total_data.csv',budget)
 
-    create_report(start,red_data,budget,stop=now)
+    create_report(start,red_data,budget,stop=now,output=os.path.join(os.path.join('/media/Media/Dropbox/finance'),'report.pdf'))
 
     plt.close()

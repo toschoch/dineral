@@ -25,7 +25,7 @@ if __name__=='__main__':
     # ask for period of interest
     start = datetime(year=2014,month=7,day=1)
 
-    stop = datetime(year=2014,month=7,day=31)
+    stop = datetime(year=2014,month=9,day=30)
 
     dlist =[]
-    dlist.append(load_MasterCardData(start,stop))
+    dlist.append(load_VisaCardTransactionData(start,stop))
