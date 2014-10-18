@@ -6,7 +6,7 @@ __author__ = 'tobi'
 import re
 from dataload import *
 from datacollect import *
-from matplotlib.mlab import rec_append_fields
+from matplotlib.mlab import rec_append_fields,rec2txt
 from datasave import save_data, save_data_row, load_data
 import numpy as np
 import numpy.lib.recfunctions as recfun
@@ -27,5 +27,7 @@ if __name__=='__main__':
 
     stop = datetime(year=2014,month=9,day=30)
 
-    dlist =[]
-    dlist.append(load_VisaCardTransactionData(start,stop))
+    db = load_data(database)
+    print np.where(db['Kategorie']=='Gesch')
+    print np.unique(db['Kategorie'])
+    print len(db)

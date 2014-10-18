@@ -9,6 +9,8 @@ from io import StringIO
 import codecs
 from matplotlib.mlab import rec_append_fields,rec_drop_fields
 
+NOCATEGORY = u'Keine'+u' '*20
+
 __author__ = 'tobi'
 
 def load_Expenses(filename):
@@ -89,7 +91,7 @@ def load_VisaCardTransaction(filename):
     rec['Lastschrift']-=rec['Gutschrift']
     rec = rec_drop_fields(rec,['Sektor','Rechnung','Gutschrift'])
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[u'Keine']*len(rec),[u'Keine']*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
 
 
 
@@ -186,7 +188,7 @@ def load_MasterCardExtract(filename,resolution):
     headers=['Datum','Text','Lastschrift']
     rec=np.rec.fromrecords(table,names=headers)
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
 
     return rec
 
@@ -293,7 +295,7 @@ def load_PostFinanceExtract(filename):
 
     rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[u'Keine'+u' '*20]*len(rec),[u'Keine'+u' '*20]*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
 
     return rec
 
@@ -380,6 +382,6 @@ def load_PostFinancePaymentConfirmation(filename):
 
     rec = np.rec.fromrecords(table,names=['Datum','Text','Lastschrift'])
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[['Keine']*len(rec),['Keine']*len(rec)])
+    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
 
     return rec

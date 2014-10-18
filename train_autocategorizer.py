@@ -23,7 +23,8 @@ __copyright__ = 'Copyright tobi, 2014'
 
 """ """
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
+logging.basicConfig()
 
 def main():
 
@@ -32,6 +33,7 @@ def main():
     data.Kategorie[data.Deleted]='DELETED'
     log.info("database loaded")
 
+    data.Kategorie[data.Deleted]="DELETED"
     categories = list(set(data.Kategorie.tolist()))
     log.info("found categories: %s",categories)
     target = np.array([categories.index(cat) for cat in data.Kategorie.tolist()])
