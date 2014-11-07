@@ -2,6 +2,7 @@
 from utf8csv import unicode_csv_reader
 import numpy as np
 from datetime import datetime
+from dateutil.parser import parse
 import csv
 import os
 import subprocess
@@ -27,7 +28,7 @@ def load_Expenses(filename):
     """
 
     convert={
-        'Date':lambda x: datetime.strptime(x,'%d.%m.%Y'),
+        'Date':lambda x: parse(x),
         'Amount': lambda x: -float(x.rstrip(' CHF').replace('.','').replace(',','.')),
         'Note': lambda x: x.strip("'")}
 

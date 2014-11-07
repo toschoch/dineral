@@ -5,6 +5,7 @@ __author__ = 'tobi'
 
 import re
 from dataload import *
+import datetime
 from datacollect import *
 from matplotlib.mlab import rec_append_fields
 from datasave import save_data, save_data_row, load_data
@@ -61,12 +62,8 @@ if __name__=='__main__':
             #     except ADBException as err:
             #         d.msgbox("No connection to phone: ({0:d}) {1:s}".format(err.exitcode,err.strerror))
             d.msgbox("load data from phone.\nPlease export data in the Expenses App now and wait a few seconds for Dropbox to sync...",cr_wrap=True)
-            while not success:
-                try:
-                    dlist.append(load_Expenses_from_Dropbox(start,stop))
-                    success = True
-                except Exception as err:
-                    d.msgbox("Error occurred: ({0:d}) {1:s}".format(err.exitcode,err.strerror))
+            dlist.append(load_Expenses_from_Dropbox(start,stop))
+            success = True
 
         elif tag == "Extracts":
             # ask user to update his data
