@@ -1,5 +1,6 @@
 # -- coding: utf-8 --
 from datetime import datetime
+import seaborn as sns
 from dateutil import rrule
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.dates import DayLocator, DateFormatter
@@ -61,7 +62,7 @@ def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
         for i,category in enumerate(budget.Kategorie):
 
 
-            if category in ['Lohn','Schulden','Vorsorge','Sparen','Steuern','Transport']:
+            if category in ['Lohn','Schulden','Vorsorge','Sparen','Steuern']:
 
                 a,b = abs(budget.Summe[i]),abs(budget.BudgetPeriode[i])
                 if a>=b and not np.isclose(a,b,rtol=0.01):
@@ -93,10 +94,11 @@ def plot_category(category,data,budget=None):
 
 
     fh = plt.figure()
+
     avg = np.nanmean(category_data.Total)
     if budget is not None:
         bud = float(budget['Jahresbudget'][budget.Kategorie==category][0])/12.
-    fp = FontProperties(size='medium')
+    fp = FontProperties(size=10)
 
     # Ausgaben
     if budget['Jahresbudget'][budget.Kategorie==category] < 0:
@@ -108,7 +110,7 @@ def plot_category(category,data,budget=None):
 
         pavg, =plt.plot(category_data.Datum,np.repeat(avg,len(category_data)),color='r',alpha=0.4,linewidth=2,linestyle='--')
 
-        plt.title('Ausgaben '+category)
+        plt.title('Ausgaben '+category,size=12)
         if budget is not None:
 
             pbud, =plt.plot(category_data.Datum,np.repeat(-bud,len(category_data)),color='g',alpha=0.4,linewidth=2,linestyle='--')
@@ -119,7 +121,7 @@ def plot_category(category,data,budget=None):
     # Einkommen
     else:
 
-        linecolor='#95D444'
+        linecolor=sns.xkcd_rgb['medium green']
 
         plt.plot(category_data.Datum,-category_data.Total,linewidth=2,color=linecolor,marker='o')
 
@@ -127,7 +129,7 @@ def plot_category(category,data,budget=None):
 
         pavg, =plt.plot(category_data.Datum,-np.repeat(avg,len(category_data)),color='r',alpha=0.4,linewidth=2,linestyle='--')
 
-        plt.title('Einkommen '+category)
+        plt.title('Einkommen '+category,size=12)
 
         if budget is not None:
 
@@ -136,14 +138,16 @@ def plot_category(category,data,budget=None):
         else:
             plt.legend([pavg],['Durchschnitt {0:.0f} CHF'.format(-avg)],prop=fp)
 
-    plt.grid()
+    # plt.grid()
     fmt = DateFormatter('%b/%Y')
     loc = DayLocator(bymonthday=1)
     ax = plt.gca()
     ax.xaxis.set_major_locator(loc)
     ax.xaxis.set_major_formatter(fmt)
+    ax.tick_params(axis='both', which='major', labelsize=10)
+
     plt.xticks(rotation=20)
-    plt.ylabel('Total Monat [CHF]')
+    plt.ylabel('Total Monat [CHF]',size=10)
 
     ylim = plt.ylim()
     if ylim[0] < 0:
@@ -162,15 +166,16 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
         # summarize
         plt.figure()
         ax = plt.gca()
+        clr = ax.patch.get_facecolor()
         ax.set_frame_on(False)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
         plt.xlim((0,1))
         plt.ylim((0,1))
-        text = u"Report MyFinance\n\n"
-        text+= start.strftime('%d. %B %Y').decode('utf-8')
-        text+= " bis "
-        text+= stop.strftime(u'%d. %B %Y').decode('utf-8')
+        text = u"Report MyFinance"
+        text2= start.strftime('%d. %B %Y').decode('utf-8')
+        text2+= " bis "
+        text2+= stop.strftime(u'%d. %B %Y').decode('utf-8')
         dtable = []
         columns = ['Kategorie','Total\n(in Periode)','Budget\n(in Periode)','Differenz\n(bez. Budget)','Abweichung\n(relativ)','% Jahresbudget']
         for row in budget:
@@ -188,15 +193,16 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
         dtable.append(["Einkommen:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']>0])),"Ausgaben:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']<=0])),"Bilanz:","{0:.0f}".format(bilanz)])
         # colwidths = [.25,0.2,0.2,0.2,0.2,0.2]
         table=plt.table(cellText=dtable,colLabels=columns,loc="lower center",cellLoc='center')#,colWidths=colwidths)
-        plt.text(0.5,0.97,text,transform=plt.gca().transAxes,horizontalalignment='center',verticalalignment="bottom")
+        plt.text(0,1.05,text,transform=plt.gca().transAxes,horizontalalignment='left',verticalalignment="bottom")
+        plt.text(0.99 ,1.05,text2,transform=plt.gca().transAxes,horizontalalignment='right',verticalalignment="bottom",size=10)
 
         ## change cell properties
         cells = table.get_celld()
 
         headercolor = "grey" #"#d3d7cf"
-        neutralcolor = "yellow"
-        goodcolor = "green"#"#FDFD96"
-        badcolor = "red"#"#d75040"
+        neutralcolor = clr
+        goodcolor = sns.xkcd_rgb['medium green']
+        badcolor = sns.xkcd_rgb['pale red']
 
         for i in range(len(columns)):
             cell = cells[0,i]
@@ -241,6 +247,22 @@ def create_report(start,data,budget,stop=datetime.today(),output='figures/report
             cell.set_alpha(0.4)
             cell.set_lw(0.3)
 
+        pdf.savefig()
+
+        # pie plot
+
+        I = (budget['Jahresbudget'] < 0)
+        plt.figure()
+        ax = plt.gca()
+        sizes = (budget['Summe'][I]/np.sum(budget['Summe'][I]))
+        I2 = sizes > 0.02
+        rest = 1.- np.sum(sizes[I2])
+        sizes = sizes[I2].tolist()
+        sizes.append(rest)
+        color = sns.color_palette("Set2",len(sizes))
+        ax.pie(sizes,explode=np.ones_like(sizes)*0.05,autopct='%1.0f%%',
+               labels=(budget['Kategorie'][I][I2]).tolist()+['Rest'],colors=color)
+        ax.axis('equal')
         pdf.savefig()
 
         # make category plots
