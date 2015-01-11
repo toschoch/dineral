@@ -25,7 +25,7 @@ if __name__ == '__main__':
     now = lastOf('month',datetime.now())-relativedelta(months=1)
 
     data = load_data(database)
-    budget = load_budget(start)
+    budget = load_budget(start,stop=now)
 
     I = np.logical_not(data.Deleted)
 

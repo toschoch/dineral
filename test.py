@@ -16,7 +16,7 @@ __author__ = 'tobi'
 
 if __name__ == '__main__':
 
-    data = load_PostFinancePaymentConfirmation(r"/home/tobi/Finance/Konto Dokumente/Kontos Post/Zahlungsbestätigungen/2013-06-28.pdf")
+    data = load_Expenses(r"/media/Media/Dropbox/expenses/export.csv")
 
     print data
 

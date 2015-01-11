@@ -52,7 +52,8 @@ def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
         Sum = np.rec.fromrecords(Sum,names=['Kategorie','Summe'])
 
          # append procentual budget
-        b = budget.Jahresbudget*(relativedelta(datetime.today(),start).months/12.)
+        delta = relativedelta(datetime.today(),start)
+        b = budget.Jahresbudget*((delta.years*12 + delta.months)/12.)
 
         budget = np.rec.fromarrays([budget.Kategorie,budget.Jahresbudget,b],names=['Kategorie','Jahresbudget','BudgetPeriode'])
 
@@ -158,7 +159,7 @@ def plot_category(category,data,budget=None):
 
     return fh
 
-def create_report(start,data,budget,stop=datetime.today(),output='figures/report.pdf'):
+def create_report(start,data,budget,stop=datetime.now(),output='figures/report.pdf'):
     """ creates and saves a pdf report """
 
     with PdfPages(output) as pdf:
