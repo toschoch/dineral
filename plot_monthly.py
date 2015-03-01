@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from datacollect import load_budget
 from dataplot import calculate_statistics,  create_report
 from datasave import load_data, save_data
-from utils import lastOf
+from utils import lastOf, firstOf
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -19,7 +19,7 @@ __author__ = 'tobi'
 
 if __name__ == '__main__':
 
-    start = datetime(year=2014,month=1,day=1)
+    start = firstOf('year',datetime.now())
     database = 'data/categorized.csv'
 
     now = lastOf('month',datetime.now())-relativedelta(months=1)

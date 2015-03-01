@@ -9,6 +9,9 @@ from dataplot import calculate_statistics, plot_category
 from datasave import load_data
 from utils import firstOf, lastOf
 import matplotlib.pyplot as plt
+import logging
+
+logging.getLogger(__name__)
 
 __author__ = 'tobi'
 
