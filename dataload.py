@@ -162,7 +162,7 @@ def load_MasterCardExtract(filename,resolution):
 
                     text=[' '.join(line.split(' ')[1:-2])]
                     f_str = line.split(' ')[-2]
-                    amount=float(f_str)
+                    amount=float(f_str.replace("'",""))
 
                     # try to parse date
                     while True:
