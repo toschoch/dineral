@@ -24,17 +24,15 @@ __copyright__ = 'Copyright tobi, 2014'
 """ """
 
 log = logging.getLogger()
-logging.basicConfig()
 
 def main():
 
     database = 'data/categorized.csv'
     data = load_data(database)
-    data.Kategorie[data.Deleted]='DELETED'
+    data.Kategorie[data.Deleted]='Delete'
     log.info("database loaded")
 
-    data.Kategorie[data.Deleted]="DELETED"
-    categories = list(set(data.Kategorie.tolist()))
+    categories = np.unique(data.Kategorie).tolist()
     log.info("found categories: %s",categories)
     target = np.array([categories.index(cat) for cat in data.Kategorie.tolist()])
     log.info("assinged target index")
@@ -46,11 +44,11 @@ def main():
                          ('tfidf',TfidfTransformer()),
                          ('clf', SGDClassifier(loss='hinge', penalty='l2',alpha=1e-3, n_iter=5))])
 
-    parameters = {'vect__ngram_range': [(1,3),(1,4),(1,5)],
+    parameters = {'vect__ngram_range': [(2,4),(2,5),(2,6)],
                   'vect__analyzer':['char_wb'],
                   'vect__lowercase': [True],
                   'tfidf__use_idf': [True],
-                  'clf__alpha': np.linspace(1e-2,1e-4,10)}
+                  'clf__alpha': np.linspace(1e-2,1e-4,5)}
 
     gs_clf = GridSearchCV(text_clf,parameters,cv=10,verbose=3)
     gs_clf.fit(data_train,target_train)

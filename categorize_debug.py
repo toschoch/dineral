@@ -23,11 +23,8 @@ if __name__=='__main__':
 
 
     # ask for period of interest
-    start = datetime(year=2014,month=7,day=1)
+    start = datetime(year=2015,month=5,day=1)
 
-    stop = datetime(year=2014,month=9,day=30)
+    stop = datetime(year=2015,month=5,day=11)
 
-    db = load_data(database)
-    print np.where(db['Kategorie']=='Gesch')
-    print np.unique(db['Kategorie'])
-    print len(db)
+    print load_Expenses_from_Dropbox(start,stop)

@@ -28,7 +28,7 @@ def load_Expenses(filename):
     """
 
     convert={
-        'Date':lambda x: parse(x),
+        'Date':lambda x: parse(x, dayfirst=True),
         'Amount': lambda x: -float((''.join(x.split('CHF'))).replace(',','').replace(',','.')),
         'Note': lambda x: x.strip("'")}
 

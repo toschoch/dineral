@@ -138,9 +138,9 @@ if __name__=='__main__':
             if len(I)>0:
                 category = db['Kategorie'][I][0]
                 default_item = category
-                if category == "Keine" and db['Deleted'][I][0]:
+                if db['Deleted'][I][0]:
                     default_item = "Delete"
-                    category = "DELETED"
+                    category = "Delete"
                 row = dbnew[I[0]]
 
             else: # no entry in db
@@ -196,6 +196,7 @@ if __name__=='__main__':
 
         elif tag=='Delete':
             row['Deleted']=True
+            row['Kategorie']=tag
 
         else:
             row['Kategorie']=tag

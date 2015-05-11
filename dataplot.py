@@ -164,7 +164,22 @@ def create_report(start,data,budget,stop=datetime.now(),output='figures/report.p
 
     with PdfPages(output) as pdf:
 
-        # summarize
+        # title page
+        plt.figure()
+        ax = plt.gca()
+        ax.set_frame_on(False)
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+        text = u"Report MyFinance"
+        text += '\n\n'
+        text += start.strftime('%d. %B %Y').decode('utf-8')
+        text += " bis "
+        text += stop.strftime(u'%d. %B %Y').decode('utf-8')
+        plt.text(0.5,0.5,text,transform=ax.transAxes,fontweight='bold',va='center',ha='center')
+
+        pdf.savefig()
+
+        # summary table
         plt.figure()
         ax = plt.gca()
         clr = ax.patch.get_facecolor()
@@ -173,10 +188,6 @@ def create_report(start,data,budget,stop=datetime.now(),output='figures/report.p
         ax.yaxis.set_visible(False)
         plt.xlim((0,1))
         plt.ylim((0,1))
-        text = u"Report MyFinance"
-        text2= start.strftime('%d. %B %Y').decode('utf-8')
-        text2+= " bis "
-        text2+= stop.strftime(u'%d. %B %Y').decode('utf-8')
         dtable = []
         columns = ['Kategorie','Total\n(in Periode)','Budget\n(in Periode)','Differenz\n(bez. Budget)','Abweichung\n(relativ)','% Jahresbudget']
         for row in budget:
@@ -194,8 +205,8 @@ def create_report(start,data,budget,stop=datetime.now(),output='figures/report.p
         dtable.append(["Einkommen:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']>0])),"Ausgaben:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']<=0])),"Bilanz:","{0:.0f}".format(bilanz)])
         # colwidths = [.25,0.2,0.2,0.2,0.2,0.2]
         table=plt.table(cellText=dtable,colLabels=columns,loc="lower center",cellLoc='center')#,colWidths=colwidths)
-        plt.text(0,1.05,text,transform=plt.gca().transAxes,horizontalalignment='left',verticalalignment="bottom")
-        plt.text(0.99 ,1.05,text2,transform=plt.gca().transAxes,horizontalalignment='right',verticalalignment="bottom",size=10)
+        # plt.text(0,1.05,text,transform=plt.gca().transAxes,horizontalalignment='left',verticalalignment="bottom")
+        # plt.text(0.99 ,1.05,text2,transform=plt.gca().transAxes,horizontalalignment='right',verticalalignment="bottom",size=10)
 
         ## change cell properties
         cells = table.get_celld()
