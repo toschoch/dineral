@@ -1,7 +1,6 @@
 # -- coding: utf-8 --
 
 import matplotlib
-matplotlib.use("Qt4Agg")
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from datacollect import load_budget

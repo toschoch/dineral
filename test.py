@@ -19,7 +19,7 @@ __author__ = 'tobi'
 
 if __name__ == '__main__':
 
-    data = load_Expenses(r"/media/Media/Dropbox/expenses/export.csv")
+    data = load_MasterCardExtract(r'/home/tobi/Finance/e-Rechnungen/Mastercard/2015/August.pdf',300)
 
     print data
 
