@@ -19,8 +19,8 @@ __author__ = 'tobi'
 
 if __name__ == '__main__':
 
-    data = load_MasterCardExtract(r'/home/tobi/Finance/e-Rechnungen/Mastercard/2015/August.pdf',300)
+    data = load_MasterCardExtract(r'/home/tobi/Finance/e-Rechnungen/Mastercard/2015/Oktober.pdf',300)
 
-    print data
+    print data.ix[5,'Text']
 
 

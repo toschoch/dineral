@@ -1,16 +1,15 @@
 # -- coding: utf-8 --
 from utf8csv import unicode_csv_reader
-import numpy as np
 from datetime import datetime
 from dateutil.parser import parse
-import csv
 import os
 import subprocess
-from io import StringIO
 import codecs
-from matplotlib.mlab import rec_append_fields,rec_drop_fields
 
-NOCATEGORY = u'Keine'+u' '*20
+import pandas as pd
+import numpy as np
+
+NOCATEGORY = np.nan
 
 __author__ = 'tobi'
 
@@ -48,7 +47,8 @@ def load_Expenses(filename):
                 dline.append(c)
         data.append(dline)
 
-    rec = np.rec.fromrecords(data,names=['Datum','Kategorie','Unterkategorie','Lastschrift','Text'])
+    rec = pd.DataFrame(data,columns=['Datum','Kategorie','Unterkategorie','Lastschrift','Text'])
+    rec.Datum = pd.DatetimeIndex(rec.Datum).date
     return rec
 
 
@@ -88,13 +88,14 @@ def load_VisaCardTransaction(filename):
         else:
             cdata.append(map(conv3,data[c]))
 
-    rec = np.rec.fromarrays(cdata,names=('Datum', 'Text', 'Sektor', 'Rechnung', 'Lastschrift', 'Gutschrift'))
+    rec = pd.DataFrame(cdata,columns=('Datum', 'Text', 'Sektor', 'Rechnung', 'Lastschrift', 'Gutschrift'))
     rec['Lastschrift']-=rec['Gutschrift']
-    rec = rec_drop_fields(rec,['Sektor','Rechnung','Gutschrift'])
+    rec.drop(['Sektor','Rechnung','Gutschrift'],axis=1,inplace=True)
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
+    rec['Kategorie']=NOCATEGORY
+    rec['Unterkategorie']=NOCATEGORY
 
-
+    rec.Datum = pd.DatetimeIndex(rec.Datum).date
 
     return rec
 
@@ -160,7 +161,7 @@ def load_MasterCardExtract(filename,resolution):
                         line = it.next()
                         continue
 
-                    text=[' '.join(line.split(' ')[1:-2])]
+                    text=[u' '.join(line.split(' ')[1:-2])]
                     f_str = line.split(' ')[-2]
                     amount=float(f_str.replace("'",""))
 
@@ -171,7 +172,7 @@ def load_MasterCardExtract(filename,resolution):
                             d=line.split(' ')[0]
                             d=datetime.strptime(d,"%d.%m.%y")
 
-                            table.append([date,'\n'.join(text),amount])
+                            table.append([date,unicode(u'\n'.join(text)),amount])
 
                             break
 
@@ -187,9 +188,11 @@ def load_MasterCardExtract(filename,resolution):
 
     # crop and convert types
     headers=['Datum','Text','Lastschrift']
-    rec=np.rec.fromrecords(table,names=headers)
+    rec=pd.DataFrame(table,columns=headers)
+    rec.Datum = pd.DatetimeIndex(rec.Datum).date
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
+    rec['Kategorie']=NOCATEGORY
+    rec['Unterkategorie']=NOCATEGORY
 
     return rec
 
@@ -279,24 +282,23 @@ def load_PostFinanceExtract(filename):
         pass
 
     # crop and convert types
-    rec=np.rec.fromrecords(table,names=column_headers)
+    rec=pd.DataFrame(table,columns=column_headers)
     out_columns=['Datum','Text','Lastschrift']
     date = [datetime.strptime(d_str,'%d.%m.%y') for d_str in rec.Datum]
+    import numpy as np
     amount  = np.array([float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Lastschrift ])
     amount += np.array([-float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Gutschrift ])
     text = [t_str for t_str in rec.Text]
     I = amount <> 0.
-    rec = np.rec.fromarrays([date,text,amount],names=out_columns)[I]
+    rec = pd.DataFrame([date,text,amount],columns=out_columns)[I]
 
-    # remove total, Bargeldbezug, Kreditkarten
     I = (rec.Text<>'Total')
-    # I = np.logical_and(I,rec.Text.find('BARGELD')<0)
-    # I = np.logical_and(I,rec.Text.find('Bargeld')<0)
-    # I = np.logical_and(I,rec.Text.find('KREDIT')<0)
 
-    rec = np.rec.fromrecords(rec[I],dtype=rec.dtype)
+    rec = pd.DataFrame(rec[I],columns=out_columns)
+    rec.Datum = pd.DatetimeIndex(rec.Datum).date
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
+    rec['Kategorie']=NOCATEGORY
+    rec['Unterkategorie']=NOCATEGORY
 
     return rec
 
@@ -381,8 +383,11 @@ def load_PostFinancePaymentConfirmation(filename):
     except StopIteration:
         pass
 
-    rec = np.rec.fromrecords(table,names=['Datum','Text','Lastschrift'])
+    rec = pd.DataFrame(table,columns=['Datum','Text','Lastschrift'])
 
-    rec=rec_append_fields(rec,['Kategorie','Unterkategorie'],[[NOCATEGORY]*len(rec),[NOCATEGORY]*len(rec)])
+    rec.Datum = pd.DatetimeIndex(rec.Datum).date
+
+    rec['Kategorie']=NOCATEGORY
+    rec['Unterkategorie']=NOCATEGORY
 
     return rec

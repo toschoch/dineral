@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # -- coding: utf-8 --
 import pickle
 
@@ -102,10 +103,10 @@ if __name__=='__main__':
     data = data[np.logical_and(data['Datum']>=start,data['Datum']<=stop)]
 
     # add delete
-    data = rec_append_fields(data,'Deleted',[False]*len(data))
+    data = rec_append_fields(data,str('Deleted'),[False]*len(data))
 
     # add hashkey
-    data = rec_append_fields(data,'Hash',['']*len(data),dtypes=['S32'])
+    data = rec_append_fields(data,str('Hash'),['']*len(data),dtypes=['S32'])
 
     # sort table
     I = np.argsort(data['Datum'])
@@ -173,7 +174,11 @@ if __name__=='__main__':
 
         text2 = table.draw()
 
-        code, tag = d.menu(text+text2,height=30,width=109,menu_height=10,choices=choices,default_item=default_item)
+        alltext = text+text2
+        alltext = alltext.decode('utf-8')
+        alltext = alltext.encode('utf-8')
+        alltext = unidecode(alltext)
+        code, tag = d.menu(alltext,height=30,width=109,menu_height=10,choices=choices,default_item=default_item)
 
         if code==d.CANCEL:
             break
