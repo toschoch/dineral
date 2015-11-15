@@ -12,7 +12,7 @@ def lastOf(what,date):
 def firstOf(what,date):
     """ returns the first of date. e.g. what='hour' returns the first minute before date
     """
-    fields=['year','month','day','hour','minute','second','microsecond']
+    fields=['year','month','day']
     values=[1,1,1,0,0,0,0]
     i = fields.index(what)
     kwargs=dict(zip(fields[i+1:],values[i+1:]))

@@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
 import numpy as np
 import glob, os
 from dataload import *
-import numpy.lib.recfunctions as recfun
+import pandas as pd
 import fnmatch
 import locale
 from datasave import load_data
@@ -18,6 +18,20 @@ visa_path=ur'/home/tobi/Finance/e-Rechnungen/Visa/transaction'
 budget_path=ur'/home/tobi/Finance/Budget'
 path_on_phone=ur'/mnt/sdcard/expenses'
 dropbox_path = ur'/media/Media/Dropbox/expenses'
+
+database = ur'data/categorized.csv'
+
+def load_database(categories=None):
+    data = load_data(database)
+    data.Text = data.Text.str.replace('\\','\n')
+    data.Text = data.Text.str.replace('\n\n','\n')
+    data.Kategorie = pd.Categorical(data.Kategorie,categories=categories)
+    return data
+
+def save_database(data):
+    data.Text = data.Text.str.replace('\n','\\\\')
+    data.to_csv('temp.csv',sep=';',index=False)
+
 
 def load_VisaCardTransactionData(start,stop):
     """ load transaction data from visa card
@@ -116,10 +130,10 @@ def expand_EFinance(data):
 
     """
 
-    I = np.char.array(data['Text']).startswith('E-FINANCE AUFTRAG')
+    I = data['Text'].str.startswith('E-FINANCE AUFTRAG')
 
     new = []
-    for row in data[I]:
+    for i,row in data[I].iterrows():
 
         try:
             pdffile = glob.glob(os.path.join(confirmation_path, row['Datum'].strftime('%Y-%m-%d') + u'.pdf'))[0]
@@ -130,7 +144,7 @@ def expand_EFinance(data):
 
     new.append(data[np.logical_not(I)])
 
-    new = recfun.stack_arrays(new, autoconvert=True)
+    new = pd.concat(new, axis=0)
 
     return new
 
@@ -164,7 +178,7 @@ def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):
         _, name = os.path.split(fname)
         name, _ = os.path.splitext(name)
 
-        month=datetime.strptime(name, '%Y-%m')
+        month=datetime.strptime(name, '%Y-%m').date()
         if month>= start and month<=stop:
             files2load.append(fname)
 
@@ -181,7 +195,7 @@ def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):
         if callback is not None:
             callback(prog)
 
-    return recfun.stack_arrays(new, autoconvert=True)
+    return pd.concat(new,axis=0)
 
 def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
     """ load all data from mastercard extracts
@@ -214,10 +228,10 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
             name, _ = os.path.splitext(name)
 
             try:
-                month=datetime.strptime(name.encode('utf-8'), '%Y/%B')
+                month=datetime.strptime(name.encode('utf-8'), '%Y/%B').date()
             except ValueError:
                 name=name.split('/')[-1]
-                month=datetime.strptime(name.encode('utf-8'),'%Y-%m')
+                month=datetime.strptime(name.encode('utf-8'),'%Y-%m').date()
 
             if month>= start and month<=stop:
                 files2load.append(fname)
@@ -249,7 +263,7 @@ def load_MasterCardData(start,stop=datetime.now(),data=None,callback=None):
 
     locale.setlocale(locale.LC_TIME,'')
 
-    return recfun.stack_arrays(new, autoconvert=True)
+    return pd.concat(new,axis=0)
 
 def load_budget(start,stop=datetime.today()):
     """loads a budget file with categories """

@@ -290,7 +290,7 @@ def load_PostFinanceExtract(filename):
     amount += np.array([-float(f_str.replace(' ','')) if f_str<>'' else 0. for f_str in rec.Gutschrift ])
     text = [t_str for t_str in rec.Text]
     I = amount <> 0.
-    rec = pd.DataFrame([date,text,amount],columns=out_columns)[I]
+    rec = pd.DataFrame(dict(zip(out_columns,[date,text,amount])))[I]
 
     I = (rec.Text<>'Total')
 

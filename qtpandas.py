@@ -9,6 +9,7 @@ Copyright (c) 2015. All rights reserved.
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
 from PyQt5.QtWidgets import QVBoxLayout, QTableView, QWidget, QSizePolicy, QItemDelegate, QApplication, QStyleOptionComboBox, QStyle, QComboBox
 from pandas import DataFrame, Categorical
+from numpy import NaN
 
 
 class DataFrameModel(QAbstractTableModel):
@@ -49,7 +50,11 @@ class DataFrameModel(QAbstractTableModel):
         if not index.isValid():
             return QVariant()
 
-        text = unicode(self.df.ix[index.row(), index.column()])
+        value = self.df.ix[index.row(), index.column()]
+        try:
+            text = unicode(value)
+        except UnicodeDecodeError:
+            text = unicode(value.decode('utf-8'))
         return QVariant(text)
 
     def flags(self, index):
@@ -60,10 +65,6 @@ class DataFrameModel(QAbstractTableModel):
     def setData(self, index, value, role):
         row = self.df.index[index.row()]
         col = self.df.columns[index.column()]
-        try:
-            value = value.toPyObject()
-        except AttributeError:
-            pass
         self.df.set_value(row, col, value)
         return True
 
@@ -85,11 +86,12 @@ class DataFrameWidget(QWidget):
         self.dataTable = QTableView()
         self.dataTable.setModel(self.dataModel)
         self.dataTable.setSelectionBehavior(QTableView.SelectRows)
+        self.dataTable.setEditTriggers(QTableView.AllEditTriggers)
         self.dataTable.setWordWrap(True)
 
         for i,dt in enumerate(dataFrame.dtypes):
             try:
-                self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()))
+                self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()+['nan']))
             except:
                 pass
 
@@ -99,6 +101,18 @@ class DataFrameWidget(QWidget):
         self.setLayout(layout)
         # Set DataFrame
         self.setDataFrame(dataFrame)
+
+    def getMaxColumnHeight(self):
+        return max([self.dataTable.rowHeight(i) for i in range(self.dataModel.rowCount())])
+
+
+    def getWidth(self):
+
+        margs = self.layout().getContentsMargins()
+        w = margs[0]+margs[2]+20
+        for i in range(self.dataModel.columnCount()):
+            w+=self.dataTable.columnWidth(i)
+        return w
 
     def setDataFrame(self, dataFrame):
         self.dataModel.setDataFrame(dataFrame)
@@ -117,7 +131,7 @@ class ComboBoxDelegate(QItemDelegate):
         # fill style options with item data
         style = QApplication.style()
         opt = QStyleOptionComboBox()
-        opt.text = str(value)
+        opt.text = unicode(value)
         opt.rect = option.rect
 
         # draw item data as ComboBox
@@ -137,7 +151,9 @@ class ComboBoxDelegate(QItemDelegate):
         editor.setCurrentText(value)
 
     def setModelData(self, editor, model, index):
-        value = editor.currentText()
+        value = editor.currentText().encode('utf-8')
+        if value=='nan':
+            value = NaN
         model.setData(index, value, Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
