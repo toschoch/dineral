@@ -86,6 +86,8 @@ class FinanceDataImport(QWidget):
         self.btnImport = QtW.QPushButton("Import",self)
         self.btnImport.clicked.connect(self.dataImport)
 
+        self.imported_data = None
+
 
         self.initUI()
 
@@ -141,10 +143,28 @@ class FinanceDataImport(QWidget):
 
         data=data[['Datum','Text','Lastschrift','Kategorie']]
 
-        data = load_database(budget.Kategorie.tolist())
+        self.imported_data = data
+
+        hashes = self.create_hashes(data)
+        db = load_database(budget.Kategorie.tolist())
+
+        I = hashes.isin(db.Hash)
+        data['in database']=I
 
         self.table = TransactionTable(data,parent=self)
         self.table.show()
+
+    @staticmethod
+    def create_hashes(data):
+
+        import hashlib
+        from unidecode import unidecode
+
+        def hash(row):
+            h = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8'))+' '+unidecode(row['Text'])+' '+'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
+            return pd.Series({'Hash':h})
+
+        return data.apply(hash,axis=1).Hash
 
 
 class FinanceReport(QWidget):
