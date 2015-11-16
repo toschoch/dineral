@@ -10,6 +10,7 @@ Copyright (c) 2015. All rights reserved.
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtCore import Qt, QModelIndex, QDate
+from PyQt5.QtGui import QIcon
 
 import pandas as pd
 from qtpandas import DataFrameWidget
@@ -128,6 +129,7 @@ class FinanceDataImport(QWidget):
             main.status.showMessage("load data from MasterCard extracts... Please wait one moment!")
             data.append(load_MasterCardData(start,stop,callback=callback))
 
+        # Merge data
         data = pd.concat(data,axis=0)
         data = expand_EFinance(data)
         data.set_index('Datum',drop=False,inplace=True)
@@ -141,17 +143,41 @@ class FinanceDataImport(QWidget):
         data.Kategorie = pd.Categorical([np.NaN]*data.shape[0],categories=budget.Kategorie.tolist())
 
 
-        data=data[['Datum','Text','Lastschrift','Kategorie']]
-
         self.imported_data = data
 
         hashes = self.create_hashes(data)
         db = load_database(budget.Kategorie.tolist())
+        db.set_index('Hash',inplace=True)
 
-        I = hashes.isin(db.Hash)
-        data['in database']=I
+        in_db = hashes.isin(db.index)
+        data['Database']=in_db
+        data['Deleted']=False
+        data.set_index(hashes,inplace=True)
 
-        self.table = TransactionTable(data,parent=self)
+        joined=data.join(db,how='inner',lsuffix='_data')[['Kategorie','Deleted']]
+        data.ix[joined.index,['Kategorie','Deleted']]=joined
+
+        data=data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']]
+        data.reset_index(inplace=True)
+
+
+        # categorize
+        import pickle, os
+        clf_available = False
+        if os.path.isfile(clf_file):
+            clf_available = True
+            with open(clf_file,'rb') as fp:
+                clf = pickle.load(fp)
+
+        classes = pd.Series(clf.classes_names,name='Kategorie')
+        I = ~in_db
+        prediction = classes[clf.predict(data[I].Text)]
+        data.ix[I,'Deleted'] = (prediction == 'Delete').values
+        guessed = pd.Categorical(prediction,categories=data.Kategorie.cat.categories)
+
+        data.ix[I,'Kategorie'] = guessed
+
+        self.table = TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
         self.table.show()
 
     @staticmethod
@@ -185,7 +211,7 @@ class TransactionTable(DataFrameWidget):
 
     def __init__(self, data, parent=None):
 
-        DataFrameWidget.__init__(self, data)
+        DataFrameWidget.__init__(self, data,parent=parent)
         i_cat = data.columns.tolist().index('Kategorie')
         self.dataTable.setCurrentIndex(self.dataModel.index(0,i_cat))
         self.dataTable.setColumnWidth(i_cat,200)
@@ -203,6 +229,8 @@ class FinanceMain(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
+        self.setWindowIcon(QIcon(r'res/icon.png'))
+
         self.progress = QtW.QProgressBar(self)
         self.progress.setRange(0,100)
         self.status = self.statusBar()
@@ -216,5 +244,7 @@ class FinanceMain(QMainWindow):
         self.tab = QtW.QTabWidget(self)
         self.tab.addTab(FinanceDataImport(self), "Import")
         self.tab.addTab(FinanceReport(self),"Report")
+
+
 
         self.setCentralWidget(self.tab)

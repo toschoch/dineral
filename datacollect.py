@@ -22,7 +22,7 @@ dropbox_path = ur'/media/Media/Dropbox/expenses'
 database = ur'data/categorized.csv'
 
 def load_database(categories=None):
-    data = load_data(database)
+    data = load_data(database, parse_dates=['Datum'])
     data.Text = data.Text.str.replace('\\','\n')
     data.Text = data.Text.str.replace('\n\n','\n')
     data.Kategorie = pd.Categorical(data.Kategorie,categories=categories)

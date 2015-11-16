@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 # -- coding: utf-8 --
 import pickle
 
@@ -28,6 +27,6 @@ if __name__=='__main__':
 
     # budget = load_budget(start,stop)
 
-    data = pd.read_csv('temp.csv',delimiter=';')
+    data = pd.read_csv('temp.csv',delimiter=';',parse_dates=['Datum'])
 
-    print data
+    print data.Datum

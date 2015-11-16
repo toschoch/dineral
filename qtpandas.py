@@ -86,14 +86,15 @@ class DataFrameWidget(QWidget):
         self.dataTable = QTableView()
         self.dataTable.setModel(self.dataModel)
         self.dataTable.setSelectionBehavior(QTableView.SelectRows)
-        self.dataTable.setEditTriggers(QTableView.AllEditTriggers)
+        self.dataTable.setEditTriggers(QTableView.DoubleClicked)
         self.dataTable.setWordWrap(True)
 
         for i,dt in enumerate(dataFrame.dtypes):
             try:
                 self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()+['nan']))
             except:
-                pass
+                if dataFrame.ix[:,i].dtype==bool:
+                    self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,['True','False']))
 
 
         layout = QVBoxLayout()
