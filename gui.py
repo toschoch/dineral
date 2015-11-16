@@ -13,7 +13,7 @@ from PyQt5.QtCore import Qt, QModelIndex, QDate
 from PyQt5.QtGui import QIcon
 
 import pandas as pd
-from qtpandas import DataFrameWidget
+from transactiontable import TransactionTable
 from datacollect import load_budget, load_data, load_database
 
 import pandas as pd
@@ -172,10 +172,11 @@ class FinanceDataImport(QWidget):
         classes = pd.Series(clf.classes_names,name='Kategorie')
         I = ~in_db
         prediction = classes[clf.predict(data[I].Text)]
-        data.ix[I,'Deleted'] = (prediction == 'Delete').values
-        guessed = pd.Categorical(prediction,categories=data.Kategorie.cat.categories)
+        data.loc[I,'Deleted'] = (prediction == 'Delete').values
+        guessed = pd.Categorical(prediction,categories=classes)
 
-        data.ix[I,'Kategorie'] = guessed
+        data.Kategorie = pd.Categorical(data.Kategorie,classes)
+        data.loc[I,'Kategorie'] = guessed
 
         self.table = TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
         self.table.show()
@@ -206,23 +207,6 @@ class FinanceReport(QWidget):
         layout.addWidget(self.period)
         layout.addStretch(1)
         self.setLayout(layout)
-
-class TransactionTable(DataFrameWidget):
-
-    def __init__(self, data, parent=None):
-
-        DataFrameWidget.__init__(self, data,parent=parent)
-        i_cat = data.columns.tolist().index('Kategorie')
-        self.dataTable.setCurrentIndex(self.dataModel.index(0,i_cat))
-        self.dataTable.setColumnWidth(i_cat,200)
-        h = self.getMaxColumnHeight()
-        for i in range(self.dataModel.rowCount()):
-            self.dataTable.setRowHeight(i,h)
-        self.setFixedWidth(self.getWidth())
-        self.setMinimumHeight(400)
-
-        self.setWindowTitle('Transactions')
-
 
 class FinanceMain(QMainWindow):
 

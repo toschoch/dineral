@@ -15,8 +15,8 @@ from numpy import NaN
 class DataFrameModel(QAbstractTableModel):
     ''' data model for a DataFrame class '''
 
-    def __init__(self):
-        super(DataFrameModel, self).__init__()
+    def __init__(self, parent):
+        super(DataFrameModel, self).__init__(parent)
         self.df = DataFrame()
 
     def setDataFrame(self, dataFrame):
@@ -80,28 +80,20 @@ class DataFrameWidget(QWidget):
 
     def __init__(self, dataFrame, parent=None):
         super(DataFrameWidget, self).__init__(parent)
-
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
-        self.dataModel = DataFrameModel()
-        self.dataTable = QTableView()
+        self.dataModel = DataFrameModel(self)
+        self.dataTable = QTableView(self)
         self.dataTable.setModel(self.dataModel)
-        self.dataTable.setSelectionBehavior(QTableView.SelectRows)
-        self.dataTable.setEditTriggers(QTableView.DoubleClicked)
-        self.dataTable.setWordWrap(True)
 
-        for i,dt in enumerate(dataFrame.dtypes):
-            try:
-                self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()+['nan']))
-            except:
-                if dataFrame.ix[:,i].dtype==bool:
-                    self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,['True','False']))
+        # Set DataFrame
+        self.setDataFrame(dataFrame)
 
+        self.initUI()
 
+    def initUI(self):
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         layout = QVBoxLayout()
         layout.addWidget(self.dataTable)
         self.setLayout(layout)
-        # Set DataFrame
-        self.setDataFrame(dataFrame)
 
     def getMaxColumnHeight(self):
         return max([self.dataTable.rowHeight(i) for i in range(self.dataModel.rowCount())])
@@ -117,6 +109,12 @@ class DataFrameWidget(QWidget):
 
     def setDataFrame(self, dataFrame):
         self.dataModel.setDataFrame(dataFrame)
+        for i,dt in enumerate(dataFrame.dtypes):
+            try:
+                self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()+['nan']))
+            except:
+                if dataFrame.ix[:,i].dtype==bool:
+                    self.dataTable.setItemDelegateForColumn(i,ComboBoxDelegate(self,['True','False']))
         self.dataModel.signalUpdate()
         self.dataTable.resizeColumnsToContents()
         self.dataTable.resizeRowsToContents()
@@ -125,19 +123,6 @@ class ComboBoxDelegate(QItemDelegate):
     def __init__(self, owner, itemslist):
         QItemDelegate.__init__(self, owner)
         self.itemslist = itemslist
-
-    def paint(self, painter, option, index):
-        # Get Item Data
-        value = index.data(Qt.EditRole)
-        # fill style options with item data
-        style = QApplication.style()
-        opt = QStyleOptionComboBox()
-        opt.text = unicode(value)
-        opt.rect = option.rect
-
-        # draw item data as ComboBox
-        style.drawComplexControl(QStyle.CC_ComboBox, opt, painter)
-        QItemDelegate.paint(self,painter,option,index)
 
     def createEditor(self, parent, option, index):
         value = index.data(Qt.DisplayRole)
@@ -155,6 +140,10 @@ class ComboBoxDelegate(QItemDelegate):
         value = editor.currentText().encode('utf-8')
         if value=='nan':
             value = NaN
+        elif value.lower()=='true':
+            value = True
+        elif value.lower()=='false':
+            value = False
         model.setData(index, value, Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
