@@ -38,7 +38,6 @@ class DataFrameModel(QAbstractTableModel):
                 return QVariant()
         elif orientation == Qt.Vertical:
             try:
-                # return self.df.index.tolist()
                 return self.df.index.tolist()[section]
             except (IndexError,):
                 return QVariant()
@@ -51,10 +50,7 @@ class DataFrameModel(QAbstractTableModel):
             return QVariant()
 
         value = self.df.ix[index.row(), index.column()]
-        try:
-            text = unicode(value)
-        except UnicodeDecodeError:
-            text = unicode(value.decode('utf-8'))
+        text = unicode(value)
         return QVariant(text)
 
     def flags(self, index):

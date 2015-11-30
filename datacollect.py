@@ -19,18 +19,21 @@ budget_path=ur'/home/tobi/Finance/Budget'
 path_on_phone=ur'/mnt/sdcard/expenses'
 dropbox_path = ur'/media/Media/Dropbox/expenses'
 
-database = ur'data/categorized.csv'
+database = ur'data/categorized2.csv'
 
 def load_database(categories=None):
-    data = load_data(database, parse_dates=['Datum'])
+    data = load_data(database, parse_dates=['Datum'], encoding='utf-8', dayfirst=True)
     data.Text = data.Text.str.replace('\\','\n')
     data.Text = data.Text.str.replace('\n\n','\n')
+    data.ix[data.Deleted,'Kategorie']=np.nan
+    if 'Unterkategorie' in data.columns:
+        data.drop('Unterkategorie',axis=1,inplace=True)
     data.Kategorie = pd.Categorical(data.Kategorie,categories=categories)
     return data
 
 def save_database(data):
     data.Text = data.Text.str.replace('\n','\\\\')
-    data.to_csv('temp.csv',sep=';',index=False)
+    data.to_csv(database,sep=';',index=False,encoding='utf-8')
 
 
 def load_VisaCardTransactionData(start,stop):

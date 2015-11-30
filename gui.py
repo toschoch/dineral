@@ -9,7 +9,7 @@ Copyright (c) 2015. All rights reserved.
 
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QMainWindow
-from PyQt5.QtCore import Qt, QModelIndex, QDate
+from PyQt5.QtCore import Qt, QModelIndex, QDate, QThread
 from PyQt5.QtGui import QIcon
 
 import pandas as pd
@@ -89,7 +89,6 @@ class FinanceDataImport(QWidget):
 
         self.imported_data = None
 
-
         self.initUI()
 
     def initUI(self):
@@ -104,50 +103,60 @@ class FinanceDataImport(QWidget):
 
         self.setLayout(layout)
 
+    def save_imported(self, data):
+        data.Datum = pd.to_datetime(data.Datum)
+        self.imported_data.Datum = pd.to_datetime(self.imported_data.Datum)
+        self.imported_data.ix[data.index,data.columns]=data
+        msg = "{} transaction imported".format(data.shape[0])
+        self.main.status.showMessage(msg)
+
+        from datacollect import save_database
+        imported_data = self.imported_data.set_index('Hash',drop=False)
+        imported_data.drop('Database',axis=1,inplace=True)
+        imported_data.Kategorie = pd.Categorical(imported_data.Kategorie,categories=self.budget.Kategorie.tolist())
+        self.db = imported_data.combine_first(self.db)
+        self.db.sort('Datum',inplace=True)
+        save_database(self.db)
+
+
     def dataImport(self):
 
+        self.main = self.parent().parent().parent()
 
         start = self.period.dateFrom.selectedDate().toPyDate()
         stop = self.period.dateTo.selectedDate().toPyDate()
 
-        from datacollect import load_budget, load_Expenses_from_Dropbox, load_MasterCardData, load_PostFinanceData, expand_EFinance
 
-        main = self.parent().parent().parent()
+        callback=lambda x:self.main.progress.setValue(int(x))
 
-        data = []
-        callback=lambda x:main.progress.setValue(int(x))
+        self.loader = ImportData(self.main,self.sources,start,stop,callback,self)
+        self.loader.finished.connect(self.dataImported)
 
-        if self.sources.expenses.isChecked():
-            data.append(load_Expenses_from_Dropbox(start,stop))
+        self.loader.start()
 
-        if self.sources.postfinance.isChecked():
-            main.status.showMessage("load data from PostFinance extracts... Please wait one moment!")
-            data.append(load_PostFinanceData(start,stop,callback=callback))
+    def dataImported(self):
 
-        if self.sources.mastercard.isChecked():
-            callback(0)
-            main.status.showMessage("load data from MasterCard extracts... Please wait one moment!")
-            data.append(load_MasterCardData(start,stop,callback=callback))
+        start = self.loader.start_date
+        stop = self.loader.stop_date
+        data = self.loader.data
 
-        # Merge data
-        data = pd.concat(data,axis=0)
-        data = expand_EFinance(data)
-        data.set_index('Datum',drop=False,inplace=True)
-        data.sort(inplace=True)
-        data.reset_index(inplace=True,drop=True)
+        if len(data)<1:
+            self.main.status.showMessage('Nothing to import in the selected period!',2000)
+            return
 
+        from datacollect import load_budget
         budget = load_budget(start=start,stop=stop)
+        self.budget = budget
 
         import numpy as np
         data.drop('Unterkategorie',axis=1,inplace=True)
-        data.Kategorie = pd.Categorical([np.NaN]*data.shape[0],categories=budget.Kategorie.tolist())
-
-
-        self.imported_data = data
+        data.Kategorie = pd.Categorical([np.NaN]*data.shape[0],categories=budget.Kategorie)
 
         hashes = self.create_hashes(data)
         db = load_database(budget.Kategorie.tolist())
-        db.set_index('Hash',inplace=True)
+        db.set_index('Hash',inplace=True,drop=False)
+
+        self.db = db
 
         in_db = hashes.isin(db.index)
         data['Database']=in_db
@@ -160,25 +169,31 @@ class FinanceDataImport(QWidget):
         data=data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']]
         data.reset_index(inplace=True)
 
+        self.imported_data = data
 
         # categorize
         import pickle, os
-        clf_available = False
         if os.path.isfile(clf_file):
-            clf_available = True
             with open(clf_file,'rb') as fp:
                 clf = pickle.load(fp)
 
         classes = pd.Series(clf.classes_names,name='Kategorie')
         I = ~in_db
-        prediction = classes[clf.predict(data[I].Text)]
-        data.loc[I,'Deleted'] = (prediction == 'Delete').values
-        guessed = pd.Categorical(prediction,categories=classes)
+        if I.any():
+            prediction = classes[clf.predict(data[I].Text)]
+            data.loc[I,'Deleted'] = (prediction == 'Delete').values
+            guessed = pd.Categorical(prediction,categories=classes)
 
-        data.Kategorie = pd.Categorical(data.Kategorie,classes)
-        data.loc[I,'Kategorie'] = guessed
+            data.Kategorie = pd.Categorical(data.Kategorie,classes)
+            data.loc[I,'Kategorie'] = guessed
 
-        self.table = TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
+        data.loc[data.Deleted,'Kategorie']=np.nan
+        data.Kategorie = pd.Categorical(data.Kategorie,self.budget.Kategorie.tolist())
+
+        self.main.status.clearMessage()
+        self.main.progress.setValue(0)
+
+        self.table = TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']],self)
         self.table.show()
 
     @staticmethod
@@ -200,13 +215,40 @@ class FinanceReport(QWidget):
         self.period = DateRange(self)
         today = QDate.currentDate()
         self.period.dateFrom.setSelectedDate(QDate(today.year(),1,1))
+        self.buttonReport = QtW.QPushButton("Create Report",self)
+        self.buttonReport.clicked.connect(self.createReport)
+
         self.initUI()
 
     def initUI(self):
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
         layout.addStretch(1)
+        row = QtW.QHBoxLayout()
+        row.addStretch(1)
+        row.addWidget(self.buttonReport)
+        layout.addLayout(row)
         self.setLayout(layout)
+
+    def createReport(self):
+        import calendar
+
+        self.main = self.parent().parent().parent()
+
+        start = self.period.dateFrom.selectedDate().toPyDate()
+        stop = self.period.dateTo.selectedDate().toPyDate()
+        budget = load_budget(start,stop)
+
+        db = load_database(budget.Kategorie.tolist())
+        db.drop(db.Deleted,axis=0,inplace=True)
+        db.drop('Deleted',axis=1,inplace=True)
+
+        db = db[(db.Datum>=start)&(db.Datum<=stop)]
+
+        print db.groupby([lambda i: db.ix[i,'Kategorie'],lambda i: calendar.month_name[db.ix[i,'Datum'].month]]).sum()
+
+
+
 
 class FinanceMain(QMainWindow):
 
@@ -232,3 +274,53 @@ class FinanceMain(QMainWindow):
 
 
         self.setCentralWidget(self.tab)
+
+class ImportData(QThread):
+
+    def __init__(self, main, sources, start, stop, callback, parent=None):
+
+        QThread.__init__(self,parent=parent)
+
+        self.start_date,self.stop_date = start, stop
+        self.main = main
+        self.callback = callback
+        self.sources = sources
+
+    def run(self):
+        from datacollect import load_Expenses_from_Dropbox, load_MasterCardData, load_PostFinanceData, expand_EFinance
+
+        start, stop = self.start_date,self.stop_date
+        main = self.main
+        callback = self.callback
+
+        data = []
+
+        if self.sources.expenses.isChecked():
+            try:
+                data.append(load_Expenses_from_Dropbox(start,stop))
+            except:
+                pass
+
+        if self.sources.postfinance.isChecked():
+            try:
+                main.status.showMessage("load data from PostFinance extracts...")
+                data.append(load_PostFinanceData(start,stop,callback=callback))
+            except:
+                pass
+
+        if self.sources.mastercard.isChecked():
+            callback(0)
+            try:
+                main.status.showMessage("load data from MasterCard extracts...")
+                data.append(load_MasterCardData(start,stop,callback=callback))
+            except:
+                pass
+
+        # Merge data
+        data = pd.concat(data,axis=0)
+        data = expand_EFinance(data)
+        data.set_index('Datum',drop=False,inplace=True)
+        data.sort(inplace=True)
+        data.reset_index(inplace=True,drop=True)
+
+        self.data = data
