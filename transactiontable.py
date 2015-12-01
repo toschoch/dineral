@@ -20,14 +20,28 @@ from qtpandas import DataFrameWidget, DataFrameModel, ComboBoxDelegate
 class TransactionTableModel(DataFrameModel):
 
     def __init__(self, data, parent):
+
         DataFrameModel.__init__(self,parent)
+
         self.setDataFrame(data)
-        self.categories = data['Kategorie'].cat.categories.tolist()
-        self.colors = color_palette('hls',n_colors=len(self.categories))
-        self.colors = [map(lambda x: int(255*x),c)+[200] for c in self.colors]
 
         self.deleted_color_back = (207,207,196,100)
         self.deleted_color_text = (207,207,196)
+
+    def setDataFrame(self, data):
+
+        self.i_deleted = data.columns.tolist().index('Deleted')
+        self.i_categorie = data.columns.tolist().index('Kategorie')
+        if data.empty:
+            self.categories = []
+            self.colors = color_palette('hls',n_colors=1)
+            self.colors = [map(lambda x: int(255*x),c)+[160] for c in self.colors]
+        else:
+            self.categories = data['Kategorie'].cat.categories.tolist()
+            self.colors = color_palette('hls',n_colors=len(self.categories))
+            self.colors = [map(lambda x: int(255*x),c)+[160] for c in self.colors]
+
+        DataFrameModel.setDataFrame(self,data)
 
 
     def data(self, index, role=Qt.DisplayRole):
@@ -43,7 +57,7 @@ class TransactionTableModel(DataFrameModel):
             else:
                 return QColor(*self.deleted_color_back)
         elif role == Qt.TextColorRole:
-            if self.df.ix[index.row(),'Deleted']:
+            if hasattr(self,'categories') and self.df.ix[index.row(),'Deleted']:
                 return QColor(*self.deleted_color_text)
             else:
                 return DataFrameModel.data(self,index,role)
@@ -60,6 +74,7 @@ class TransactionTableView(QtW.QTableView):
         self.last_key = None
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Space:
             if self.state() == self.EditingState:
                 event = QKeyEvent(QEvent.KeyPress, Qt.Key_Down, Qt.NoModifier)
@@ -72,7 +87,7 @@ class TransactionTableView(QtW.QTableView):
         elif event.key() == Qt.Key_Delete:
             index = self.currentIndex()
             model = self.model()
-            c = model.df.columns.tolist().index('Deleted')
+            c = model.i_deleted
             index = model.index(index.row(),c)
             value = model.data(index,Qt.DisplayRole)
             model.setData(index,not eval(value.value()),Qt.EditRole)
@@ -103,8 +118,8 @@ class TransactionTableView(QtW.QTableView):
 
 class TransactionTable(DataFrameWidget):
 
-    def __init__(self, data, parent=None):
-        QWidget.__init__(self,parent=None)
+    def __init__(self, data=pd.DataFrame(columns=['Datum','Text','Lastschrift','Database','Deleted','Kategorie']), parent=None):
+        QWidget.__init__(self,parent=parent)
         self.parent_ = parent
         self.dataModel = TransactionTableModel(data,self)
         self.dataTable = TransactionTableView(self)
@@ -122,22 +137,13 @@ class TransactionTable(DataFrameWidget):
         self.buttonCancel.clicked.connect(self.close)
         self.buttonSave.clicked.connect(self.save)
 
-        # Set DataFrame
-        self.setDataFrame(data)
 
         # Set DataFrame
         self.initUI()
 
-        self.i_cat = data.columns.tolist().index('Kategorie')
-        self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
-        self.dataTable.setColumnWidth(self.i_cat,200)
-        h = self.getMaxColumnHeight()
-        for i in range(self.dataModel.rowCount()):
-            self.dataTable.setRowHeight(i,h)
-        self.setFixedWidth(self.getWidth())
-        self.setMinimumHeight(400)
+        # Set DataFrame
+        self.setDataFrame(data)
 
-        self.setWindowTitle('Transactions')
 
     def save(self):
         self.parent_.save_imported(self.dataModel.df)
@@ -154,17 +160,26 @@ class TransactionTable(DataFrameWidget):
         layout.addLayout(row)
         self.setLayout(layout)
 
-    def setDataFrame(self, dataFrame):
-        self.dataModel.setDataFrame(dataFrame)
-        for i,dt in enumerate(dataFrame.dtypes):
+    def setDataFrame(self, data):
+        self.dataModel.setDataFrame(data)
+        for i,dt in enumerate(data.dtypes):
             try:
-                self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,dataFrame.ix[:,i].cat.categories.tolist()+['nan']))
+                self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,self.dataModel.categories+['nan']))
             except:
-                if dataFrame.ix[:,i].dtype==bool:
+                if data.ix[:,i].dtype==bool:
                     self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,['True','False']))
         self.dataModel.signalUpdate()
         self.dataTable.resizeColumnsToContents()
         self.dataTable.resizeRowsToContents()
+
+        self.i_cat = self.dataModel.i_categorie
+        self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
+        self.dataTable.setColumnWidth(self.i_cat,200)
+        h = self.getMaxColumnHeight()
+        for i in range(self.dataModel.rowCount()):
+            self.dataTable.setRowHeight(i,h)
+        self.setFixedWidth(self.getWidth())
+        self.setMinimumHeight(400)
 
 class TransactionItemDelegate(QStyledItemDelegate):
 

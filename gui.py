@@ -15,6 +15,7 @@ from PyQt5.QtGui import QIcon
 import pandas as pd
 from transactiontable import TransactionTable
 from datacollect import load_budget, load_data, load_database
+from qtpandas import DataFrameWidget
 
 import pandas as pd
 
@@ -95,6 +96,7 @@ class FinanceDataImport(QWidget):
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
         layout.addWidget(self.sources)
+        layout.addStretch(1)
 
         row = QtW.QHBoxLayout(self)
         row.addStretch(1)
@@ -121,7 +123,7 @@ class FinanceDataImport(QWidget):
 
     def dataImport(self):
 
-        self.main = self.parent().parent().parent()
+        self.main = self.parent().parent().parent().parent()
 
         start = self.period.dateFrom.selectedDate().toPyDate()
         stop = self.period.dateTo.selectedDate().toPyDate()
@@ -193,8 +195,7 @@ class FinanceDataImport(QWidget):
         self.main.status.clearMessage()
         self.main.progress.setValue(0)
 
-        self.table = TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']],self)
-        self.table.show()
+        self.main.centralWidget().content.addWidget(TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']],self))
 
     @staticmethod
     def create_hashes(data):
@@ -232,8 +233,9 @@ class FinanceReport(QWidget):
 
     def createReport(self):
         import calendar
+        import numpy as np
 
-        self.main = self.parent().parent().parent()
+        self.main = self.parent().parent().parent().parent()
 
         start = self.period.dateFrom.selectedDate().toPyDate()
         stop = self.period.dateTo.selectedDate().toPyDate()
@@ -245,7 +247,13 @@ class FinanceReport(QWidget):
 
         db = db[(db.Datum>=start)&(db.Datum<=stop)]
 
-        print db.groupby([lambda i: db.ix[i,'Kategorie'],lambda i: calendar.month_name[db.ix[i,'Datum'].month]]).sum()
+
+        empty = pd.DataFrame(0,index=pd.MultiIndex.from_product([budget.Kategorie.tolist(),range(1,12)],names=['Kategorie','Month']),columns=['Total'])
+        print empty
+
+        monthly_sum = db.groupby([lambda i: db.ix[i,'Kategorie'],lambda i: db.ix[i,'Datum'].month]).sum()
+
+        print empty.combine_first(monthly_sum)
 
 
 
@@ -261,19 +269,30 @@ class FinanceMain(QMainWindow):
         self.progress.setRange(0,100)
         self.status = self.statusBar()
         self.status.addPermanentWidget(self.progress)
+        self.setWindowTitle('MyFinance')
+
+        self.setCentralWidget(FinanceMainWidget(self))
+
+class FinanceMainWidget(QWidget):
+
+    def __init__(self, parent= None):
+
+        QWidget.__init__(self,parent)
+
+        self.tab = QtW.QTabWidget(self)
+        self.content = QtW.QStackedWidget(self)
+
         self.initUI()
 
     def initUI(self):
-        self.status.showMessage("Ready")
 
-        self.setWindowTitle('MyFinance')
-        self.tab = QtW.QTabWidget(self)
         self.tab.addTab(FinanceDataImport(self), "Import")
         self.tab.addTab(FinanceReport(self),"Report")
 
-
-
-        self.setCentralWidget(self.tab)
+        layout = QtW.QHBoxLayout(self)
+        layout.addWidget(self.tab,0)
+        layout.addWidget(self.content,1)
+        self.setLayout(layout)
 
 class ImportData(QThread):
 

@@ -80,10 +80,10 @@ class DataFrameWidget(QWidget):
         self.dataTable = QTableView(self)
         self.dataTable.setModel(self.dataModel)
 
+        self.initUI()
+
         # Set DataFrame
         self.setDataFrame(dataFrame)
-
-        self.initUI()
 
     def initUI(self):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
@@ -92,7 +92,7 @@ class DataFrameWidget(QWidget):
         self.setLayout(layout)
 
     def getMaxColumnHeight(self):
-        return max([self.dataTable.rowHeight(i) for i in range(self.dataModel.rowCount())])
+        return max([self.dataTable.rowHeight(i) for i in range(self.dataModel.rowCount())]+[10])
 
 
     def getWidth(self):

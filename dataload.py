@@ -1,5 +1,4 @@
 # -- coding: utf-8 --
-from utf8csv import unicode_csv_reader
 from datetime import datetime
 from dateutil.parser import parse
 import os
