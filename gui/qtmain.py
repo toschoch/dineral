@@ -36,9 +36,22 @@ class FinanceMain(QMainWindow):
         entryMenu = menubar.addMenu('&Menü')
         actionSettings = QtW.QAction('&Settings',self)
         actionSettings.triggered.connect(self.settings)
+        actionQuit = QtW.QAction('&Quit',self)
+        actionQuit.triggered.connect(self.close)
         entryMenu.addAction(actionSettings)
+        entryMenu.addSeparator()
+        entryMenu.addAction(actionQuit)
+
         entryDb = menubar.addMenu('&Database')
+        actionLoadAll = QtW.QAction('&Load all data...',self)
+        actionInfoDB = QtW.QAction('&Info',self)
+        entryDb.addAction(actionLoadAll)
+        entryDb.addSeparator()
+        entryDb.addAction(actionInfoDB)
+
         entryClf = menubar.addMenu('&Classifier')
+        actionInfoClf = QtW.QAction('&Info',self)
+        entryClf.addAction(actionInfoClf)
 
     def settings(self):
 
