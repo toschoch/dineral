@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-transactiontable.py
+qttransactiontable.py
 
 Created by Tobias Schoch on 16.11.15.
 Copyright (c) 2015. All rights reserved.
@@ -119,6 +119,7 @@ class TransactionTableView(QtW.QTableView):
 class TransactionTable(DataFrameWidget):
 
     def __init__(self, data=pd.DataFrame(columns=['Datum','Text','Lastschrift','Database','Deleted','Kategorie']), parent=None):
+
         QWidget.__init__(self,parent=parent)
         self.parent_ = parent
         self.dataModel = TransactionTableModel(data,self)

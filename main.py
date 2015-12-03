@@ -7,17 +7,24 @@ Created by Tobias Schoch on 11.11.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-import sys
+import sys, logging
 from PyQt5.QtWidgets import QApplication
+
+from dataplugins import plugins
 
 from gui import FinanceMain
 
 
 if __name__ == '__main__':
 
+    logging.basicConfig(level=logging.INFO)
+
+    log = logging.getLogger()
+
     app = QApplication(sys.argv)
 
-    w = FinanceMain()
+    log.info("Start")
+    w = FinanceMain(plugins=plugins)
     w.show()
 
     sys.exit(app.exec_())

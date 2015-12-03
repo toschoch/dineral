@@ -12,44 +12,6 @@ NOCATEGORY = np.nan
 
 __author__ = 'tobi'
 
-def load_Expenses(filename):
-    """ load data from a expenses csv file
-
-        Parameters
-        ----------
-        filename:           (str) path to file to be loaded
-
-        Returns
-        -------
-        (numpy.rec.recarray) table with data, columns: date, description, amount
-
-    """
-
-    convert={
-        'Date':lambda x: parse(x, dayfirst=True),
-        'Amount': lambda x: -float((''.join(x.split('CHF'))).replace(',','').replace(',','.')),
-        'Note': lambda x: x.strip("'")}
-
-    # read data
-    with codecs.open(filename, 'r','utf-8') as f:
-        lines=f.read().splitlines()
-
-    header=lines.pop(0).split(';')
-    data=[]
-    for line in lines:
-
-        dline=[]
-        for c,h in zip(line.split(';'),header):
-            try:
-                dline.append(convert[h](c))
-            except KeyError:
-                dline.append(c)
-        data.append(dline)
-
-    rec = pd.DataFrame(data,columns=['Datum','Kategorie','Unterkategorie','Lastschrift','Text'])
-    rec.Datum = pd.DatetimeIndex(rec.Datum).date
-    return rec
-
 
 
 def load_VisaCardTransaction(filename):
