@@ -59,6 +59,7 @@ class ImportProcess(QThread):
         log.info("Importer Started")
         data = []
         for plugin in self.plugins:
+            if not plugin.LOAD: continue
             log.info("load {}...".format(plugin.name()))
             self.progesssLabel.emit(plugin.description()+'...')
             d = plugin.load_data(callback=self.progressNotify.emit, **self.kwargs)
@@ -67,4 +68,6 @@ class ImportProcess(QThread):
             self.progressNotify.emit(0)
         self.progressClose.emit()
         if len(data)>0:
-            self.success.emit(pd.concat(data,axis=0))
+            data = pd.concat(data,axis=0)
+            if not data.empty:
+                self.success.emit()

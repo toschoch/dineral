@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtGui import QIcon
 
 from qtfinance import FinanceDataImport, FinanceReport
-from qtfinanceedit import FinanceTransactions, FinanceView
+from qtfinanceedit import FinanceTransactions
+from qtfinanceview import FinanceView
 from qtsettings import Settings
 
 class FinanceMain(QMainWindow):
@@ -66,10 +67,10 @@ class FinanceMainWidget(QWidget):
 
         QWidget.__init__(self,parent)
 
-        self.tab = QtW.QTabWidget(self)
+        self.control = QtW.QTabWidget(self)
         self.dataimport = FinanceDataImport(parent=self,**kwargs)
         self.report = FinanceReport(self)
-        self.content = QtW.QStackedWidget(self)
+        self.content = QtW.QTabWidget(self)
         self.transactions = FinanceTransactions(self)
         self.graphview = FinanceView(self)
 
@@ -77,19 +78,15 @@ class FinanceMainWidget(QWidget):
 
     def initUI(self):
 
-        self.tab.addTab(self.dataimport, "Import")
-        self.tab.addTab(self.report,"Report")
+        self.control.addTab(self.dataimport, "Import")
+        self.control.addTab(self.report, "Report")
 
-        self.content.addWidget(self.transactions)
-        self.content.addWidget(self.graphview)
-        self.content.setCurrentWidget(self.graphview)
+        self.content.addTab(self.transactions,'Transactions')
+        self.content.addTab(self.graphview,'View')
         # self.content.hide()
 
-        adj_layout = QtW.QHBoxLayout()
-        adj_layout.addWidget(self.tab)
-        adj_layout.setContentsMargins(9,9,9,9)
 
         layout = QtW.QHBoxLayout()
-        layout.addLayout(adj_layout,0)
+        layout.addWidget(self.control,0)
         layout.addWidget(self.content,1)
         self.setLayout(layout)

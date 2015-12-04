@@ -81,6 +81,9 @@ class FinanceDataImport(QWidget):
 
         self.selectedPeriod = (start,stop)
 
+        for check,plugin in zip(self.sources.checkboxes,self.importer.plugins):
+            plugin.LOAD = check.isChecked()
+
         self.importer.start(start,stop)
 
     def showData(self, data):
