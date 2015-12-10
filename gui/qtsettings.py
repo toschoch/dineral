@@ -42,7 +42,6 @@ class DataPluginProperty(QtGui.QWidget):
         self.setLayout(layout)
 
     def choose(self):
-        import os
 
         old = self.plugin.properties
         if self.plugin.type()==self.plugin.FILE:
@@ -60,14 +59,16 @@ class DataPluginProperty(QtGui.QWidget):
 
 class Settings(QtGui.QDialog):
 
-    def __init__(self, plugins, parent=None):
+    def __init__(self, plugins, internal, parent=None):
         QtGui.QDialog.__init__(self, parent)
 
         layout = QtGui.QVBoxLayout()
 
         sources = QDataPluginsSettings(plugins,'Sources',self)
+        internal = QDataPluginsSettings(internal,'Internal',self)
 
         layout.addWidget(sources)
+        layout.addWidget(internal)
 
         self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok,parent=parent)
         layout.addWidget(self.buttons)

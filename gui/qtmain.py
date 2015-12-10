@@ -16,12 +16,16 @@ from qtfinanceedit import FinanceTransactions
 from qtfinanceview import FinanceView
 from qtsettings import Settings
 
+from internaldata import Budget,Database
+
 class FinanceMain(QMainWindow):
 
     def __init__(self, plugins, **kwargs):
         QMainWindow.__init__(self)
 
         self.plugins = plugins
+        self.budget = Budget()
+        self.database = Database()
 
         self.setWindowIcon(QIcon(r'res/icon.png'))
 
@@ -56,7 +60,7 @@ class FinanceMain(QMainWindow):
 
     def settings(self):
 
-        settings = Settings(self.plugins,self.main)
+        settings = Settings(self.plugins,[self.budget,self.database])
         settings.exec_()
 
 

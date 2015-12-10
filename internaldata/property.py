@@ -1,0 +1,70 @@
+# encoding: utf-8
+#-------------------------------------------------------------------------------
+# Name:         property
+#
+# Author:       tschoch
+# Created:      04.12.2015
+# Copyright:    (c) Sensirion AG 2015
+# Licence:      all rights reserved.
+#-------------------------------------------------------------------------------
+
+__author__ = 'tschoch'
+__copyright__ = '(c) Sensirion AG 2015'
+
+""""""
+
+import logging
+
+
+log = logging.getLogger(__name__)
+
+class LocationType(object):
+    DIR = 1
+    FILE = 0
+
+_PROPERTIESFILE = 'properties.json'
+
+class Property(LocationType):
+
+    TYPE = LocationType.FILE
+
+    def __init__(self):
+        self.restore()
+
+    @classmethod
+    def name(cls):
+        return cls.__name__
+
+    @classmethod
+    def description(cls):
+        return cls.__doc__.strip()
+
+    @classmethod
+    def type(cls):
+        return cls.TYPE
+
+    def __str__(self):
+        return self.representation()
+
+    def representation(self):
+        return unicode(self.properties)
+
+    def store(self):
+        import json,os
+        path, _ = os.path.split(__file__)
+        pFile = os.path.join(path,_PROPERTIESFILE)
+        with open(pFile,'r') as fp:
+            properties = json.load(fp)
+        with open(pFile,'w+') as fp:
+            properties[self.__class__.__name__] = self.properties
+            json.dump(properties,fp,indent=2)
+
+    def restore(self):
+        import json,os
+        path, _ = os.path.split(__file__)
+        pFile = os.path.join(path,_PROPERTIESFILE)
+        with open(pFile,'r') as fp:
+            properties = json.load(fp)
+            self.properties = properties[self.__class__.__name__]
+
+

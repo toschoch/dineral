@@ -29,34 +29,55 @@ class FinanceDataImport(QWidget):
 
         self.period = QDateRange(self)
         self.sources = QCheckBoxGroup([d.name() for d in plugins],'Import from:',self)
+        self.indicator = QtW.QLabel(self)
         self.btnImport = QtW.QPushButton("Import",self)
         self.importer = DataImport(plugins,parent=self)
 
         self.importer.success.connect(self.showData)
         self.btnImport.clicked.connect(self.importData)
 
+        self.period.dateFrom.selectionChanged.connect(self.onDateSelected)
+        self.period.dateTo.selectionChanged.connect(self.onDateSelected)
+
         self.initUI()
 
         self.setStartDate()
 
     def initUI(self):
+
+        frame = QtW.QFrame(self)
+        frame.setFrameShadow(QtW.QFrame.Sunken)
+        row = QtW.QHBoxLayout()
+        row.addWidget(self.indicator)
+        frame
+
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
         layout.addWidget(self.sources)
         layout.addStretch(1)
 
-        row = QtW.QHBoxLayout(self)
+        row = QtW.QHBoxLayout()
         row.addStretch(1)
         row.addWidget(self.btnImport)
         layout.addLayout(row)
-
-        self.setLayout(layout)
 
     def setStartDate(self):
 
         today = QDate.currentDate()
         self.period.dateFrom.setSelectedDate(QDate(today.year(),today.month()-1,1))
         self.period.dateTo.setSelectedDate(QDate(today.year(),today.month()-1,QDate(today.year(),today.month()-1,1).daysInMonth()))
+
+    def onDateSelected(self):
+        date_to = self.period.dateTo.selectedDate()
+        date_from = self.period.dateFrom.selectedDate()
+        firstDay = QDate(date_to.year(),1,1)
+        if firstDay>date_from:
+            self.period.dateFrom.setSelectedDate(firstDay)
+
+        selected_year = date_to.year()
+        window = self.window()
+        self.budget = window.budget.load_data(selected_year)
+
 
     # def save_imported(self, data):
     #     data.Datum = pd.to_datetime(data.Datum)

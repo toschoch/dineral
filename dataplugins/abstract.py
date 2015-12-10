@@ -1,60 +1,30 @@
-#!/usr/bin/env python
 # encoding: utf-8
-"""
-abstract.py
+#-------------------------------------------------------------------------------
+# Name:         abstract.py
+#
+# Author:       tschoch
+# Created:      02.12.2015
+# Copyright:    (c) Sensirion AG 2015
+# Licence:      all rights reserved.
+#-------------------------------------------------------------------------------
 
-Created by Tobias Schoch on 01.12.15.
-Copyright (c) 2015. All rights reserved.
-"""
-import pandas as pd
+__author__ = 'tschoch'
+__copyright__ = '(c) Sensirion AG 2015'
+
+""""""
+
+import logging
+
 import numpy as np
 
-class LocationType(object):
-    DIR = 1
-    FILE = 0
+from internaldata import Property
 
-_PROPERTIESFILE = 'properties.json'
+log = logging.getLogger(__name__)
 
-class DataPlugin(LocationType):
+class DataPlugin(Property):
 
     DEFAULTDATACOLUMNS = ['Datum','Text','Lastschrift','Kategorie']
     NOCATEGORY = np.NaN
-    TYPE = LocationType.FILE
-
-    LOAD = False
-
-    def __init__(self):
-        self.restore()
-
-    @classmethod
-    def name(cls):
-        return cls.__name__
-
-    @classmethod
-    def description(cls):
-        return cls.__doc__.strip()
-
-    @classmethod
-    def type(cls):
-        return cls.TYPE
-
-    def store(self):
-        import json,os
-        path, _ = os.path.split(__file__)
-        pFile = os.path.join(path,_PROPERTIESFILE)
-        with open(pFile,'r') as fp:
-            properties = json.load(fp)
-        with open(pFile,'w+') as fp:
-            properties[self.__class__.__name__] = self.properties
-            json.dump(properties,fp,indent=2)
-
-    def restore(self):
-        import json,os
-        path, _ = os.path.split(__file__)
-        pFile = os.path.join(path,_PROPERTIESFILE)
-        with open(pFile,'r') as fp:
-            properties = json.load(fp)
-            self.properties = properties[self.__class__.__name__]
 
     def load_data(self, period_from, period_to, callback=None):
         raise NotImplementedError()

@@ -70,4 +70,4 @@ class ImportProcess(QThread):
         if len(data)>0:
             data = pd.concat(data,axis=0)
             if not data.empty:
-                self.success.emit()
+                self.success.emit(data)
