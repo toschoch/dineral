@@ -40,7 +40,7 @@ class FinanceDataImport(FinanceSelector):
 
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
-        layout.addWidget(self.info)
+        # layout.addWidget(self.info)
         layout.addWidget(self.sources)
         layout.addStretch(1)
 
@@ -125,7 +125,7 @@ class FinanceDataImport(FinanceSelector):
 
         main = window.main
         main.transactions.table.setDataFrame(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
-        main.content.show()
+        main.showTransactions()
 
     @staticmethod
     def create_hashes(data):
@@ -155,7 +155,7 @@ class FinanceReport(FinanceSelector):
     def initUI(self):
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
-        layout.addWidget(self.info)
+        # layout.addWidget(self.info)
         layout.addStretch(1)
         row = QtW.QHBoxLayout()
         row.addStretch(1)
@@ -168,7 +168,10 @@ class FinanceReport(FinanceSelector):
         self.period.dateFrom.setSelectedDate(QDate(today.year(),1,1))
 
     def createReport(self):
-        return
+
+        window = self.window()
+        main = window.main
+        main.showReport()
         # import calendar
         # import numpy as np
         #

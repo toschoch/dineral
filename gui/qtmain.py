@@ -40,7 +40,7 @@ class FinanceMain(QMainWindow):
         self.classifier_clf = self.classifier.load()
 
         self.database_data = self.database.load_data()
-        self.main.dataimport.info.set_info(nentries=len(self.database_data))
+        # self.main.dataimport.info.set_info(nentries=len(self.database_data))
 
     def initMenu(self):
 
@@ -87,13 +87,14 @@ class FinanceMainWidget(QWidget):
 
         self.initUI()
 
+        self.content.tabCloseRequested.connect(self.closeContent)
+
     def initUI(self):
 
         self.control.addTab(self.dataimport, "Import")
         self.control.addTab(self.report, "Report")
 
-        self.content.addTab(self.transactions,'Transactions')
-        self.content.addTab(self.graphview,'View')
+        self.content.setTabsClosable(True)
         self.content.hide()
 
 
@@ -101,3 +102,16 @@ class FinanceMainWidget(QWidget):
         layout.addWidget(self.control,0)
         layout.addWidget(self.content,1)
         self.setLayout(layout)
+
+    def showTransactions(self):
+        self.content.addTab(self.transactions,'Transactions')
+        self.content.show()
+
+    def closeContent(self,i):
+        self.content.removeTab(i)
+        if self.content.count()==0:
+            self.content.hide()
+
+    def showReport(self):
+        self.content.addTab(self.graphview,'View')
+        self.content.show()

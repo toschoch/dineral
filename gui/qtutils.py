@@ -125,7 +125,7 @@ class FinanceSelector(QWidget):
         QWidget.__init__(self,parent)
 
         self.period = QDateRange(self)
-        self.info = QInfo(parent=self)
+        # self.info = QInfo(parent=self)
 
         self.period.dateFrom.selectionChanged.connect(self.onDateSelected)
         self.period.dateTo.selectionChanged.connect(self.onDateSelected)
@@ -140,7 +140,7 @@ class FinanceSelector(QWidget):
         selected_year = date_to.year()
         window = self.window()
         window.budget_data = window.budget.load_data(selected_year)
-        self.info.set_info(year=selected_year)
+        # self.info.set_info(year=selected_year)
 
     def initUI(self):
         raise NotImplementedError
