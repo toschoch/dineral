@@ -49,8 +49,12 @@ class DataFrameModel(QAbstractTableModel):
         if not index.isValid():
             return QVariant()
 
-        value = self.df.ix[index.row(), index.column()]
-        text = unicode(value)
+        text = self.df.ix[index.row(), index.column()]
+        try:
+            text = unicode(text)
+        except (UnicodeEncodeError,UnicodeDecodeError):
+            pass
+
         return QVariant(text)
 
     def flags(self, index):

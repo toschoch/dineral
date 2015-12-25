@@ -17,13 +17,13 @@ from gui import FinanceMain
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO,format='%(asctime)s %(name)-25s %(levelname)-8s %(message)s')
 
     log = logging.getLogger()
 
     app = QApplication(sys.argv)
 
-    log.info("Start")
+    log.info("Start program...")
     w = FinanceMain(plugins=plugins)
     w.show()
 

@@ -16,7 +16,7 @@ from qtfinanceedit import FinanceTransactions
 from qtfinanceview import FinanceView
 from qtsettings import Settings
 
-from internaldata import Budget,Database
+from internaldata import Budget,Database,Classifier
 
 class FinanceMain(QMainWindow):
 
@@ -25,7 +25,9 @@ class FinanceMain(QMainWindow):
 
         self.plugins = plugins
         self.budget = Budget()
+        self.budget_data = None
         self.database = Database()
+        self.classifier = Classifier()
 
         self.setWindowIcon(QIcon(r'res/icon.png'))
 
@@ -34,6 +36,11 @@ class FinanceMain(QMainWindow):
         self.setCentralWidget(self.main)
 
         self.initMenu()
+
+        self.classifier_clf = self.classifier.load()
+
+        self.database_data = self.database.load_data()
+        self.main.dataimport.info.set_info(nentries=len(self.database_data))
 
     def initMenu(self):
 
@@ -60,7 +67,7 @@ class FinanceMain(QMainWindow):
 
     def settings(self):
 
-        settings = Settings(self.plugins,[self.budget,self.database])
+        settings = Settings(self.plugins,[self.budget,self.database,self.classifier])
         settings.exec_()
 
 
@@ -87,7 +94,7 @@ class FinanceMainWidget(QWidget):
 
         self.content.addTab(self.transactions,'Transactions')
         self.content.addTab(self.graphview,'View')
-        # self.content.hide()
+        self.content.hide()
 
 
         layout = QtW.QHBoxLayout()

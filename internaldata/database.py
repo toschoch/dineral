@@ -20,9 +20,15 @@ class Database(Property):
 
     def load_data(self):
         fname = self.filename(self.FROM_BACKUP)
-        data = pd.read_csv(fname)
+        log.info("load database from {}...".format(fname))
+        data = pd.read_csv(fname,delimiter=";")
         if self.BACKUP and not self.FROM_BACKUP:
+            log.debug("Save a backup copy of the database...")
             self.save_data(data, backup=True)
+
+        # make categories
+        data.Kategorie = pd.Categorical(data.Kategorie)
+        return data
 
     def save_data(self, data, backup=False):
         if backup and self.FROM_BACKUP:

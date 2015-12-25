@@ -7,52 +7,40 @@ Created by Tobias Schoch on 11.11.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PyQt5 import QtWidgets as QtW
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QModelIndex, QDate, QThread
+import logging
+log = logging.getLogger(__name__)
 
-import pandas as pd
-from qttransactiontable import TransactionTable
-from qtpandas import DataFrameWidget
-from qtutils import QDateRange, QCheckBoxGroup
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtCore import QDate
+
+from qtutils import QCheckBoxGroup, FinanceSelector
 from qtimport import DataImport
 
 import pandas as pd
 
 clf_file = 'data/classifier.pickle'
 
+class FinanceDataImport(FinanceSelector):
 
-class FinanceDataImport(QWidget):
+    def __init__(self, plugins, parent=None):
+        FinanceSelector.__init__(self,parent)
 
-    def __init__(self, plugins, parent):
-        QWidget.__init__(self,parent)
-
-        self.period = QDateRange(self)
         self.sources = QCheckBoxGroup([d.name() for d in plugins],'Import from:',self)
-        self.indicator = QtW.QLabel(self)
         self.btnImport = QtW.QPushButton("Import",self)
         self.importer = DataImport(plugins,parent=self)
+
+        self.initUI()
+        self.setStartDate()
 
         self.importer.success.connect(self.showData)
         self.btnImport.clicked.connect(self.importData)
 
-        self.period.dateFrom.selectionChanged.connect(self.onDateSelected)
-        self.period.dateTo.selectionChanged.connect(self.onDateSelected)
-
-        self.initUI()
-
-        self.setStartDate()
 
     def initUI(self):
 
-        frame = QtW.QFrame(self)
-        frame.setFrameShadow(QtW.QFrame.Sunken)
-        row = QtW.QHBoxLayout()
-        row.addWidget(self.indicator)
-        frame
-
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
+        layout.addWidget(self.info)
         layout.addWidget(self.sources)
         layout.addStretch(1)
 
@@ -66,17 +54,6 @@ class FinanceDataImport(QWidget):
         today = QDate.currentDate()
         self.period.dateFrom.setSelectedDate(QDate(today.year(),today.month()-1,1))
         self.period.dateTo.setSelectedDate(QDate(today.year(),today.month()-1,QDate(today.year(),today.month()-1,1).daysInMonth()))
-
-    def onDateSelected(self):
-        date_to = self.period.dateTo.selectedDate()
-        date_from = self.period.dateFrom.selectedDate()
-        firstDay = QDate(date_to.year(),1,1)
-        if firstDay>date_from:
-            self.period.dateFrom.setSelectedDate(firstDay)
-
-        selected_year = date_to.year()
-        window = self.window()
-        self.budget = window.budget.load_data(selected_year)
 
 
     # def save_imported(self, data):
@@ -109,59 +86,46 @@ class FinanceDataImport(QWidget):
 
     def showData(self, data):
 
-        start, stop = self.selectedPeriod
+        window = self.window()
 
-        print data
-        #
-        # from datacollect import load_budget
-        # budget = load_budget(start=start,stop=stop)
-        # self.budget = budget
-        #
-        # import numpy as np
-        # data.Kategorie = pd.Categorical([np.NaN]*data.shape[0],categories=budget.Kategorie)
-    #
-    #     hashes = self.create_hashes(data)
-    #     db = load_database(budget.Kategorie.tolist())
-    #     db.set_index('Hash',inplace=True,drop=False)
-    #
-    #     self.db = db
-    #
-    #     in_db = hashes.isin(db.index)
-    #     data['Database']=in_db
-    #     data['Deleted']=False
-    #     data.set_index(hashes,inplace=True)
-    #
-    #     joined=data.join(db,how='inner',lsuffix='_data')[['Kategorie','Deleted']]
-    #     data.ix[joined.index,['Kategorie','Deleted']]=joined
-    #
-    #     data=data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']]
-    #     data.reset_index(inplace=True)
-    #
-    #     self.imported_data = data
-    #
-    #     # categorize
-    #     import pickle, os
-    #     if os.path.isfile(clf_file):
-    #         with open(clf_file,'rb') as fp:
-    #             clf = pickle.load(fp)
-    #
-    #     classes = pd.Series(clf.classes_names,name='Kategorie')
-    #     I = ~in_db
-    #     if I.any():
-    #         prediction = classes[clf.predict(data[I].Text)]
-    #         data.loc[I,'Deleted'] = (prediction == 'Delete').values
-    #         guessed = pd.Categorical(prediction,categories=classes)
-    #
-    #         data.Kategorie = pd.Categorical(data.Kategorie,classes)
-    #         data.loc[I,'Kategorie'] = guessed
-    #
-    #     data.loc[data.Deleted,'Kategorie']=np.nan
-    #     data.Kategorie = pd.Categorical(data.Kategorie,self.budget.Kategorie.tolist())
-    #
-    #     self.main.status.clearMessage()
-    #     self.main.progress.setValue(0)
-    #
-    #     self.main.centralWidget().content.addWidget(TransactionTable(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']],self))
+        db = window.database_data
+        db.set_index('Hash',inplace=True,drop=False)
+
+        import numpy as np
+        data.Kategorie = pd.Categorical([np.NaN]*data.shape[0],categories=db.Kategorie.cat.categories)
+
+        hashes = self.create_hashes(data)
+
+        log.info("lookup imported data in database...")
+        in_db = hashes.isin(db.index)
+        data['Database']=in_db
+        data['Deleted']=False
+        data.set_index(hashes,inplace=True)
+
+        joined=data.join(db,how='inner',lsuffix='_data')[['Kategorie','Deleted']]
+        joined.Kategorie = pd.Categorical(joined.Kategorie,data.Kategorie.cat.categories)
+        data.ix[joined.index,['Kategorie','Deleted']]=joined
+
+        data=data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']]
+        data.reset_index(inplace=True)
+
+        clf = window.classifier_clf
+
+        log.info("classify imported data...")
+        classes = pd.Series(clf.classes_names,name='Kategorie')
+        I = ~in_db
+        if I.any():
+            prediction = classes[clf.predict(data[I].Text)]
+            data.loc[I,'Deleted'] = (prediction == 'Delete').values
+            prediction[prediction == 'Delete'] = np.NaN
+            guessed = pd.Categorical(prediction,categories=data.Kategorie.cat.categories)
+            data.loc[I,'Kategorie'] = guessed
+
+        data.loc[data.Deleted,'Kategorie']=np.nan
+
+        main = window.main
+        main.transactions.table.setDataFrame(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
+        main.content.show()
 
     @staticmethod
     def create_hashes(data):
@@ -176,24 +140,26 @@ class FinanceDataImport(QWidget):
         return data.apply(hash,axis=1).Hash
 
 
-class FinanceReport(QWidget):
-    def __init__(self, parent):
-        QWidget.__init__(self,parent)
-        self.period = QDateRange(self)
-        self.buttonReport = QtW.QPushButton("Create Report",self)
-        self.buttonReport.clicked.connect(self.createReport)
+class FinanceReport(FinanceSelector):
+    def __init__(self, parent=None):
+
+        FinanceSelector.__init__(self,parent)
+
+        self.btnReport = QtW.QPushButton("Create Report",self)
+        self.btnReport.clicked.connect(self.createReport)
 
         self.initUI()
-
         self.setStartDate()
+
 
     def initUI(self):
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
+        layout.addWidget(self.info)
         layout.addStretch(1)
         row = QtW.QHBoxLayout()
         row.addStretch(1)
-        row.addWidget(self.buttonReport)
+        row.addWidget(self.btnReport)
         layout.addLayout(row)
         self.setLayout(layout)
 

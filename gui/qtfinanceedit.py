@@ -10,12 +10,15 @@ Copyright (c) 2015. All rights reserved.
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
 
+from qttransactiontable import TransactionTable
+
 class FinanceTransactions(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
-        self.table = QtW.QTableView(self)
+        # self.table = QtW.QTableView(self)
+        self.table = TransactionTable(parent=self)
 
         self.btnSave = QtW.QPushButton("Save",self)
         self.btnCancel = QtW.QPushButton("Cancel",self)

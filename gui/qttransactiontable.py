@@ -8,9 +8,9 @@ Copyright (c) 2015. All rights reserved.
 """
 
 from PyQt5 import QtWidgets as QtW
-from PyQt5.QtWidgets import QWidget, QMainWindow, QSizePolicy, QStyledItemDelegate
-from PyQt5.QtCore import Qt, QModelIndex, QDate, QEvent
-from PyQt5.QtGui import QIcon, QKeyEvent, QBrush, QColor
+from PyQt5.QtWidgets import QWidget, QSizePolicy, QStyledItemDelegate
+from PyQt5.QtCore import Qt, QEvent, QModelIndex
+from PyQt5.QtGui import QKeyEvent,  QColor
 
 from seaborn.palettes import color_palette
 import pandas as pd
@@ -63,8 +63,6 @@ class TransactionTableModel(DataFrameModel):
                 return DataFrameModel.data(self,index,role)
         else:
             return DataFrameModel.data(self,index,role)
-
-
 
 class TransactionTableView(QtW.QTableView):
 
@@ -132,12 +130,6 @@ class TransactionTable(DataFrameWidget):
         self.dataTable.setEditTriggers(QtW.QTableView.SelectedClicked)
         self.dataTable.setWordWrap(True)
 
-        self.buttonSave = QtW.QPushButton("Save",self)
-        self.buttonCancel = QtW.QPushButton("Cancel",self)
-
-        self.buttonCancel.clicked.connect(self.close)
-        self.buttonSave.clicked.connect(self.save)
-
 
         # Set DataFrame
         self.initUI()
@@ -145,20 +137,10 @@ class TransactionTable(DataFrameWidget):
         # Set DataFrame
         self.setDataFrame(data)
 
-
-    def save(self):
-        self.parent_.save_imported(self.dataModel.df)
-        self.close()
-
     def initUI(self):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         layout = QtW.QVBoxLayout()
         layout.addWidget(self.dataTable,1)
-        row = QtW.QHBoxLayout()
-        row.addStretch(1)
-        row.addWidget(self.buttonSave)
-        row.addWidget(self.buttonCancel)
-        layout.addLayout(row)
         self.setLayout(layout)
 
     def setDataFrame(self, data):

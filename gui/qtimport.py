@@ -56,7 +56,7 @@ class ImportProcess(QThread):
         self.kwargs = kwargs
 
     def run(self):
-        log.info("Importer Started")
+        log.info("Importer started")
         data = []
         for plugin in self.plugins:
             if not plugin.LOAD: continue
@@ -69,5 +69,9 @@ class ImportProcess(QThread):
         self.progressClose.emit()
         if len(data)>0:
             data = pd.concat(data,axis=0)
+            data.reset_index(inplace=True)
             if not data.empty:
+                log.info("Data successfully imported! ({} entries)".format(len(data)))
                 self.success.emit(data)
+        else:
+            log.info("No data found for the selected period!")
