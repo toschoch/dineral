@@ -22,6 +22,7 @@ if __name__ == '__main__':
     log = logging.getLogger()
 
     app = QApplication(sys.argv)
+    app.setApplicationName('MyFinances')
 
     log.info("Start program...")
     w = FinanceMain(plugins=plugins)

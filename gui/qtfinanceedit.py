@@ -7,6 +7,9 @@ Created by Tobias Schoch on 01.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
+import logging
+log = logging.getLogger(__name__)
+
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
 
@@ -17,11 +20,14 @@ class FinanceTransactions(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
-        # self.table = QtW.QTableView(self)
         self.table = TransactionTable(parent=self)
 
         self.btnSave = QtW.QPushButton("Save",self)
+        self.btnSave.setEnabled(False)
+        self.btnSave.clicked.connect(self.save)
         self.btnCancel = QtW.QPushButton("Cancel",self)
+        self.btnCancel.setEnabled(False)
+        self.btnCancel.clicked.connect(self.clear)
 
         self.lblHeader = QtW.QLabel("Period: ",self)
         self.lblHeader.setFixedHeight(22)
@@ -30,6 +36,32 @@ class FinanceTransactions(QWidget):
         self.lblStatus = QtW.QLabel(self)
 
         self.initUI()
+
+    def save(self):
+
+        data = self.table.dataModel.df
+        log.info("save {} entries to database...".format(len(data)))
+
+        main = self.window()
+
+        db = main.database_data
+        main.database_data = data.drop('Database',axis=1).combine_first(db)
+        main.database_data.sort('Datum',inplace=True)
+
+        main.database.save_data(main.database_data)
+
+        self.clear()
+
+    def clear(self):
+        self.btnSave.setEnabled(False)
+        self.btnCancel.setEnabled(False)
+        self.table.setDataFrame(None)
+
+    def setData(self, data=None):
+        enabled = (data is not None)
+        self.btnSave.setEnabled(enabled)
+        self.btnCancel.setEnabled(enabled)
+        self.table.setDataFrame(data)
 
     def initUI(self):
 
@@ -50,5 +82,7 @@ class FinanceTransactions(QWidget):
         hl.addWidget(self.btnCancel,0)
 
         vlayout.addLayout(hl)
+
+        self.setLayout(vlayout)
 
         self.setContentsMargins(0,0,0,0)

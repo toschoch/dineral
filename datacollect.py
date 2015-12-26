@@ -120,36 +120,7 @@ def load_Expenses_from_phone(start,stop):
 
 
 
-def expand_EFinance(data):
-    """ expand all unspecific E-Finance entries with the corresponding entries from the payment confirmation
 
-        Parameters
-        ----------
-        data:           (numpy.rec.recarray) table with data
-
-        Returns
-        -------
-        (numpy.rec.recarray) table with data, columns: date, description, amount
-
-    """
-
-    I = data['Text'].str.startswith('E-FINANCE AUFTRAG')
-
-    new = []
-    for i,row in data[I].iterrows():
-
-        try:
-            pdffile = glob.glob(os.path.join(confirmation_path, row['Datum'].strftime('%Y-%m-%d') + u'.pdf'))[0]
-            newrows = load_PostFinancePaymentConfirmation(pdffile)
-            new.append(newrows)
-        except IndexError:
-            pass
-
-    new.append(data[np.logical_not(I)])
-
-    new = pd.concat(new, axis=0)
-
-    return new
 
 
 def load_PostFinanceData(start,stop=datetime.now(),data=None,callback=None):

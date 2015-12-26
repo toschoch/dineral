@@ -6,6 +6,7 @@ mastercard.py
 Created by Tobias Schoch on 02.12.15.
 Copyright (c) 2015. All rights reserved.
 """
+from __future__ import unicode_literals
 
 from abstract import DataPlugin
 
@@ -69,7 +70,7 @@ class MasterCard(DataPlugin):
         else:
             dprog=0
 
-        log.info("load files: {}".format(files2load))
+        log.info("load files: {}".format(", ".join(files2load)))
 
         for fname in files2load:
 

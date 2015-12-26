@@ -22,6 +22,7 @@ class FinanceMain(QMainWindow):
 
     def __init__(self, plugins, **kwargs):
         QMainWindow.__init__(self)
+        self.setWindowTitle("MyFinances")
 
         self.plugins = plugins
         self.budget = Budget()
@@ -87,31 +88,17 @@ class FinanceMainWidget(QWidget):
 
         self.initUI()
 
-        self.content.tabCloseRequested.connect(self.closeContent)
+        # self.content.tabCloseRequested.connect(self.closeContent)
 
     def initUI(self):
 
         self.control.addTab(self.dataimport, "Import")
         self.control.addTab(self.report, "Report")
 
-        self.content.setTabsClosable(True)
-        self.content.hide()
-
+        self.content.addTab(self.transactions,'Transactions')
+        self.content.addTab(self.graphview,'View')
 
         layout = QtW.QHBoxLayout()
         layout.addWidget(self.control,0)
         layout.addWidget(self.content,1)
         self.setLayout(layout)
-
-    def showTransactions(self):
-        self.content.addTab(self.transactions,'Transactions')
-        self.content.show()
-
-    def closeContent(self,i):
-        self.content.removeTab(i)
-        if self.content.count()==0:
-            self.content.hide()
-
-    def showReport(self):
-        self.content.addTab(self.graphview,'View')
-        self.content.show()

@@ -69,7 +69,7 @@ class ImportProcess(QThread):
         self.progressClose.emit()
         if len(data)>0:
             data = pd.concat(data,axis=0)
-            data.reset_index(inplace=True)
+            data.reset_index(inplace=True,drop=True)
             if not data.empty:
                 log.info("Data successfully imported! ({} entries)".format(len(data)))
                 self.success.emit(data)

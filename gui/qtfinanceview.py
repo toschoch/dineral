@@ -9,9 +9,14 @@ Copyright (c) 2015. All rights reserved.
 
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
+import seaborn
+import matplotlib as mpl
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
+# set some settings for the style
+mpl.rcParams['xtick.labelsize']='large'
+mpl.rcParams['ytick.labelsize']='large'
 class FinanceView(QWidget):
 
     def __init__(self, parent=None):

@@ -58,6 +58,7 @@ class Property(LocationType):
         with open(pFile,'w+') as fp:
             properties[self.__class__.__name__] = self.properties
             json.dump(properties,fp,indent=2)
+            log.info(u"stored property for {}: {}".format(self.__class__.__name__,self.properties))
 
     def restore(self):
         import json,os
@@ -66,5 +67,6 @@ class Property(LocationType):
         with open(pFile,'r') as fp:
             properties = json.load(fp)
             self.properties = properties[self.__class__.__name__]
+            log.info(u"restored property for {}: {}".format(self.__class__.__name__,self.properties))
 
 

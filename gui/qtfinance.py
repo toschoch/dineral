@@ -55,23 +55,6 @@ class FinanceDataImport(FinanceSelector):
         self.period.dateFrom.setSelectedDate(QDate(today.year(),today.month()-1,1))
         self.period.dateTo.setSelectedDate(QDate(today.year(),today.month()-1,QDate(today.year(),today.month()-1,1).daysInMonth()))
 
-
-    # def save_imported(self, data):
-    #     data.Datum = pd.to_datetime(data.Datum)
-    #     self.imported_data.Datum = pd.to_datetime(self.imported_data.Datum)
-    #     self.imported_data.ix[data.index,data.columns]=data
-    #     msg = "{} transaction imported".format(data.shape[0])
-    #     self.main.status.showMessage(msg)
-    #
-    #     from datacollect import save_database
-    #     imported_data = self.imported_data.set_index('Hash',drop=False)
-    #     imported_data.drop('Database',axis=1,inplace=True)
-    #     imported_data.Kategorie = pd.Categorical(imported_data.Kategorie,categories=self.budget.Kategorie.tolist())
-    #     self.db = imported_data.combine_first(self.db)
-    #     self.db.sort('Datum',inplace=True)
-    #     save_database(self.db)
-    #
-    #
     def importData(self):
 
         start = self.period.dateFrom.selectedDate().toPyDate()
@@ -101,31 +84,33 @@ class FinanceDataImport(FinanceSelector):
         data['Database']=in_db
         data['Deleted']=False
         data.set_index(hashes,inplace=True)
+        log.info("found {} of {} entries in database...".format(in_db.sum(),len(data)))
 
         joined=data.join(db,how='inner',lsuffix='_data')[['Kategorie','Deleted']]
         joined.Kategorie = pd.Categorical(joined.Kategorie,data.Kategorie.cat.categories)
         data.ix[joined.index,['Kategorie','Deleted']]=joined
 
-        data=data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']]
+        data=pd.DataFrame(data[['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
         data.reset_index(inplace=True)
 
         clf = window.classifier_clf
 
-        log.info("classify imported data...")
         classes = pd.Series(clf.classes_names,name='Kategorie')
         I = ~in_db
         if I.any():
+            log.info("classify imported data...")
             prediction = classes[clf.predict(data[I].Text)]
             data.loc[I,'Deleted'] = (prediction == 'Delete').values
             prediction[prediction == 'Delete'] = np.NaN
             guessed = pd.Categorical(prediction,categories=data.Kategorie.cat.categories)
             data.loc[I,'Kategorie'] = guessed
+            log.info("categorized {} new entries...".format(len(guessed)))
 
-        data.loc[data.Deleted,'Kategorie']=np.nan
+        data.ix[data.Deleted,'Kategorie']=np.nan
+        data.Kategorie = pd.Categorical(data.Kategorie,db.Kategorie.cat.categories)
 
         main = window.main
-        main.transactions.table.setDataFrame(data.loc[:,['Datum','Text','Lastschrift','Database','Deleted','Kategorie']])
-        main.showTransactions()
+        main.transactions.setData(data)
 
     @staticmethod
     def create_hashes(data):

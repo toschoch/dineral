@@ -95,7 +95,7 @@ class DataFrameWidget(QWidget):
         layout.addWidget(self.dataTable)
         self.setLayout(layout)
 
-    def getMaxColumnHeight(self):
+    def getMaxRowHeight(self):
         return max([self.dataTable.rowHeight(i) for i in range(self.dataModel.rowCount())]+[10])
 
 

@@ -68,6 +68,7 @@ class TransactionTableView(QtW.QTableView):
 
     def __init__(self,parent):
         QtW.QTableView.__init__(self,parent)
+        self.horizontalHeader().setStretchLastSection(True)
         self.n_pressed = 0
         self.last_key = None
 
@@ -116,6 +117,8 @@ class TransactionTableView(QtW.QTableView):
 
 class TransactionTable(DataFrameWidget):
 
+    columns = ['Datum','Text','Lastschrift','Database','Deleted','Kategorie']
+
     def __init__(self, data=pd.DataFrame(columns=['Datum','Text','Lastschrift','Database','Deleted','Kategorie']), parent=None):
 
         QWidget.__init__(self,parent=parent)
@@ -130,7 +133,6 @@ class TransactionTable(DataFrameWidget):
         self.dataTable.setEditTriggers(QtW.QTableView.SelectedClicked)
         self.dataTable.setWordWrap(True)
 
-
         # Set DataFrame
         self.initUI()
 
@@ -144,6 +146,7 @@ class TransactionTable(DataFrameWidget):
         self.setLayout(layout)
 
     def setDataFrame(self, data):
+        if data is None: data=pd.DataFrame(columns=self.columns)
         self.dataModel.setDataFrame(data)
         for i,dt in enumerate(data.dtypes):
             try:
@@ -151,6 +154,9 @@ class TransactionTable(DataFrameWidget):
             except:
                 if data.ix[:,i].dtype==bool:
                     self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,['True','False']))
+            # hide all but columns
+            if data.columns[i] not in self.columns:
+                self.dataTable.hideColumn(i)
         self.dataModel.signalUpdate()
         self.dataTable.resizeColumnsToContents()
         self.dataTable.resizeRowsToContents()
@@ -158,10 +164,10 @@ class TransactionTable(DataFrameWidget):
         self.i_cat = self.dataModel.i_categorie
         self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
         self.dataTable.setColumnWidth(self.i_cat,200)
-        h = self.getMaxColumnHeight()
+        h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
             self.dataTable.setRowHeight(i,h)
-        self.setFixedWidth(self.getWidth())
+        self.setFixedWidth(802)
         self.setMinimumHeight(400)
 
 class TransactionItemDelegate(QStyledItemDelegate):
