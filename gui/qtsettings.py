@@ -17,8 +17,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from PyQt5 import QtCore
 import PyQt5.QtWidgets as QtGui
+from PyQt5.QtGui import QFont, QFontMetrics
 
 class DataPluginProperty(QtGui.QWidget):
 
@@ -31,15 +31,24 @@ class DataPluginProperty(QtGui.QWidget):
 
         self.label = QtGui.QLabel("{}:".format(plugin.name()),self)
         layout.addWidget(self.label,0)
-        self.line = QtGui.QLineEdit(plugin.properties,self)
+        self.line = QtGui.QLineEdit(plugin.representation(),self)
         self.line.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         self.line.setReadOnly(True)
         layout.addWidget(self.line,1)
         button = QtGui.QPushButton('choose',self)
+        button.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.MinimumExpanding))
         button.clicked.connect(self.choose)
         layout.addWidget(button,0)
 
         self.setLayout(layout)
+
+    def lineWidth(self):
+        font = QFont("",0)
+        fm = QFontMetrics(font)
+        text = self.line.text()
+        return fm.width(text)
+
+
 
     def choose(self):
 
@@ -65,6 +74,7 @@ class Settings(QtGui.QDialog):
         layout = QtGui.QVBoxLayout()
 
         sources = QDataPluginsSettings(plugins,'Sources',self)
+        sources.SetOptimalEditWidth()
         internal = QDataPluginsSettings(internal,'Internal',self)
 
         layout.addWidget(sources)
@@ -95,7 +105,7 @@ class QDataPluginsSettings(QtGui.QGroupBox):
         self.setLayout(layout)
         w = self.GetlabelWidth()
         self.SetlabelWidth(w)
-        self.SetEditWidth(300)
+
 
     def GetlabelWidth(self):
         return max([p.label.width() for p in self.props])
@@ -104,6 +114,10 @@ class QDataPluginsSettings(QtGui.QGroupBox):
         for p in self.props:
             p.label.setFixedWidth(width)
 
-    def SetEditWidth(self, width):
+    def GetOptimalEditWidth(self):
+        return max([p.lineWidth() for p in self.props])
+
+    def SetOptimalEditWidth(self):
+        w = self.GetOptimalEditWidth()
         for p in self.props:
-            p.line.setFixedWidth(width)
+            p.line.setFixedWidth(w)

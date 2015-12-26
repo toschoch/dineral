@@ -26,7 +26,8 @@ class Budget(Property):
     FILENAME = 'Budget.csv'
 
     def representation(self):
-        return self.filename('{year}')
+        location = os.path.join(self.properties,'{year}')
+        return os.path.join(location,self.FILENAME)
 
     def load_data(self, year):
         fname = self.filename(year)

@@ -24,6 +24,9 @@ class PostFinance(DataPlugin):
     Extracts_Path = "Konto Auszüge Postkonto"
     Confirmation_Path = "Zahlungsbestätigungen"
 
+    def representation(self):
+        return "{}/{{{}, {}}}/".format(self.properties,self.Extracts_Path,self.Confirmation_Path)
+
     def load_data(self, period_from, period_to, callback=None):
 
         start = datetime.date(period_from.year,period_from.month,1)
