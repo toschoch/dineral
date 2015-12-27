@@ -106,9 +106,10 @@ class FinanceMainWidget(QWidget):
         if self.content.tabText(i)=='View':
 
             main = self.window()
+            categories = main.database.data.Kategorie.cat.categories.tolist()
 
             self.graphview.comboGraph.clear()
-            self.graphview.comboGraph.addItems(main.database.data.Kategorie.cat.categories.tolist())
+            self.graphview.comboGraph.addItems(categories)
             self.graphview.PlotSelected()
 
             self.graphview.comboGraph.setFocus()

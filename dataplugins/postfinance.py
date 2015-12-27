@@ -95,6 +95,7 @@ class PostFinance(DataPlugin):
 
             lines = fp.read().splitlines()
 
+        lines = map(unicode,lines)
         os.remove(filename)
 
         table=[]

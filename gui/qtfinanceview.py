@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QWidget
 import pandas as pd
 import datetime
 import seaborn
+seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.3)
 import matplotlib as mpl
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
@@ -58,12 +59,13 @@ class FinanceView(QWidget):
     def PlotSelected(self, i=None):
         from plots.statistics import calculate_monthly
         from plots.defaults import monthly_settings
-        from plots.categories import plot_income
+        from plots.categories import plot_income, plot_expense
 
         colors = iter(seaborn.color_palette())
 
         window = self.window()
         db = window.database.data
+        budget = window.budget.data
 
         data = db[db.Datum>=datetime.date(window.selected_year,1,1)]
 
@@ -78,13 +80,12 @@ class FinanceView(QWidget):
         monthly_sum = calculate_monthly(data)
 
         self.graph.axes.cla()
-        plot_income(self.graph.axes, monthly_sum, category)
 
-        # total = monthly_sum.sum(axis=1)
-        # ax = total.plot(ax=self.graph.axes,color=next(colors))
-
-        # avg = total.mean()
-        # ax.axhline(avg,linestyle='--',color=next(colors))
+        budget = budget.set_index('Kategorie')
+        if budget.ix[category,'Jahresbudget'] > 0:
+            plot_income(self.graph.axes, monthly_sum, budget, category)
+        else:
+            plot_expense(self.graph.axes, monthly_sum, budget, category)
 
         monthly_settings(self.graph.axes)
 

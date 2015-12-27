@@ -6,23 +6,27 @@ categories.py
 Created by Tobias Schoch on 27.12.15.
 Copyright (c) 2015. All rights reserved.
 """
+import seaborn as sns
 
-def plot_income(ax, data, category):
+def plot_income(ax, data, budget, category, title='Income', linecolor=sns.xkcd_rgb['medium green'], sign=1, fill_alpha=0.4):
 
-    linecolor='#5B9ECF'
-    try:
-        ax = data[category].plot(ax=ax,linewidth=2,color=linecolor,marker='o')
-    except:
-        return
+    icategory = category.encode('utf-8')
 
-    ax.fill_between(data.index,data[category],color=linecolor,alpha=0.6)
+    ax = (-sign*data[icategory]).plot(ax=ax,linewidth=2,color=linecolor,marker='o')
 
-    pavg = ax.axhline(data[category].mean(),color='r',alpha=0.4,linewidth=2,linestyle='--')
+    ax.fill_between(data.index,-sign*data[icategory],color=linecolor,alpha=fill_alpha)
 
-    ax.set_title('Ausgaben '+category,size=12)
-    # if budget is not None:
-    #
-    #     pbud, =plt.plot(category_data.Datum,np.repeat(-bud,len(category_data)),color='g',alpha=0.4,linewidth=2,linestyle='--')
-    #     plt.legend([pavg,pbud],['Durchschnitt {0:.0f} CHF'.format(avg),'Budget {0:.0f} CHF'.format(-bud)],prop=fp)
-    # else:
-    ax.legend([pavg],['Average {0:.0f} CHF'.format(data[category].mean())])
+    avg = -sign*(data[icategory].mean())
+    pavg = ax.axhline(avg,color='r',alpha=0.4,linewidth=2,linestyle='--',label='average')
+
+    ax.set_title(title+' '+category)
+
+    bud = -sign*(budget.ix[category,'Jahresbudget']/12.)
+
+    pbud = ax.axhline(-bud,color='g',alpha=0.4,linewidth=2,linestyle='--')
+
+    ax.legend([pavg,pbud],['Average {0:.0f} CHF'.format(avg),'Budget {0:.0f} CHF'.format(-bud)])
+
+def plot_expense(ax, data, budget, category):
+
+    plot_income(ax, data, budget, category,title='Expense',linecolor='#5B9ECF', sign=-1, fill_alpha=0.4)
