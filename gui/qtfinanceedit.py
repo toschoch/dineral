@@ -29,11 +29,11 @@ class FinanceTransactions(QWidget):
         self.btnCancel.setEnabled(False)
         self.btnCancel.clicked.connect(self.clear)
 
-        self.lblHeader = QtW.QLabel("Period: ",self)
-        self.lblHeader.setFixedHeight(22)
-        self.lblPeriod = QtW.QLabel("1. April 2015 - 30. November 2015",self)
+        # self.lblHeader = QtW.QLabel("Period: ",self)
+        # self.lblHeader.setFixedHeight(22)
+        # self.lblPeriod = QtW.QLabel("1. April 2015 - 30. November 2015",self)
 
-        self.lblStatus = QtW.QLabel(self)
+        # self.lblStatus = QtW.QLabel(self)
 
         self.initUI()
 
@@ -44,11 +44,11 @@ class FinanceTransactions(QWidget):
 
         main = self.window()
 
-        db = main.database_data
-        main.database_data = data.drop('Database',axis=1).combine_first(db)
-        main.database_data.sort('Datum',inplace=True)
+        db = main.database.data
+        db = data.drop('Database',axis=1).combine_first(db)
+        db.sort('Datum',inplace=True)
 
-        main.database.save_data(main.database_data)
+        db.save_data(main.database_data)
 
         self.clear()
 
@@ -67,16 +67,16 @@ class FinanceTransactions(QWidget):
 
         vlayout = QtW.QVBoxLayout(self)
 
-        hl = QtW.QHBoxLayout()
-        hl.addWidget(self.lblHeader,0)
-        hl.addWidget(self.lblPeriod,0)
-        hl.addStretch(1)
-
-        vlayout.addLayout(hl,0)
+        # hl = QtW.QHBoxLayout()
+        # hl.addWidget(self.lblHeader,0)
+        # hl.addWidget(self.lblPeriod,0)
+        # hl.addStretch(1)
+        #
+        # vlayout.addLayout(hl,0)
         vlayout.addWidget(self.table,1)
 
         hl = QtW.QHBoxLayout()
-        hl.addWidget(self.lblStatus,0)
+        # hl.addWidget(self.lblStatus,0)
         hl.addStretch(1)
         hl.addWidget(self.btnSave,0)
         hl.addWidget(self.btnCancel,0)

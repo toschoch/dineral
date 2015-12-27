@@ -15,13 +15,13 @@ __copyright__ = '(c) Sensirion AG 2015'
 
 import logging
 import pandas as pd, os
-from property import Property
+from property import CachedProperty
 
 log = logging.getLogger(__name__)
 
-class Budget(Property):
+class Budget(CachedProperty):
 
-    TYPE = Property.DIR
+    TYPE = CachedProperty.DIR
 
     FILENAME = 'Budget.csv'
 
@@ -31,7 +31,9 @@ class Budget(Property):
 
     def load_data(self, year):
         fname = self.filename(year)
-        return pd.read_csv(fname,delimiter=';',encoding='utf-8')
+        data = pd.read_csv(fname,delimiter=';',encoding='utf-8')
+        self._data = data
+        return data
 
     def filename(self, year):
         lastyear=year-1

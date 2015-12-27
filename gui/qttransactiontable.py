@@ -9,7 +9,7 @@ Copyright (c) 2015. All rights reserved.
 
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QSizePolicy, QStyledItemDelegate
-from PyQt5.QtCore import Qt, QEvent, QModelIndex
+from PyQt5.QtCore import Qt, QEvent, QVariant, QAbstractTableModel
 from PyQt5.QtGui import QKeyEvent,  QColor
 
 from seaborn.palettes import color_palette
@@ -32,6 +32,7 @@ class TransactionTableModel(DataFrameModel):
 
         self.i_deleted = data.columns.tolist().index('Deleted')
         self.i_categorie = data.columns.tolist().index('Kategorie')
+        self.i_database = data.columns.tolist().index('Database')
         if data.empty:
             self.categories = []
             self.colors = color_palette('hls',n_colors=1)
@@ -43,6 +44,11 @@ class TransactionTableModel(DataFrameModel):
 
         DataFrameModel.setDataFrame(self,data)
 
+    def flags(self, index):
+        if index.column()== self.i_database:
+            return QAbstractTableModel.flags(self,index)
+        else:
+            return DataFrameModel.flags(self,index)
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.BackgroundColorRole:
@@ -62,7 +68,11 @@ class TransactionTableModel(DataFrameModel):
             else:
                 return DataFrameModel.data(self,index,role)
         else:
-            return DataFrameModel.data(self,index,role)
+            if self.df.columns[index.column()]=='Lastschrift' and role==Qt.DisplayRole:
+                amount = self.df.ix[index.row(), index.column()]
+                return QVariant(u'{:.2f} CHF'.format(amount))
+            else:
+                return DataFrameModel.data(self,index,role)
 
 class TransactionTableView(QtW.QTableView):
 
@@ -97,7 +107,7 @@ class TransactionTableView(QtW.QTableView):
             index = self.currentIndex()
             model = self.model()
             categories = pd.Series(model.categories)
-            cat = categories[categories.str.lower().str.startswith(t)]
+            cat = categories[categories.str.decode('utf-8').str.lower().str.startswith(t)]
             if len(cat)>0:
                 if t == self.last_key:
                     self.n_pressed+=1
@@ -118,6 +128,7 @@ class TransactionTableView(QtW.QTableView):
 class TransactionTable(DataFrameWidget):
 
     columns = ['Datum','Text','Lastschrift','Database','Deleted','Kategorie']
+    widths = [80,280,130,70,60,130]
 
     def __init__(self, data=pd.DataFrame(columns=['Datum','Text','Lastschrift','Database','Deleted','Kategorie']), parent=None):
 
@@ -149,11 +160,10 @@ class TransactionTable(DataFrameWidget):
         if data is None: data=pd.DataFrame(columns=self.columns)
         self.dataModel.setDataFrame(data)
         for i,dt in enumerate(data.dtypes):
-            try:
+            if self.dataModel.df.columns[i]=='Kategorie':
                 self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,self.dataModel.categories+['nan']))
-            except:
-                if data.ix[:,i].dtype==bool:
-                    self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,['True','False']))
+            elif data.ix[:,i].dtype==bool:
+                self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,['True','False']))
             # hide all but columns
             if data.columns[i] not in self.columns:
                 self.dataTable.hideColumn(i)
@@ -167,7 +177,17 @@ class TransactionTable(DataFrameWidget):
         h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
             self.dataTable.setRowHeight(i,h)
-        self.setFixedWidth(802)
+
+        self.setSizes()
+
+    def setSizes(self):
+
+        widths = iter(self.widths)
+        for i in range(self.dataModel.columnCount()):
+            if not self.dataTable.isColumnHidden(i):
+                self.dataTable.setColumnWidth(i,widths.next())
+
+        self.setFixedWidth(800)
         self.setMinimumHeight(400)
 
 class TransactionItemDelegate(QStyledItemDelegate):

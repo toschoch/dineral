@@ -9,14 +9,14 @@ Copyright (c) 2015. All rights reserved.
 
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
+
+import pandas as pd
+import datetime
 import seaborn
 import matplotlib as mpl
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
-# set some settings for the style
-mpl.rcParams['xtick.labelsize']='large'
-mpl.rcParams['ytick.labelsize']='large'
 class FinanceView(QWidget):
 
     def __init__(self, parent=None):
@@ -27,6 +27,7 @@ class FinanceView(QWidget):
         self.lblHeader = QtW.QLabel("Show: ",self)
         self.comboGraph = QtW.QComboBox(self)
         self.comboGraph.addItem('Total')
+        self.comboGraph.currentIndexChanged.connect(self.PlotSelected)
         # self.lblPeriod = QtW.QLabel("1. April 2015 - 30. November 2015",self)
 
         self.toolbar = NavigationToolbar2QT(self.graph,self)
@@ -53,6 +54,46 @@ class FinanceView(QWidget):
         #
 
         self.setContentsMargins(0,0,0,0)
+
+    def PlotSelected(self, i=None):
+        from plots.statistics import calculate_monthly
+        from plots.defaults import monthly_settings
+        from plots.categories import plot_income
+
+        colors = iter(seaborn.color_palette())
+
+        window = self.window()
+        db = window.database.data
+
+        data = db[db.Datum>=datetime.date(window.selected_year,1,1)]
+
+        if not i:
+            i = self.comboGraph.currentIndex()
+
+        if i<0:
+            return
+
+        category = self.comboGraph.itemText(i)
+
+        monthly_sum = calculate_monthly(data)
+
+        self.graph.axes.cla()
+        plot_income(self.graph.axes, monthly_sum, category)
+
+        # total = monthly_sum.sum(axis=1)
+        # ax = total.plot(ax=self.graph.axes,color=next(colors))
+
+        # avg = total.mean()
+        # ax.axhline(avg,linestyle='--',color=next(colors))
+
+        monthly_settings(self.graph.axes)
+
+        self.graph.draw()
+
+        # print monthly_sum
+
+
+
 
 class FinanceGraph(FigureCanvasQTAgg):
 

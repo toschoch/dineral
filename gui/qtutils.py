@@ -139,8 +139,8 @@ class FinanceSelector(QWidget):
 
         selected_year = date_to.year()
         window = self.window()
-        window.budget_data = window.budget.load_data(selected_year)
-        # self.info.set_info(year=selected_year)
+        window.selected_year = selected_year
+        window.budget.load_data(selected_year)
 
     def initUI(self):
         raise NotImplementedError

@@ -71,7 +71,7 @@ class FinanceDataImport(FinanceSelector):
 
         window = self.window()
 
-        db = window.database_data
+        db = window.database.data
         db.set_index('Hash',inplace=True,drop=False)
 
         import numpy as np
@@ -111,6 +111,9 @@ class FinanceDataImport(FinanceSelector):
 
         main = window.main
         main.transactions.setData(data)
+
+        main.transactions.table.dataTable.setFocus()
+
 
     @staticmethod
     def create_hashes(data):
@@ -179,39 +182,3 @@ class FinanceReport(FinanceSelector):
         # monthly_sum = db.groupby([lambda i: db.ix[i,'Kategorie'],lambda i: db.ix[i,'Datum'].month]).sum()
         #
         # print empty.combine_first(monthly_sum)
-
-# class DataImporter(QThread):
-#
-#     def __init__(self, plugins, checked, parent=None):
-#
-#         QThread.__init__(self, parent=parent)
-#
-#         self.plugins = plugins
-#         self.checked = checked
-#
-#     def run(self):
-#
-#         start, stop = self.start_date,self.stop_date
-#         main = self.main
-#
-#         progress = QtW.QProgressDialog(self.parent())
-#         progress.setWindowTitle("Import Data")
-#
-#         data = []
-#         for plugin,checked in zip(self.plugins,self.checked):
-#             if checked:
-#                 try:
-#                     progress.setLabelText(plugin.description())
-#                     d = plugin.load(start,stop)
-#                     data.append(d)
-#                 except:
-#                     pass
-#
-#         # Merge data
-#         # data = pd.concat(data,axis=0)
-#         # data = expand_EFinance(data)
-#         # data.set_index('Datum',drop=False,inplace=True)
-#         # data.sort(inplace=True)
-#         # data.reset_index(inplace=True,drop=True)
-#
-#         self.data = data

@@ -1,5 +1,5 @@
 {
-  "Database": "/home/tobi/PycharmProjects/MyFinances/internaldata/categorized2.csv", 
+  "Database": "/media/Data/Eigene Dateien/Projekte/Software Entwicklung/Python/MyFinances/internaldata/categorized.csv", 
   "Budget": "/home/tobi/Finance/Budget", 
   "Expenses": "/home/tobi/Dropbox/expenses/export.csv", 
   "MasterCard": "/home/tobi/Finance/e-Rechnungen/Mastercard", 

@@ -8,13 +8,13 @@ Copyright (c) 2015. All rights reserved.
 """
 import logging
 import pandas as pd, os
-from property import Property
+from property import CachedProperty
 
 log = logging.getLogger(__name__)
 
-class Database(Property):
+class Database(CachedProperty):
 
-    TYPE = Property.FILE
+    TYPE = CachedProperty.FILE
     FROM_BACKUP = False
     BACKUP = True
 
@@ -38,6 +38,7 @@ class Database(Property):
         import datetime
         data.Datum = data.Datum.apply(lambda x: datetime.date(x.year,x.month,x.day))
         data.Kategorie = pd.Categorical(data.Kategorie)
+        self._data = data
         return data
 
     def save_data(self, data, backup=False):
@@ -49,6 +50,7 @@ class Database(Property):
 
         log.info("saved database to {}...".format(fname))
         data.to_csv(fname,index=False,encoding='utf-8',sep=';',mode='w+')
+        self._data = data
 
     def filename(self, backup=False):
         if not backup:

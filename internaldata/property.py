@@ -70,3 +70,18 @@ class Property(LocationType):
             log.info(u"restored property for {}: {}".format(self.__class__.__name__,self.properties))
 
 
+class CachedProperty(Property):
+
+    def __init__(self):
+        Property.__init__(self)
+        self._data = None
+
+    @property
+    def data(self, *args, **kwargs):
+        if self._data is None:
+            self._data = self.load_data(*args,**kwargs)
+        return self._data
+
+
+    def load_data(self, *args, **kwargs):
+        raise NotImplementedError

@@ -73,12 +73,12 @@ class Settings(QtGui.QDialog):
 
         layout = QtGui.QVBoxLayout()
 
-        sources = QDataPluginsSettings(plugins,'Sources',self)
-        sources.SetOptimalEditWidth()
-        internal = QDataPluginsSettings(internal,'Internal',self)
+        self.sources = QDataPluginsSettings(plugins,'Sources',self)
+        self.sources.SetOptimalEditWidth()
+        self.internal = QDataPluginsSettings(internal,'Internal',self)
 
-        layout.addWidget(sources)
-        layout.addWidget(internal)
+        layout.addWidget(self.sources)
+        layout.addWidget(self.internal)
 
         self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok,parent=parent)
         layout.addWidget(self.buttons)
@@ -89,6 +89,12 @@ class Settings(QtGui.QDialog):
         self.setLayout(layout)
 
         self.setWindowTitle('Settings')
+
+    def close(self):
+        for property in self.internal.props:
+            if property.plugin.name() == 'Database':
+                property.plugin.load_data()
+        return QtGui.QDialog.close(self)
 
 class QDataPluginsSettings(QtGui.QGroupBox):
 

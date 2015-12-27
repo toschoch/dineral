@@ -10,6 +10,7 @@ Copyright (c) 2015. All rights reserved.
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QDate
 
 from qtfinance import FinanceDataImport, FinanceReport
 from qtfinanceedit import FinanceTransactions
@@ -26,9 +27,10 @@ class FinanceMain(QMainWindow):
 
         self.plugins = plugins
         self.budget = Budget()
-        self.budget_data = None
         self.database = Database()
         self.classifier = Classifier()
+
+        self.selected_year = QDate.currentDate().year()
 
         self.setWindowIcon(QIcon(r'res/icon.png'))
 
@@ -40,8 +42,6 @@ class FinanceMain(QMainWindow):
 
         self.classifier_clf = self.classifier.load()
 
-        self.database_data = self.database.load_data()
-        # self.main.dataimport.info.set_info(nentries=len(self.database_data))
 
     def initMenu(self):
 
@@ -88,8 +88,6 @@ class FinanceMainWidget(QWidget):
 
         self.initUI()
 
-        # self.content.tabCloseRequested.connect(self.closeContent)
-
     def initUI(self):
 
         self.control.addTab(self.dataimport, "Import")
@@ -97,8 +95,20 @@ class FinanceMainWidget(QWidget):
 
         self.content.addTab(self.transactions,'Transactions')
         self.content.addTab(self.graphview,'View')
+        self.content.currentChanged.connect(self.contentChanged)
 
         layout = QtW.QHBoxLayout()
         layout.addWidget(self.control,0)
         layout.addWidget(self.content,1)
         self.setLayout(layout)
+
+    def contentChanged(self, i):
+        if self.content.tabText(i)=='View':
+
+            main = self.window()
+
+            self.graphview.comboGraph.clear()
+            self.graphview.comboGraph.addItems(main.database.data.Kategorie.cat.categories.tolist())
+            self.graphview.PlotSelected()
+
+            self.graphview.comboGraph.setFocus()
