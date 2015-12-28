@@ -139,6 +139,14 @@ class FinanceReport(FinanceSelector):
         self.initUI()
         self.setStartDate()
 
+    def onDateSelected(self):
+        FinanceSelector.onDateSelected(self)
+
+        date_from = self.period.dateFrom.selectedDate()
+        selected_year = date_from.year()
+        window = self.window()
+        window.budget.load_data(selected_year)
+
 
     def initUI(self):
         layout = QtW.QVBoxLayout(self)

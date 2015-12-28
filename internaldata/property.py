@@ -15,7 +15,6 @@ __copyright__ = '(c) Sensirion AG 2015'
 
 import logging
 
-
 log = logging.getLogger(__name__)
 
 class LocationType(object):

@@ -10,11 +10,9 @@ Copyright (c) 2015. All rights reserved.
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
 
-import pandas as pd
 import datetime
 import seaborn
 seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.3)
-import matplotlib as mpl
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
@@ -57,17 +55,15 @@ class FinanceView(QWidget):
         self.setContentsMargins(0,0,0,0)
 
     def PlotSelected(self, i=None):
-        from plots.statistics import calculate_monthly
-        from plots.defaults import monthly_settings
-        from plots.categories import plot_income, plot_expense
+        from plots.statistics import calculate_monthly, calculate_summary
+        from plots.categories import plot
+        from plots import additional_plots, additional_plots_names
 
         colors = iter(seaborn.color_palette())
 
         window = self.window()
         db = window.database.data
         budget = window.budget.data
-
-        data = db[db.Datum>=datetime.date(window.selected_year,1,1)]
 
         if not i:
             i = self.comboGraph.currentIndex()
@@ -77,23 +73,21 @@ class FinanceView(QWidget):
 
         category = self.comboGraph.itemText(i)
 
-        monthly_sum = calculate_monthly(data)
 
-        self.graph.axes.cla()
+        monthly_sum = calculate_monthly(db, date_from=window.budget.date_from)
+        budget = calculate_summary(monthly_sum, budget, date_from=window.budget.date_from, date_to=db.Datum.max())
 
-        budget = budget.set_index('Kategorie')
-        if budget.ix[category,'Jahresbudget'] > 0:
-            plot_income(self.graph.axes, monthly_sum, budget, category)
+        if category in additional_plots_names:
+
+            additional_plots[additional_plots_names.index(category)].plot(monthly_sum,budget,self.graph.axes)
+
         else:
-            plot_expense(self.graph.axes, monthly_sum, budget, category)
 
-        monthly_settings(self.graph.axes)
+            self.graph.axes.cla()
 
-        self.graph.draw()
+            plot(category,monthly_sum,budget,self.graph.axes)
 
-        # print monthly_sum
-
-
+            self.graph.draw()
 
 
 class FinanceGraph(FigureCanvasQTAgg):

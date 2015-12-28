@@ -7,6 +7,16 @@ Created by Tobias Schoch on 27.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 import seaborn as sns
+from defaults import monthly_settings
+
+def plot(category, data, budget, axes):
+
+    if budget.ix[category,'Jahresbudget'] > 0:
+        plot_income(axes, data, budget, category)
+    else:
+        plot_expense(axes, data, budget, category)
+
+    monthly_settings(axes)
 
 def plot_income(ax, data, budget, category, title='Income', linecolor=sns.xkcd_rgb['medium green'], sign=1, fill_alpha=0.4):
 

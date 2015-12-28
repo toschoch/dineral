@@ -30,8 +30,6 @@ class FinanceMain(QMainWindow):
         self.database = Database()
         self.classifier = Classifier()
 
-        self.selected_year = QDate.currentDate().year()
-
         self.setWindowIcon(QIcon(r'res/icon.png'))
 
         self.main = FinanceMainWidget(parent=self, plugins=plugins, **kwargs)
@@ -105,11 +103,13 @@ class FinanceMainWidget(QWidget):
     def contentChanged(self, i):
         if self.content.tabText(i)=='View':
 
+            from plots import additional_plots_names
+
             main = self.window()
             categories = main.database.data.Kategorie.cat.categories.tolist()
 
             self.graphview.comboGraph.clear()
-            self.graphview.comboGraph.addItems(categories)
+            self.graphview.comboGraph.addItems(additional_plots_names+categories)
             self.graphview.PlotSelected()
 
             self.graphview.comboGraph.setFocus()

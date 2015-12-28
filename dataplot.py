@@ -60,6 +60,7 @@ def calculate_statistics(data, start=None, stop=None, months=12, budget=None):
         budget = rec_join('Kategorie',Sum,budget)
 
         goodbad = np.logical_or((budget.Summe-budget.BudgetPeriode>=0),np.isclose(budget.Summe,budget.BudgetPeriode,rtol=0.01)).astype('int')
+
         for i,category in enumerate(budget.Kategorie):
 
 
