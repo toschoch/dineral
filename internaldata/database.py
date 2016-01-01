@@ -50,6 +50,7 @@ class Database(CachedProperty):
 
         log.info("saved database to {}...".format(fname))
         data.to_csv(fname,index=False,encoding='utf-8',sep=';',mode='w+')
+        data.Kategorie = pd.Categorical(data.Kategorie)
         self._data = data
 
     def filename(self, backup=False):

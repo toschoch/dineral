@@ -8,7 +8,8 @@ Copyright (c) 2015. All rights reserved.
 """
 
 import sys, logging
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
+from PyQt5.QtGui import QIcon
 
 from dataplugins import plugins
 
@@ -22,7 +23,12 @@ if __name__ == '__main__':
     log = logging.getLogger()
 
     app = QApplication(sys.argv)
+
+    icon = QIcon(r'res/icon.png')
+    trayIcon = QSystemTrayIcon(icon, app)
+
     app.setApplicationName('MyFinances')
+    app.setWindowIcon(icon)
 
     log.info("Start program...")
     w = FinanceMain(plugins=plugins)
