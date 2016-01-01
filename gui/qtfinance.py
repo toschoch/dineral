@@ -112,6 +112,10 @@ class FinanceDataImport(FinanceSelector):
         main = window.main
         main.transactions.setData(data)
 
+        info = QtW.QMessageBox()
+        info.setText("{} entries successfully imported!\nfound {} entries in database".format(len(data),in_db.sum()))
+        info.exec_()
+
         main.content.setCurrentWidget(main.transactions)
         main.transactions.table.dataTable.setFocus()
 
@@ -203,3 +207,7 @@ class FinanceReport(FinanceSelector):
                 reporter.plot(window,plot,ax)
                 log.info(u"save '{}' on page {}...".format(plot,i+1))
                 pdf.savefig()
+
+        info = QtW.QMessageBox()
+        info.setText("Report successfully created ({} pages)".format(i+1))
+        info.exec_()

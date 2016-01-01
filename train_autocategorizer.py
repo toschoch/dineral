@@ -16,7 +16,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn import cross_validation, metrics
 from sklearn.pipeline import Pipeline
 
-from datasave import load_data
+from internaldata import Database, Classifier
 
 __author__ = 'tobi'
 __copyright__ = 'Copyright tobi, 2014'
@@ -27,10 +27,10 @@ log = logging.getLogger()
 
 def main():
 
-    database = 'data/categorized.csv'
-    data = load_data(database)
-    data.Kategorie[data.Deleted]='Delete'
-    log.info("database loaded")
+    clf = Classifier()
+
+    db = Database()
+    data = db.data
 
     categories = np.unique(data.Kategorie).tolist()
     log.info("found categories: %s",categories)
@@ -61,9 +61,9 @@ def main():
     text_clf = gs_clf.best_estimator_
     text_clf.classes_names = categories
 
-    with open("data/classifier.pickle","wb") as fp:
-        pickle.dump(text_clf,fp)
-    log.info("classifier saved!")
+    # with open(clf.properties,"wb+") as fp:
+    #     pickle.dump(text_clf,fp)
+    # log.info("classifier saved!")
 
     print gs_clf.best_params_
 
