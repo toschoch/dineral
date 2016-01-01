@@ -52,7 +52,7 @@ class PostFinance(DataPlugin):
             dprog=0
 
         if len(files2load)<1:
-            log.info("No files found for selected period!")
+            log.warn("No PostFinances account extracts found for selected period!")
         else:
             log.info("load files: {}".format(", ".join(files2load)))
 

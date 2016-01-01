@@ -9,9 +9,9 @@ Copyright (c) 2015. All rights reserved.
 import seaborn as sns
 from defaults import monthly_settings
 
-def plot(category, data, budget, axes):
+def plot(category, data, budget, axes, date_from, date_to):
 
-    if budget.ix[category,'Jahresbudget'] > 0:
+    if (budget.ix[category,'Jahresbudget'] > 0).squeeze():
         plot_income(axes, data, budget, category)
     else:
         plot_expense(axes, data, budget, category)
@@ -31,7 +31,7 @@ def plot_income(ax, data, budget, category, title='Income', linecolor=sns.xkcd_r
 
     ax.set_title(title+' '+category)
 
-    bud = -sign*(budget.ix[category,'Jahresbudget']/12.)
+    bud = -sign*(budget.ix[category,'Jahresbudget']/12.).squeeze()
 
     pbud = ax.axhline(-bud,color='g',alpha=0.4,linewidth=2,linestyle='--')
 

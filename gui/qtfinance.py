@@ -112,6 +112,7 @@ class FinanceDataImport(FinanceSelector):
         main = window.main
         main.transactions.setData(data)
 
+        main.content.setCurrentWidget(main.transactions)
         main.transactions.table.dataTable.setFocus()
 
 
@@ -137,21 +138,33 @@ class FinanceReport(FinanceSelector):
         self.btnReport.clicked.connect(self.createReport)
 
         self.initUI()
-        self.setStartDate()
+        self.onDateSelected()
 
     def onDateSelected(self):
         FinanceSelector.onDateSelected(self)
 
         date_from = self.period.dateFrom.selectedDate()
         selected_year = date_from.year()
+        self.period.dateFrom.setSelectedDate(QDate(selected_year,1,1))
         window = self.window()
-        window.budget.load_data(selected_year)
 
+        try:
+            window.budget.load_data(selected_year)
+        except:
+            log.info("Budget for year '{}' does not yet exists. Assume reports about last year...".format(selected_year))
+
+            today = QDate.currentDate()
+            datefrom = QDate(selected_year-1,1,1)
+            if today>QDate(selected_year-1,12,31):
+                to = QDate(selected_year-1,12,31)
+            else:
+                to = today
+            self.period.dateTo.setSelectedDate(to)
+            self.period.dateFrom.setSelectedDate(datefrom)
 
     def initUI(self):
         layout = QtW.QVBoxLayout(self)
         layout.addWidget(self.period)
-        # layout.addWidget(self.info)
         layout.addStretch(1)
         row = QtW.QHBoxLayout()
         row.addStretch(1)
@@ -161,32 +174,32 @@ class FinanceReport(FinanceSelector):
 
     def setStartDate(self):
         today = QDate.currentDate()
-        self.period.dateFrom.setSelectedDate(QDate(today.year(),1,1))
+        datefrom = QDate(today.year(),1,1)
+        to = today.addDays(-1)
+        to = QDate(to.year(),to.month(),to.daysInMonth())
+
+        self.period.dateTo.setSelectedDate(to)
+        self.period.dateFrom.setSelectedDate(datefrom)
 
     def createReport(self):
 
+        from matplotlib.backends.backend_pdf import PdfPages
+        from matplotlib import pyplot as plt
+        from plots import reporter
+
         window = self.window()
         main = window.main
-        main.showReport()
-        # import calendar
-        # import numpy as np
-        #
-        # self.main = self.parent().parent().parent().parent()
-        #
-        # start = self.period.dateFrom.selectedDate().toPyDate()
-        # stop = self.period.dateTo.selectedDate().toPyDate()
-        # budget = load_budget(start,stop)
-        #
-        # db = load_database(budget.Kategorie.tolist())
-        # db.drop(db.Deleted,axis=0,inplace=True)
-        # db.drop('Deleted',axis=1,inplace=True)
-        #
-        # db = db[(db.Datum>=start)&(db.Datum<=stop)]
-        #
-        #
-        # empty = pd.DataFrame(0,index=pd.MultiIndex.from_product([budget.Kategorie.tolist(),range(1,12)],names=['Kategorie','Month']),columns=['Total'])
-        # print empty
-        #
-        # monthly_sum = db.groupby([lambda i: db.ix[i,'Kategorie'],lambda i: db.ix[i,'Datum'].month]).sum()
-        #
-        # print empty.combine_first(monthly_sum)
+
+        categories = window.database.data.Kategorie.cat.categories.tolist()
+
+        fname = window.report.properties
+
+        log.info("Create PDF report '{}'...".format(fname))
+        with PdfPages(fname) as pdf:
+            for i,plot in enumerate(reporter.plot_names+categories):
+                plt.figure()
+                ax = plt.gca()
+                plot = plot.decode('utf-8')
+                reporter.plot(window,plot,ax)
+                log.info(u"save '{}' on page {}...".format(plot,i+1))
+                pdf.savefig()

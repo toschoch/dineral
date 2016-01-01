@@ -68,17 +68,26 @@ class DataPluginProperty(QtGui.QWidget):
 
 class Settings(QtGui.QDialog):
 
-    def __init__(self, plugins, internal, parent=None):
+    def __init__(self, parent=None, **kwargs):
         QtGui.QDialog.__init__(self, parent)
 
         layout = QtGui.QVBoxLayout()
 
-        self.sources = QDataPluginsSettings(plugins,'Sources',self)
-        self.sources.SetOptimalEditWidth()
-        self.internal = QDataPluginsSettings(internal,'Internal',self)
+        order = ['sources','output','internal']
+        additional=list(set(kwargs.keys())-set(order))
 
-        layout.addWidget(self.sources)
-        layout.addWidget(self.internal)
+        for i,k in enumerate(order+additional):
+            v = kwargs.pop(k)
+            w = QDataPluginsSettings(v,k,self)
+            setattr(self,k,w)
+            if i==0:
+                _width = w.SetOptimalEditWidth()
+                _lbl = w.GetlabelWidth()
+            else:
+                w.SetlabelWidth(_lbl)
+                w.SetEditWidth(_width)
+
+            layout.addWidget(w)
 
         self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok,parent=parent)
         layout.addWidget(self.buttons)
@@ -125,5 +134,9 @@ class QDataPluginsSettings(QtGui.QGroupBox):
 
     def SetOptimalEditWidth(self):
         w = self.GetOptimalEditWidth()
+        self.SetEditWidth(w)
+        return w
+
+    def SetEditWidth(self,w):
         for p in self.props:
             p.line.setFixedWidth(w)

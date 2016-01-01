@@ -4,5 +4,6 @@
   "Expenses": "/home/tobi/Dropbox/expenses/export.csv", 
   "MasterCard": "/home/tobi/Finance/e-Rechnungen/Mastercard", 
   "PostFinance": "/home/tobi/Finance/Konto Dokumente/Kontos Post", 
+  "Report": "/home/tobi/Dropbox/finance/report.pdf", 
   "Classifier": "/home/tobi/PycharmProjects/MyFinances/internaldata/classifier.pickle"
 }

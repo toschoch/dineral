@@ -17,21 +17,22 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QDialogButtonBox
 
-class Info(QtGui.QDialog):
+class Info(QDialog):
 
     def __init__(self, info, header, title='Info', parent=None):
-        QtGui.QDialog.__init__(self,parent)
+        QDialog.__init__(self,parent)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
 
-        grp = QtGui.QGroupBox(header, self)
-        grplayout = QtGui.QGridLayout()
+        grp = QGroupBox(header, self)
+        grplayout = QGridLayout()
 
         for i,item in enumerate(info):
             for j,txt in enumerate(item):
-                lbl = QtGui.QLabel(txt,self)
+                lbl = QLabel(txt,self)
                 lbl.setWordWrap(True)
                 lbl.setAlignment(QtCore.Qt.AlignTop)
                 grplayout.addWidget(lbl,i,j)
@@ -40,7 +41,7 @@ class Info(QtGui.QDialog):
 
         layout.addWidget(grp)
 
-        self.buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok,parent=parent)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok,parent=parent)
         layout.addWidget(self.buttons)
 
         self.buttons.accepted.connect(self.close)

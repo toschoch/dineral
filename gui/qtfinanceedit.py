@@ -45,10 +45,11 @@ class FinanceTransactions(QWidget):
         main = self.window()
 
         db = main.database.data
-        db = data.drop('Database',axis=1).combine_first(db)
-        db.sort('Datum',inplace=True)
+        data = data.drop('Database',axis=1).set_index('Hash', drop=False)
+        db = data.combine_first(db)
+        db.sort_values('Datum',inplace=True)
 
-        db.save_data(main.database_data)
+        main.database.save_data(db)
 
         self.clear()
 

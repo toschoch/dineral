@@ -70,20 +70,31 @@ class FinanceSelector(QWidget):
         QWidget.__init__(self,parent)
 
         self.period = QDateRange(self)
+        self.setStartDate()
 
         self.period.dateFrom.selectionChanged.connect(self.onDateSelected)
         self.period.dateTo.selectionChanged.connect(self.onDateSelected)
 
     def onDateSelected(self):
+
+        sender = self.sender()
+
         date_to = self.period.dateTo.selectedDate()
         date_from = self.period.dateFrom.selectedDate()
 
-        if date_from>date_to:
-            date_to = date_from
+        if date_from.year() <> date_to.year():
+            if sender is self.period.dateTo:
+                self.period.dateFrom.setSelectedDate(QDate(date_to.year(),1,1))
+            elif sender is self.period.dateFrom:
+                self.period.dateTo.setSelectedDate(QDate(date_from.year(),12,31))
 
-        firstDay = QDate(date_to.year(),1,1)
-        if firstDay>date_from:
-            self.period.dateFrom.setSelectedDate(firstDay)
+        if date_from>date_to:
+            if sender is self.period.dateTo:
+                self.period.dateFrom.setSelectedDate(QDate(date_to.year(),date_to.month(),1))
+            elif sender is self.period.dateFrom:
+                self.period.dateTo.setSelectedDate(QDate(date_from.year(),date_from.month(),date_from.daysInMonth()))
+
+
 
     def initUI(self):
         raise NotImplementedError

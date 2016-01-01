@@ -165,6 +165,7 @@ class TransactionTable(DataFrameWidget):
             elif data.ix[:,i].dtype==bool:
                 self.dataTable.setItemDelegateForColumn(i,TransactionComboBoxItemDelegate(self,['True','False']))
             # hide all but columns
+            self.dataTable.showColumn(i)
             if data.columns[i] not in self.columns:
                 self.dataTable.hideColumn(i)
         self.dataModel.signalUpdate()

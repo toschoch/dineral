@@ -33,6 +33,8 @@ class Budget(CachedProperty):
     def load_data(self, year):
         fname = self.filename(year)
         data = pd.read_csv(fname,delimiter=';',encoding='utf-8')
+        data['Kategorie']=data['Kategorie'].astype(unicode)
+        data['Kategorie']=pd.Categorical(data['Kategorie'])
         data = data.set_index('Kategorie',drop=False)
         self._data = data
         self._year = year

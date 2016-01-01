@@ -6,17 +6,15 @@ table.py
 Created by Tobias Schoch on 27.12.15.
 Copyright (c) 2015. All rights reserved.
 """
+from __future__ import unicode_literals
 
 from abstract_plot import Plot
-from statistics import calculate_summary
 
 import seaborn as sns
 
 class Summary(Plot):
 
-    def plot(self, data, budget, ax):
-
-        budget = budget.fillna(0)
+    def plot(self, data, budget, ax, date_from, date_to):
 
         clr = ax.patch.get_facecolor()
         ax.set_frame_on(False)
@@ -37,8 +35,10 @@ class Summary(Plot):
 
 
         dtable.append([""]*len(columns))
-        bilanz = sum(budget['Summe'])
-        dtable.append(["Einkommen:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']>0])),"Ausgaben:","{0:.0f}".format(sum(budget['Summe'][budget['Summe']<=0])),"Bilanz:","{0:.0f}".format(bilanz)])
+        bilanz = -budget['Summe'].sum()
+        income = budget[budget.Summe<0].Summe.abs().sum()
+        expense = budget[budget.Summe>0].Summe.sum()
+        dtable.append(["Einkommen:","{0:.0f}".format(income),"Ausgaben:","{0:.0f}".format(expense),"Bilanz:","{0:.0f}".format(bilanz)])
         table=ax.table(cellText=dtable,colLabels=columns,loc="lower center",cellLoc='center')
 
         ## change cell properties
@@ -59,13 +59,13 @@ class Summary(Plot):
 
         for j in range(1,len(budget)+1):
 
-            goodbad = budget['GutSchlecht'][j-1]
+            goodbad = budget.GutSchlecht.iloc[j-1]
             if goodbad==1:
-                color = neutralcolor
+                color = badcolor
             elif goodbad==2:
                 color = goodcolor
             else:
-                color = badcolor
+                color = neutralcolor
 
             for i in range(len(columns)):
                 cell = cells[j,i]
