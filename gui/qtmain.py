@@ -138,14 +138,17 @@ class FinanceMainWidget(QWidget):
         if self.content.tabText(i)=='View':
 
             from plots import reporter
+            import seaborn
+            seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.3)
 
             self.control.setCurrentWidget(self.report)
 
-            main = self.window()
-            categories = main.database.data.Kategorie.cat.categories.tolist()
+            window = self.window()
+
+            reporter.statistics(window)
 
             self.graphview.comboGraph.clear()
-            self.graphview.comboGraph.addItems(reporter.plot_names+categories)
+            self.graphview.comboGraph.addItems(reporter.plots)
             self.graphview.PlotSelected()
 
             self.graphview.comboGraph.setFocus()

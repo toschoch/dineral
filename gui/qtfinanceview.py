@@ -11,8 +11,6 @@ from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
 
 from plots import reporter
-import seaborn
-seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.3)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
@@ -58,10 +56,9 @@ class FinanceView(QWidget):
 
         category = self.comboGraph.itemText(i)
 
-        window = self.window()
         self.graph.clear()
 
-        self.reporter.plot(window,category,self.graph.axes)
+        self.reporter.plot(category,self.graph.axes)
 
         self.graph.draw()
 

@@ -191,20 +191,22 @@ class FinanceReport(FinanceSelector):
         from matplotlib import pyplot as plt
         from plots import reporter
 
-        window = self.window()
-        main = window.main
+        import seaborn
+        seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.0)
 
-        categories = window.database.data.Kategorie.cat.categories.tolist()
+
+        window = self.window()
 
         fname = window.report.properties
 
+        reporter.statistics(window)
+
         log.info("Create PDF report '{}'...".format(fname))
         with PdfPages(fname) as pdf:
-            for i,plot in enumerate(reporter.plot_names+categories):
+            for i,plot in enumerate(reporter.plots):
                 plt.figure()
                 ax = plt.gca()
-                plot = plot.decode('utf-8')
-                reporter.plot(window,plot,ax)
+                reporter.plot(plot,ax)
                 log.info(u"save '{}' on page {}...".format(plot,i+1))
                 pdf.savefig()
 

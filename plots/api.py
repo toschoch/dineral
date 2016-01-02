@@ -15,13 +15,17 @@ class Report(object):
 
     def __init__(self):
 
-        self.additional_plots = [Cover(),Summary(),Pie()]
+        self._additional_plots = [Cover(),Summary(),Pie()]
 
     @property
-    def plot_names(self):
-        return [p.name() for p in self.additional_plots]
+    def additional_plots(self):
+        return [p.name() for p in self._additional_plots]
 
-    def plot(self, window, category, axes):
+    @property
+    def plots(self):
+        return self.additional_plots+self._budget.index.tolist()
+
+    def statistics(self, window):
 
         db = window.database.data
         budget = window.budget.data
@@ -30,15 +34,24 @@ class Report(object):
         date_to = window.main.report.period.dateTo.selectedDate().toPyDate()
 
         from statistics import calculate_monthly, calculate_summary
+
+        self._monthly_sum = calculate_monthly(db, date_from=date_from, date_to=date_to)
+        self._budget = calculate_summary(self._monthly_sum, budget, date_from=date_from, date_to=date_to)
+        self._from = date_from
+        self._to = date_to
+
+    def plot(self, category, axes):
+
         from categories import plot
 
+        budget = self._budget
+        monthly_sum = self._monthly_sum
+        date_from = self._from
+        date_to = self._to
 
-        monthly_sum = calculate_monthly(db, date_from=date_from, date_to=date_to)
-        budget = calculate_summary(monthly_sum, budget, date_from=date_from, date_to=date_to)
+        if category in self.additional_plots:
 
-        if category in self.plot_names:
-
-            self.additional_plots[self.plot_names.index(category)].plot(monthly_sum,budget,axes, date_from, date_to)
+            self._additional_plots[self.additional_plots.index(category)].plot(monthly_sum,budget,axes, date_from, date_to)
 
         else:
 

@@ -19,7 +19,7 @@ class Cover(Plot):
         ax.set_frame_on(False)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
-        text = u"Report MyFinance"
+        text = u"Report MyFinances"
         text += '\n\n'
         text += start.strftime('%d. %B %Y').decode('utf-8')
         text += " bis "
