@@ -20,7 +20,9 @@ class DataFrameModel(QAbstractTableModel):
         self.df = DataFrame()
 
     def setDataFrame(self, dataFrame):
+        self.layoutAboutToBeChanged.emit()
         self.df = dataFrame
+        self.layoutChanged.emit()
 
     def signalUpdate(self):
         ''' tell viewers to update their data (this is full update, not
@@ -61,14 +63,6 @@ class DataFrameModel(QAbstractTableModel):
         flags = super(DataFrameModel, self).flags(index)
         flags |= Qt.ItemIsEditable
         return flags
-
-    def sort(self, p_int, Qt_SortOrder_order=None):
-        col = self.df.columns[p_int]
-        ascending = True
-        if Qt_SortOrder_order == Qt.DescendingOrder:
-            ascending = False
-        self.df.sort_values(col,ascending=ascending,inplace=True)
-        self.signalUpdate()
 
     def setData(self, index, value, role):
         row = self.df.index[index.row()]

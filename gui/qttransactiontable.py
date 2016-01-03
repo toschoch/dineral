@@ -88,7 +88,6 @@ class TransactionTableView(QtW.QTableView):
         self.n_pressed = 0
         self.last_key = None
 
-
     def keyPressEvent(self, event):
 
         if event.key() == Qt.Key_Space:
@@ -104,18 +103,21 @@ class TransactionTableView(QtW.QTableView):
             index = self.currentIndex()
             model = self.model()
             smodel = model.sourceModel()
-            c = smodel.i_deleted
-            index = model.index(index.row(),c)
+            sindex = model.mapToSource(index)
+            c = model.i_deleted
+            c_sindex = smodel.index(sindex.row(),c)
+            index = model.mapFromSource(c_sindex)
             value = model.data(index,Qt.DisplayRole)
             model.setData(index,not eval(value),Qt.EditRole)
-            for i in range(smodel.df.shape[1]):
+            for i in range(model.columnCount()):
                 self.update(model.index(index.row(),i))
         elif event.text()<>"":
             t = event.text()
             index = self.currentIndex()
             model = self.model()
             smodel = model.sourceModel()
-            categories = pd.Series(smodel.categories)
+            sindex = model.mapToSource(index)
+            categories = pd.Series(model.categories)
             cat = categories[categories.str.decode('utf-8').str.lower().str.startswith(t)]
             if len(cat)>0:
                 if t == self.last_key:
@@ -125,10 +127,11 @@ class TransactionTableView(QtW.QTableView):
                 if self.n_pressed>=len(cat):
                     self.n_pressed = 0
                 cat = cat.iloc[self.n_pressed]
-                c = smodel.df.columns.tolist().index('Kategorie')
-                index = model.index(index.row(),c)
+                c = smodel.i_categorie
+                c_sindex = smodel.index(sindex.row(),c)
+                index = model.mapFromSource(c_sindex)
                 model.setData(index,cat,Qt.EditRole)
-                for i in range(smodel.df.shape[1]):
+                for i in range(model.columnCount()):
                     self.update(model.index(index.row(),i))
                 self.last_key = t
         else:
@@ -187,7 +190,7 @@ class TransactionTable(DataFrameWidget):
         self.dataTable.resizeRowsToContents()
 
         self.i_cat = self.dataModel.i_categorie
-        if set_index: self.dataTable.setCurrentIndex(self.proxy.index(0,self.i_cat))
+        if set_index: self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
         self.dataTable.setColumnWidth(self.i_cat,200)
         h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
