@@ -63,6 +63,7 @@ class FinanceTransactions(QWidget):
         self.btnSave.setEnabled(enabled)
         self.btnCancel.setEnabled(enabled)
         self.table.setDataFrame(data)
+        self.table.dataTable.setFocus()
 
     def initUI(self):
 

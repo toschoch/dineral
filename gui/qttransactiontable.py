@@ -9,7 +9,7 @@ Copyright (c) 2015. All rights reserved.
 
 from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QSizePolicy, QStyledItemDelegate
-from PyQt5.QtCore import Qt, QEvent, QVariant, QAbstractTableModel
+from PyQt5.QtCore import Qt, QEvent, QVariant, QAbstractTableModel, QSortFilterProxyModel
 from PyQt5.QtGui import QKeyEvent,  QColor
 
 from seaborn.palettes import color_palette
@@ -30,17 +30,21 @@ class TransactionTableModel(DataFrameModel):
 
     def setDataFrame(self, data):
 
-        self.i_deleted = data.columns.tolist().index('Deleted')
-        self.i_categorie = data.columns.tolist().index('Kategorie')
-        self.i_database = data.columns.tolist().index('Database')
+        columns = data.columns.tolist()
+        self.i_datum = columns.index('Datum')
+        self.i_deleted = columns.index('Deleted')
+        self.i_categorie = columns.index('Kategorie')
+        self.i_database = columns.index('Database')
+        convert_color = lambda lst: [map(lambda x: int(255*x),c)+[160] for c in lst]
         if data.empty:
             self.categories = []
-            self.colors = color_palette('hls',n_colors=1)
-            self.colors = [map(lambda x: int(255*x),c)+[160] for c in self.colors]
+            self.colors = color_palette('Set2',n_colors=1)
+            self.colors = convert_color(self.colors)
         else:
             self.categories = data['Kategorie'].cat.categories.tolist()
-            self.colors = color_palette('hls',n_colors=len(self.categories))
-            self.colors = [map(lambda x: int(255*x),c)+[160] for c in self.colors]
+            self.categories.sort()
+            self.colors = color_palette('Set2',n_colors=len(self.categories))
+            self.colors = convert_color(self.colors)
 
         DataFrameModel.setDataFrame(self,data)
 
@@ -78,9 +82,12 @@ class TransactionTableView(QtW.QTableView):
 
     def __init__(self,parent):
         QtW.QTableView.__init__(self,parent)
-        self.horizontalHeader().setStretchLastSection(True)
+        self.setSortingEnabled(True)
+        self.header = self.horizontalHeader()
+        self.header.setStretchLastSection(True)
         self.n_pressed = 0
         self.last_key = None
+
 
     def keyPressEvent(self, event):
 
@@ -96,17 +103,19 @@ class TransactionTableView(QtW.QTableView):
         elif event.key() == Qt.Key_Delete:
             index = self.currentIndex()
             model = self.model()
-            c = model.i_deleted
+            smodel = model.sourceModel()
+            c = smodel.i_deleted
             index = model.index(index.row(),c)
             value = model.data(index,Qt.DisplayRole)
-            model.setData(index,not eval(value.value()),Qt.EditRole)
-            for i in range(model.df.shape[1]):
+            model.setData(index,not eval(value),Qt.EditRole)
+            for i in range(smodel.df.shape[1]):
                 self.update(model.index(index.row(),i))
         elif event.text()<>"":
             t = event.text()
             index = self.currentIndex()
             model = self.model()
-            categories = pd.Series(model.categories)
+            smodel = model.sourceModel()
+            categories = pd.Series(smodel.categories)
             cat = categories[categories.str.decode('utf-8').str.lower().str.startswith(t)]
             if len(cat)>0:
                 if t == self.last_key:
@@ -116,10 +125,10 @@ class TransactionTableView(QtW.QTableView):
                 if self.n_pressed>=len(cat):
                     self.n_pressed = 0
                 cat = cat.iloc[self.n_pressed]
-                c = model.df.columns.tolist().index('Kategorie')
+                c = smodel.df.columns.tolist().index('Kategorie')
                 index = model.index(index.row(),c)
                 model.setData(index,cat,Qt.EditRole)
-                for i in range(model.df.shape[1]):
+                for i in range(smodel.df.shape[1]):
                     self.update(model.index(index.row(),i))
                 self.last_key = t
         else:
@@ -136,7 +145,9 @@ class TransactionTable(DataFrameWidget):
         self.parent_ = parent
         self.dataModel = TransactionTableModel(data,self)
         self.dataTable = TransactionTableView(self)
-        self.dataTable.setModel(self.dataModel)
+        self.proxy = QSortFilterProxyModel()
+        self.proxy.setSourceModel(self.dataModel)
+        self.dataTable.setModel(self.proxy)
         self.dataTable.setItemDelegate(TransactionItemDelegate(self))
         self.dataTable.setStyleSheet("selection-background-color: transparent; selection-color:black")
 
@@ -157,7 +168,10 @@ class TransactionTable(DataFrameWidget):
         self.setLayout(layout)
 
     def setDataFrame(self, data):
-        if data is None: data=pd.DataFrame(columns=self.columns)
+        set_index = True
+        if data is None:
+            data=pd.DataFrame(columns=self.columns)
+            set_index = False
         self.dataModel.setDataFrame(data)
         for i,dt in enumerate(data.dtypes):
             if self.dataModel.df.columns[i]=='Kategorie':
@@ -173,12 +187,13 @@ class TransactionTable(DataFrameWidget):
         self.dataTable.resizeRowsToContents()
 
         self.i_cat = self.dataModel.i_categorie
-        self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
+        if set_index: self.dataTable.setCurrentIndex(self.proxy.index(0,self.i_cat))
         self.dataTable.setColumnWidth(self.i_cat,200)
         h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
             self.dataTable.setRowHeight(i,h)
 
+        if set_index: self.dataTable.sortByColumn(self.dataModel.i_datum,Qt.AscendingOrder)
         self.setSizes()
 
     def setSizes(self):

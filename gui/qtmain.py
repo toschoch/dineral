@@ -102,7 +102,6 @@ class FinanceMain(QMainWindow):
         main.transactions.setData(db)
 
         main.content.setCurrentWidget(main.transactions)
-        main.transactions.table.dataTable.setFocus()
 
 
 

@@ -62,6 +62,14 @@ class DataFrameModel(QAbstractTableModel):
         flags |= Qt.ItemIsEditable
         return flags
 
+    def sort(self, p_int, Qt_SortOrder_order=None):
+        col = self.df.columns[p_int]
+        ascending = True
+        if Qt_SortOrder_order == Qt.DescendingOrder:
+            ascending = False
+        self.df.sort_values(col,ascending=ascending,inplace=True)
+        self.signalUpdate()
+
     def setData(self, index, value, role):
         row = self.df.index[index.row()]
         col = self.df.columns[index.column()]
@@ -83,6 +91,7 @@ class DataFrameWidget(QWidget):
         self.dataModel = DataFrameModel(self)
         self.dataTable = QTableView(self)
         self.dataTable.setModel(self.dataModel)
+        self.dataTable.setSortingEnabled(True)
 
         self.initUI()
 
@@ -118,6 +127,7 @@ class DataFrameWidget(QWidget):
         self.dataModel.signalUpdate()
         self.dataTable.resizeColumnsToContents()
         self.dataTable.resizeRowsToContents()
+        self.dataModel.sort(1)
 
 class ComboBoxDelegate(QItemDelegate):
     def __init__(self, owner, itemslist):

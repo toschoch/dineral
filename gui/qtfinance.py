@@ -117,7 +117,6 @@ class FinanceDataImport(FinanceSelector):
         info.exec_()
 
         main.content.setCurrentWidget(main.transactions)
-        main.transactions.table.dataTable.setFocus()
 
 
     @staticmethod
