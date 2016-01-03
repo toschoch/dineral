@@ -24,7 +24,12 @@ class Pie(Plot):
         rest = 1.- sizes[I2].sum()
         sizes = sizes[I2].tolist()
         sizes.append(rest)
-        color = sns.color_palette("Set2",len(sizes))
+        # colors = sns.color_palette("Set2",len(budget)+1)
+        # budget['colors']=colors[:-1]
+        selected_cats = budget['Kategorie'][I][I2].tolist()
+        selected_colors = budget['colors'][I][I2].tolist()
+
+
         ax.pie(sizes,explode=np.ones_like(sizes)*0.05,autopct='%1.0f%%',
-               labels=(budget['Kategorie'][I][I2]).tolist()+['Rest'],colors=color)
+               labels=selected_cats+['Rest'],colors=selected_colors+[sns.xkcd_rgb['light grey']])
         ax.axis('equal')

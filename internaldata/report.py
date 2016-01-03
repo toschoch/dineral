@@ -15,3 +15,6 @@ log = logging.getLogger(__name__)
 class Report(Property):
 
     TYPE = Property.FILE
+
+class Data(Property):
+    TYPE = Property.DIR

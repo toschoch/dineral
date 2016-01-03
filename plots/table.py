@@ -26,8 +26,8 @@ class Summary(Plot):
         columns = ['Kategorie','Total\n(in Periode)','Budget\n(in Periode)','Differenz\n(bez. Budget)','Abweichung\n(relativ)','% Jahresbudget']
         for i in range(len(budget)):
             row = budget.iloc[i]
-            eff = row['Summe']
-            bud_prop = row['BudgetPeriode']
+            eff = -row['Summe']
+            bud_prop = -row['BudgetPeriode']
 
             dtable.append([row['Kategorie'],"{0:d}".format(int(eff)),"{0:d}".format(int(bud_prop)),
                           "{0:d}".format(int(row['Differenz'])),"{0:.0%}".format(row['RelativeDifferenz']),

@@ -17,7 +17,7 @@ from qtfinanceview import FinanceView
 from qtsettings import Settings
 from qtinfo import Info
 
-from internaldata import Budget,Database,Classifier,Report
+from internaldata import Budget,Database,Classifier,Report,Data
 
 class FinanceMain(QMainWindow):
 
@@ -30,6 +30,7 @@ class FinanceMain(QMainWindow):
         self.database = Database()
         self.classifier = Classifier()
         self.report = Report()
+        self.report_data_dir = Data()
 
         self.setWindowIcon(QIcon(r'res/icon.png'))
 
@@ -70,7 +71,7 @@ class FinanceMain(QMainWindow):
 
     def settings(self):
 
-        settings = Settings(sources=self.plugins,output=[self.report],internal=[self.budget,self.database,self.classifier])
+        settings = Settings(sources=self.plugins,output=[self.report,self.report_data_dir],internal=[self.budget,self.database,self.classifier])
         settings.exec_()
 
     def classifier_info(self):

@@ -16,6 +16,7 @@ __copyright__ = '(c) Sensirion AG 2015'
 import logging
 import pandas as pd, os
 import datetime
+import seaborn as sns
 from property import CachedProperty
 
 log = logging.getLogger(__name__)
@@ -36,6 +37,8 @@ class Budget(CachedProperty):
         data['Kategorie']=data['Kategorie'].astype(unicode)
         data['Kategorie']=pd.Categorical(data['Kategorie'])
         data = data.set_index('Kategorie',drop=False)
+        data.sort_index(inplace=True)
+        data['colors']=list(sns.color_palette("Set2",len(data)).as_hex())
         self._data = data
         self._year = year
         return data

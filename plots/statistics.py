@@ -9,6 +9,8 @@ Copyright (c) 2015. All rights reserved.
 from __future__ import unicode_literals
 import pandas as pd
 import datetime
+import logging
+log = logging.getLogger(__name__)
 
 
 def calculate_monthly(data, date_from, date_to=None):
@@ -21,8 +23,12 @@ def calculate_monthly(data, date_from, date_to=None):
     if date_to is None:
         date_to = data.Datum.max()
 
-    data = data[data.Datum>=date_from]
-    assert (data.Datum.apply(lambda x: x.year)==data.Datum.iloc[0].year).all()
+    data = data[(data.Datum>=date_from)&(data.Datum<=date_to)]
+    try:
+        assert (data.Datum.apply(lambda x: x.year)==data.Datum.iloc[0].year).all()
+    except AssertionError as err:
+        log.error("Data contains entries from different year!")
+        raise err
 
     monthly_sum = data.groupby([data.Kategorie,pd.DatetimeIndex(data.Datum,name='Month').month]).sum()
     mult_index = pd.MultiIndex.from_product([data.Kategorie.cat.categories,range(1,13)])
@@ -40,15 +46,17 @@ def calculate_summary(data, budget, date_from, date_to):
 
     import numpy as np
 
-    budget['BudgetPeriode'] = budget.Jahresbudget * ((date_from-date_to).days+1)/365.
+    tolerance= 0.1
+
+    budget['BudgetPeriode'] = budget.Jahresbudget * -(abs((date_from-date_to).days)+1)/365.
 
     Sum = data.sum()
     Sum.index = Sum.index.str.decode('utf-8')
     budget['Summe'] = Sum
 
-    budget['GutSchlecht'] = np.logical_not((((budget.Summe-budget.BudgetPeriode))<=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=0.02)).astype(int)
+    budget['GutSchlecht'] = np.logical_not((((budget.Summe-budget.BudgetPeriode))<=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=tolerance)).astype(int)
 
-    I2 = np.logical_not(((budget.Summe-budget.BudgetPeriode)>=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=0.02))
+    I2 = np.logical_not(((budget.Summe-budget.BudgetPeriode)>=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=tolerance))
     budget.loc[I2,'GutSchlecht']=2
 
     a, b = budget.Summe, budget.BudgetPeriode

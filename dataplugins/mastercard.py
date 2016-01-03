@@ -71,7 +71,7 @@ class MasterCard(DataPlugin):
             dprog=0
 
         if len(files2load)>0:
-            log.info("load files: {}".format(", ".join(files2load)))
+            log.info(u"load files: {}".format(", ".join(files2load)))
         else:
             log.warn("No MasterCard account extracts found for selected period!")
 

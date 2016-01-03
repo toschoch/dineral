@@ -10,6 +10,8 @@ Copyright (c) 2016. All rights reserved.
 from table import Summary
 from pie import Pie
 from cover import Cover
+import logging
+log = logging.getLogger(__name__)
 
 class Report(object):
 
@@ -39,6 +41,18 @@ class Report(object):
         self._budget = calculate_summary(self._monthly_sum, budget, date_from=date_from, date_to=date_to)
         self._from = date_from
         self._to = date_to
+
+    def save_statistics(self, filepath):
+        import os
+
+        year = self._from.year
+        fname = os.path.join(filepath,"{}_per_month.csv".format(year))
+        self._monthly_sum.to_csv(fname,sep=';',index=False)
+        log.info("saved monthly data to '{}'...".format(fname))
+        fname = os.path.join(filepath,"{}_summary.csv".format(year))
+        self._budget.to_csv(fname,sep=';',index=False)
+        log.info("saved summary to '{}'...".format(fname))
+
 
     def plot(self, category, axes):
 

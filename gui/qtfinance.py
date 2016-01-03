@@ -200,6 +200,8 @@ class FinanceReport(FinanceSelector):
         fname = window.report.properties
 
         reporter.statistics(window)
+        #TODO: Fix unicode decode/encode error while saving statistics
+        # reporter.save_statistics(window.report_data_dir.properties)
 
         log.info("Create PDF report '{}'...".format(fname))
         with PdfPages(fname) as pdf:
