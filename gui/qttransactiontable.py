@@ -78,6 +78,11 @@ class TransactionTableModel(DataFrameModel):
             else:
                 return DataFrameModel.data(self,index,role)
 
+    def setData(self, index, value, role):
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+        return DataFrameModel.setData(self,index,value,role)
+
 class TransactionTableView(QtW.QTableView):
 
     def __init__(self,parent):
@@ -104,7 +109,7 @@ class TransactionTableView(QtW.QTableView):
             model = self.model()
             smodel = model.sourceModel()
             sindex = model.mapToSource(index)
-            c = model.i_deleted
+            c = smodel.i_deleted
             c_sindex = smodel.index(sindex.row(),c)
             index = model.mapFromSource(c_sindex)
             value = model.data(index,Qt.DisplayRole)
@@ -117,7 +122,7 @@ class TransactionTableView(QtW.QTableView):
             model = self.model()
             smodel = model.sourceModel()
             sindex = model.mapToSource(index)
-            categories = pd.Series(model.categories)
+            categories = pd.Series(smodel.categories)
             cat = categories[categories.str.decode('utf-8').str.lower().str.startswith(t)]
             if len(cat)>0:
                 if t == self.last_key:
@@ -127,6 +132,7 @@ class TransactionTableView(QtW.QTableView):
                 if self.n_pressed>=len(cat):
                     self.n_pressed = 0
                 cat = cat.iloc[self.n_pressed]
+                cat = unicode(cat,encoding='utf-8').encode('utf-8')
                 c = smodel.i_categorie
                 c_sindex = smodel.index(sindex.row(),c)
                 index = model.mapFromSource(c_sindex)
@@ -190,7 +196,7 @@ class TransactionTable(DataFrameWidget):
         self.dataTable.resizeRowsToContents()
 
         self.i_cat = self.dataModel.i_categorie
-        if set_index: self.dataTable.setCurrentIndex(self.dataModel.index(0,self.i_cat))
+        if set_index: self.dataTable.setCurrentIndex(self.proxy.mapFromSource(self.dataModel.index(0,self.i_cat)))
         self.dataTable.setColumnWidth(self.i_cat,200)
         h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
@@ -198,6 +204,7 @@ class TransactionTable(DataFrameWidget):
 
         if set_index: self.dataTable.sortByColumn(self.dataModel.i_datum,Qt.AscendingOrder)
         self.setSizes()
+
 
     def setSizes(self):
 
