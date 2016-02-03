@@ -8,16 +8,17 @@ Copyright (c) 2015. All rights reserved.
 """
 
 from abstract import DataPlugin
-from dateutil.parser import parse
-import codecs
+import os
 import pandas as pd
 
 class Expenses(DataPlugin):
     """ Load data from Expenses Smartphone App """
 
+    TYPE = DataPlugin.DIR
+
     def load_data(self, period_from, period_to, callback=None):
 
-        data=self.load_file(self.properties)
+        data=self.load()
 
         I = (data.Datum>=period_from)&(data.Datum<=period_to)
         data=data[I]
@@ -27,7 +28,7 @@ class Expenses(DataPlugin):
 
         return data
 
-    def load_file(self, filename):
+    def load(self):
         """ load data from a expenses csv file
 
             Parameters
@@ -40,29 +41,15 @@ class Expenses(DataPlugin):
 
         """
 
-        convert={
-            'Date':lambda x: parse(x, dayfirst=True),
-            'Amount': lambda x: -float((''.join(x.split('CHF'))).replace(',','').replace(',','.')),
-            'Note': lambda x: x.strip("'")}
+        backup = pd.read_csv(os.path.join(self.properties,'expenses_backup.csv'),sep=';',quotechar="'")
+        cats = pd.read_csv(os.path.join(self.properties,'expenses_backup_categories.csv'),sep=';',quotechar="'")
+        backup = backup.merge(cats,left_on='catID',right_on='_id')
+        backup = backup[['date','name','amount','note']].copy()
+        backup.columns=['Datum','Kategorie','Lastschrift','Text']
 
-        # read data
-        with codecs.open(filename, 'r','utf-8') as f:
-            lines=f.read().splitlines()
+        backup.Datum = pd.DatetimeIndex(pd.to_datetime(backup.Datum)).date
+        backup.Lastschrift = - backup.Lastschrift.astype(float)
+        backup.sort_values('Datum',inplace=True)
 
-        header=lines.pop(0).split(';')
-        data=[]
-        for line in lines:
-
-            dline=[]
-            for c,h in zip(line.split(';'),header):
-                try:
-                    dline.append(convert[h](c))
-                except KeyError:
-                    dline.append(c)
-            data.append(dline)
-
-        rec = pd.DataFrame(data,columns=['Datum','Kategorie','Unterkategorie','Lastschrift','Text'])
-        rec.Datum = pd.DatetimeIndex(rec.Datum).date
-        rec.drop('Unterkategorie',axis=1,inplace=True)
-        return rec
+        return backup
 
