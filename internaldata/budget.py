@@ -15,6 +15,7 @@ __copyright__ = '(c) Sensirion AG 2015'
 
 import logging
 import pandas as pd, os
+import pyexcel_ods
 import datetime
 import seaborn as sns
 from property import CachedProperty
@@ -25,7 +26,7 @@ class Budget(CachedProperty):
 
     TYPE = CachedProperty.DIR
 
-    FILENAME = 'Budget.csv'
+    FILENAME = 'Budget.ods'
 
     def representation(self):
         location = os.path.join(self.properties,'{year}')
@@ -33,7 +34,10 @@ class Budget(CachedProperty):
 
     def load_data(self, year):
         fname = self.filename(year)
-        data = pd.read_csv(fname,delimiter=';',encoding='utf-8')
+        data = pyexcel_ods.get_data(fname)
+        data = data['Kategorien']
+        columns = data.pop(0)
+        data = pd.DataFrame(data,columns=columns)
         data['Kategorie']=data['Kategorie'].astype(unicode)
         data['Kategorie']=pd.Categorical(data['Kategorie'])
         data = data.set_index('Kategorie',drop=False)
@@ -41,6 +45,7 @@ class Budget(CachedProperty):
         data['colors']=list(sns.color_palette("Set2",len(data)).as_hex())
         self._data = data
         self._year = year
+        data.dropna(inplace=True)
         return data
 
     @property
