@@ -78,7 +78,9 @@ class FinanceMain(QMainWindow):
 
         info = [['Type',str(self.classifier_clf._final_estimator)],
                 ['File:',self.classifier.properties],
-                ['Classes:',u", ".join(d.decode('utf-8') for d in self.classifier_clf.classes_names.tolist())]]
+                ['Classes:',u", ".join(d.decode('utf-8') for d in self.classifier_clf.classes_names)],
+                ['Trained:',str(self.classifier.date_training())+' on {} samples'.format(self.classifier.training_samples())],
+                ['Score (precision, recall, f1):', str(self.classifier.test_score())+ 'on {} samples'.format(self.classifier.test_samples())]]
         clf_info = Info(info=info,header='Classifier')
         clf_info.exec_()
 

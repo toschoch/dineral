@@ -8,6 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 import logging
 import numpy as np
+
 from property import Property
 
 log = logging.getLogger(__name__)
@@ -15,6 +16,10 @@ log = logging.getLogger(__name__)
 class Classifier(Property):
 
     TYPE = Property.FILE
+
+    def __init__(self):
+        Property.__init__(self)
+        self._clf = None
 
     def load(self):
         fname = self.properties
@@ -24,5 +29,8 @@ class Classifier(Property):
         with open(fname,'rb') as fp:
             clf = pickle.load(fp)
 
-        clf.classes_names = np.array(map(lambda s:s.encode('utf-8'), clf.classes_names),dtype='object')
+        self._clf = clf
         return clf
+
+    def predict(self, *args, **kwargs):
+        self._clf.predict(*args, **kwargs)

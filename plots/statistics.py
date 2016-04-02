@@ -54,6 +54,8 @@ def calculate_summary(data, budget, date_from, date_to):
     Sum.index = Sum.index.str.decode('utf-8')
     budget['Summe'] = Sum
 
+    # 1==bad, 2==good, 0==neutral
+
     budget['GutSchlecht'] = np.logical_not((((budget.Summe-budget.BudgetPeriode))<=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=tolerance)).astype(int)
 
     I2 = np.logical_not(((budget.Summe-budget.BudgetPeriode)>=0) | np.isclose(budget.Summe,budget.BudgetPeriode,rtol=tolerance))
@@ -63,6 +65,10 @@ def calculate_summary(data, budget, date_from, date_to):
     second = ((a>b) & np.logical_not(np.isclose(a,b,rtol=0.01)))
     I2 = (budget.Kategorie.isin(['Steuern','Transport','Schulden','Vorsorge','Sparen']) & second)
     budget.loc[I2,'GutSchlecht'] = 2
+
+    second = (a<0)
+    I2 = (budget.Kategorie.isin(['Schulden','Vorsorge','Sparen']) & second)
+    budget.loc[I2,'GutSchlecht'] = 1
 
     a, b = budget.Summe.abs(), budget.Jahresbudget.abs()
     second = ((a>b) & np.logical_not(np.isclose(a,b,rtol=0.01)))

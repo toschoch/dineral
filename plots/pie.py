@@ -18,7 +18,7 @@ class Pie(Plot):
 
         import numpy as np
 
-        I = (budget['Jahresbudget'] < 0)
+        I = (budget['Jahresbudget'] < 0) & (budget['Summe']>0)
         sizes = (budget['Summe'][I]/budget.ix[I,'Summe'].sum())
         I2 = sizes > 0.02
         rest = 1.- sizes[I2].sum()
