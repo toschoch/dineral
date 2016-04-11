@@ -129,7 +129,16 @@ class FinanceDataImport(FinanceSelector):
             h = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8'))+' '+unidecode(row['Text'])+' '+'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
             return pd.Series({'Hash':h})
 
-        return data.apply(hash,axis=1).Hash
+        hashes = data.apply(hash,axis=1).Hash
+        I = pd.Index(hashes).duplicated()
+        i=2
+        while I.any():
+            data.ix[I,'Text']+=' {}'.format(i)
+            hashes = data.apply(hash,axis=1).Hash
+            I = pd.Index(hashes).duplicated()
+            i+=1
+
+        return hashes
 
 
 class FinanceReport(FinanceSelector):
