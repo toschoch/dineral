@@ -124,12 +124,15 @@ class FinanceDataImport(FinanceSelector):
 
         import hashlib
         from unidecode import unidecode
+        import warnings
 
         def hash(row):
             h = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8'))+' '+unidecode(row['Text'])+' '+'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
             return pd.Series({'Hash':h})
 
-        hashes = data.apply(hash,axis=1).Hash
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            hashes = data.apply(hash,axis=1).Hash
         I = pd.Index(hashes).duplicated()
         i=2
         while I.any():

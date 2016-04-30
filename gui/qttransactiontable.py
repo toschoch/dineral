@@ -220,9 +220,12 @@ class TransactionItemDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
 
-        bg_color = index.data(Qt.BackgroundColorRole)
-        painter.fillRect(option.rect, bg_color)
-        QStyledItemDelegate.paint(self,painter,option,index)
+        try:
+            bg_color = index.data(Qt.BackgroundColorRole)
+            painter.fillRect(option.rect, bg_color)
+            QStyledItemDelegate.paint(self,painter,option,index)
+        except TypeError:
+            QStyledItemDelegate.paint(self,painter,option,index)
 
 class TransactionComboBoxItemDelegate(TransactionItemDelegate,ComboBoxDelegate):
     pass
