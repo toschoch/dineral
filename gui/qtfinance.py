@@ -201,9 +201,8 @@ class FinanceReport(FinanceSelector):
         from matplotlib.backends.backend_pdf import PdfPages
         from matplotlib import pyplot as plt
         from plots import reporter
-
-        import seaborn
-        seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.0)
+        from plots.style import set_context
+        set_context("notebook")
 
 
         window = self.window()

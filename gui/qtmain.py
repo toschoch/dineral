@@ -11,6 +11,8 @@ from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtGui import QIcon
 
+import plots
+
 from qtfinance import FinanceDataImport, FinanceReport
 from qtfinanceedit import FinanceTransactions
 from qtfinanceview import FinanceView
@@ -18,6 +20,7 @@ from qtsettings import Settings
 from qtinfo import Info
 
 from internaldata import Budget,Database,Classifier,Report,Data
+
 
 class FinanceMain(QMainWindow):
 
@@ -140,8 +143,9 @@ class FinanceMainWidget(QWidget):
         if self.content.tabText(i)=='View':
 
             from plots import reporter
-            import seaborn
-            seaborn.set_context("notebook", rc={"lines.linewidth": 3}, font_scale=1.3)
+            from plots.style import set_context
+
+            set_context('paper')
 
             self.control.setCurrentWidget(self.report)
 

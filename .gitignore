@@ -1,5 +1,4 @@
 test.py
-/res
 .idea/*
 *~
 *.pyc
@@ -7,3 +6,4 @@ test.py
 *.txt
 *.html
 data/*.pickle
+.*/

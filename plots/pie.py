@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 from abstract_plot import Plot
 
-import seaborn as sns
+import seaborn.apionly as sns
 
 class Pie(Plot):
 

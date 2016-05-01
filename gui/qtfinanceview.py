@@ -60,6 +60,8 @@ class FinanceView(QWidget):
 
         self.reporter.plot(category,self.graph.axes)
 
+        self.graph.figure.tight_layout()
+
         self.graph.draw()
 
 class FinanceGraph(FigureCanvasQTAgg):
