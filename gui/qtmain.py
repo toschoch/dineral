@@ -11,6 +11,7 @@ from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtGui import QIcon
 
+
 import plots
 
 from qtfinance import FinanceDataImport, FinanceReport

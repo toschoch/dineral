@@ -11,9 +11,14 @@ import sys, logging
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt5.QtGui import QIcon
 
-from dataplugins import plugins
 
-from gui import FinanceMain
+
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    from dataplugins import plugins
+
+    from gui import FinanceMain
 
 
 if __name__ == '__main__':

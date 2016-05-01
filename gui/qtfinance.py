@@ -27,6 +27,7 @@ class FinanceDataImport(FinanceSelector):
 
         self.sources = QCheckBoxGroup([d.name() for d in plugins],'Import from:',self)
         self.btnImport = QtW.QPushButton("Import",self)
+
         self.importer = DataImport(plugins,parent=self)
 
         self.initUI()

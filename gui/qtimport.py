@@ -30,6 +30,7 @@ class DataImport(QProgressDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.plugins = plugins
         self.setWindowTitle('Import Data')
+        self.setValue(100)
 
     def start(self, period_from, period_to):
         kwargs = {'period_from':period_from, 'period_to':period_to}
@@ -39,7 +40,8 @@ class DataImport(QProgressDialog):
         process.progressClose.connect(self.cancel)
         process.setTerminationEnabled(True)
         self.canceled.connect(process.terminate)
-        self.forceShow()
+        self.setValue(0)
+        #self.forceShow()
         process.start()
 
 class ImportProcess(QThread):
