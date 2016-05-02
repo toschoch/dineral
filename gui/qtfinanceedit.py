@@ -8,6 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 
 import logging
+
 log = logging.getLogger(__name__)
 
 from PyQt5 import QtWidgets as QtW
@@ -15,17 +16,17 @@ from PyQt5.QtWidgets import QWidget
 
 from qttransactiontable import TransactionTable
 
-class FinanceTransactions(QWidget):
 
+class FinanceTransactions(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
         self.table = TransactionTable(parent=self)
 
-        self.btnSave = QtW.QPushButton("Save",self)
+        self.btnSave = QtW.QPushButton("Save", self)
         self.btnSave.setEnabled(False)
         self.btnSave.clicked.connect(self.save)
-        self.btnCancel = QtW.QPushButton("Cancel",self)
+        self.btnCancel = QtW.QPushButton("Cancel", self)
         self.btnCancel.setEnabled(False)
         self.btnCancel.clicked.connect(self.clear)
 
@@ -38,16 +39,15 @@ class FinanceTransactions(QWidget):
         self.initUI()
 
     def save(self):
-
         data = self.table.dataModel.df
         log.info("save {} entries to database...".format(len(data)))
 
         main = self.window()
 
         db = main.database.data
-        data = data.drop('Database',axis=1).set_index('Hash', drop=False)
+        data = data.drop('Database', axis=1).set_index('Hash', drop=False)
         db = data.combine_first(db)
-        db.sort_values('Datum',inplace=True)
+        db.sort_values('Datum', inplace=True)
 
         main.database.save_data(db)
 
@@ -66,7 +66,6 @@ class FinanceTransactions(QWidget):
         self.table.dataTable.setFocus()
 
     def initUI(self):
-
         vlayout = QtW.QVBoxLayout(self)
 
         # hl = QtW.QHBoxLayout()
@@ -75,16 +74,16 @@ class FinanceTransactions(QWidget):
         # hl.addStretch(1)
         #
         # vlayout.addLayout(hl,0)
-        vlayout.addWidget(self.table,1)
+        vlayout.addWidget(self.table, 1)
 
         hl = QtW.QHBoxLayout()
         # hl.addWidget(self.lblStatus,0)
         hl.addStretch(1)
-        hl.addWidget(self.btnSave,0)
-        hl.addWidget(self.btnCancel,0)
+        hl.addWidget(self.btnSave, 0)
+        hl.addWidget(self.btnCancel, 0)
 
         vlayout.addLayout(hl)
 
         self.setLayout(vlayout)
 
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)

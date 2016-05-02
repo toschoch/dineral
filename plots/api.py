@@ -11,13 +11,14 @@ from table import Summary
 from pie import Pie
 from cover import Cover
 import logging
+
 log = logging.getLogger(__name__)
 
-class Report(object):
 
+class Report(object):
     def __init__(self):
 
-        self._additional_plots = [Cover(),Summary(),Pie()]
+        self._additional_plots = [Cover(), Summary(), Pie()]
 
     @property
     def additional_plots(self):
@@ -25,7 +26,7 @@ class Report(object):
 
     @property
     def plots(self):
-        return self.additional_plots+self._budget.index.tolist()
+        return self.additional_plots + self._budget.index.tolist()
 
     def statistics(self, window):
 
@@ -46,13 +47,12 @@ class Report(object):
         import os
 
         year = self._from.year
-        fname = os.path.join(filepath,"{}_per_month.csv".format(year))
-        self._monthly_sum.to_csv(fname,sep=';',index=False)
+        fname = os.path.join(filepath, "{}_per_month.csv".format(year))
+        self._monthly_sum.to_csv(fname, sep=';', index=False)
         log.info("saved monthly data to '{}'...".format(fname))
-        fname = os.path.join(filepath,"{}_summary.csv".format(year))
-        self._budget.to_csv(fname,sep=';',index=False)
+        fname = os.path.join(filepath, "{}_summary.csv".format(year))
+        self._budget.to_csv(fname, sep=';', index=False)
         log.info("saved summary to '{}'...".format(fname))
-
 
     def plot(self, category, axes):
 
@@ -65,10 +65,11 @@ class Report(object):
 
         if category in self.additional_plots:
 
-            self._additional_plots[self.additional_plots.index(category)].plot(monthly_sum,budget,axes, date_from, date_to)
+            self._additional_plots[self.additional_plots.index(category)].plot(monthly_sum, budget, axes, date_from,
+                                                                               date_to)
 
         else:
 
-            plot(category,monthly_sum,budget,axes, date_from, date_to)
+            plot(category, monthly_sum, budget, axes, date_from, date_to)
 
         return axes

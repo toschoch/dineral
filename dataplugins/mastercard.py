@@ -38,39 +38,38 @@ class MasterCard(DataPlugin):
 
         """
 
-        start = firstOf('month',period_from)
+        start = firstOf('month', period_from)
         stop = period_to
-
 
         new = []
 
-        locale.setlocale(locale.LC_TIME,'de_CH.UTF-8')
+        locale.setlocale(locale.LC_TIME, 'de_CH.UTF-8')
 
         files2load = []
         for root, _, filenames in os.walk(self.properties):
             for filename in fnmatch.filter(filenames, '*.pdf'):
-                fname=os.path.join(root, filename)
+                fname = os.path.join(root, filename)
                 name = '/'.join(fname.split('/')[-2:])
                 name, _ = os.path.splitext(name)
 
                 try:
-                    month=datetime.strptime(name.encode('utf-8'), '%Y/%B').date()
+                    month = datetime.strptime(name.encode('utf-8'), '%Y/%B').date()
                 except ValueError:
-                    name=name.split('/')[-1]
-                    month=datetime.strptime(name.encode('utf-8'),'%Y-%m').date()
+                    name = name.split('/')[-1]
+                    month = datetime.strptime(name.encode('utf-8'), '%Y-%m').date()
 
-                if month>= start and month<=stop:
+                if month >= start and month <= stop:
                     files2load.append(fname)
 
-        resolutions = [200,250,300,320]
+        resolutions = [200, 250, 300, 320]
 
-        prog=0
-        if len(files2load)>0:
-            dprog=100./(len(files2load)*len(resolutions))
+        prog = 0
+        if len(files2load) > 0:
+            dprog = 100. / (len(files2load) * len(resolutions))
         else:
-            dprog=0
+            dprog = 0
 
-        if len(files2load)>0:
+        if len(files2load) > 0:
             log.info(u"load files: {}".format(", ".join(files2load)))
         else:
             log.warn("No MasterCard account extracts found for selected period!")
@@ -81,11 +80,11 @@ class MasterCard(DataPlugin):
             succeeded = False
             for resolution in resolutions:
                 try:
-                    newrows = self.load_MasterCardExtract(fname,resolution) # try with resolution
+                    newrows = self.load_MasterCardExtract(fname, resolution)  # try with resolution
                     succeeded = True
                 except Exception as err:
                     exceptions.append(err)
-                prog+=dprog
+                prog += dprog
                 if callback is not None:
                     callback(prog)
 
@@ -94,15 +93,14 @@ class MasterCard(DataPlugin):
 
             new.append(newrows)
 
+        locale.setlocale(locale.LC_TIME, '')
 
-        locale.setlocale(locale.LC_TIME,'')
-
-        if len(new)>0:
-            return pd.concat(new,axis=0)
+        if len(new) > 0:
+            return pd.concat(new, axis=0)
         else:
             return pd.DataFrame(columns=self.DEFAULTDATACOLUMNS)
 
-    def load_MasterCardExtract(self,filename,resolution):
+    def load_MasterCardExtract(self, filename, resolution):
         """ loads data from a pdf file and parses the information respect to the format description
 
             Parameters
@@ -117,19 +115,19 @@ class MasterCard(DataPlugin):
         """
 
         # parse pdf to text
-        os.system('./SecuredPDF2txt.sh '+filename.encode('utf-8')+' '+str(resolution))
-        filename=filename.replace('.pdf','.txt')
+        os.system('./SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
+        filename = filename.replace('.pdf', '.txt')
 
-        column_headers=['Datum','Text','Belastungen','Gutschriften','Datum']
-        align=[0,0,1,1,1,2]
+        column_headers = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Datum']
+        align = [0, 0, 1, 1, 1, 2]
 
-        with codecs.open(filename,'r','utf-8') as fp:
+        with codecs.open(filename, 'r', 'utf-8') as fp:
             lines = fp.read().splitlines()
 
         # remove the text file
         os.remove(filename)
 
-        table=[]
+        table = []
 
         it = iter(lines)
 
@@ -142,48 +140,48 @@ class MasterCard(DataPlugin):
                 col_index = [line.find(col) for col in column_headers]
 
                 # if column headers found -> store indices
-                if min(col_index)>=0:
+                if min(col_index) >= 0:
 
                     line = it.next()
                     line = it.next()
-
 
                     # while no new page started, first character not space
-                    while line.find('UEBERTRAG AUF NAECHSTE SEITE')<0 or line.find('Saldo zu unseren Gunsten')<0:
+                    while line.find('UEBERTRAG AUF NAECHSTE SEITE') < 0 or line.find('Saldo zu unseren Gunsten') < 0:
 
                         # try to parse date
                         try:
-                            date=line.split(' ')[0]
-                            date=datetime.strptime(date,"%d.%m.%y")
+                            date = line.split(' ')[0]
+                            date = datetime.strptime(date, "%d.%m.%y")
 
-                        except (IndexError,ValueError):
+                        except (IndexError, ValueError):
                             line = it.next()
                             continue
 
                         # except saldovortrag and ESR-ZAHLUNG
-                        if line.find('SALDOVORTRAG')>=0 or line.find('IHRE ESR-ZAHLUNG')>=0:
+                        if line.find('SALDOVORTRAG') >= 0 or line.find('IHRE ESR-ZAHLUNG') >= 0:
                             line = it.next()
                             continue
 
-                        text=[u' '.join(line.split(' ')[1:-2])]
+                        text = [u' '.join(line.split(' ')[1:-2])]
                         f_str = line.split(' ')[-2]
-                        amount=float(f_str.replace("'",""))
+                        amount = float(f_str.replace("'", ""))
 
                         # try to parse date
                         while True:
                             line = it.next()
                             try:
-                                d=line.split(' ')[0]
-                                d=datetime.strptime(d,"%d.%m.%y")
+                                d = line.split(' ')[0]
+                                d = datetime.strptime(d, "%d.%m.%y")
 
-                                table.append([date,unicode(u'\n'.join(text)),amount])
+                                table.append([date, unicode(u'\n'.join(text)), amount])
 
                                 break
 
-                            except (IndexError,ValueError):
-                                if line=='':continue
-                                if line.find('UEBERTRAG AUF NAECHSTE SEITE')>=0 or line.find('Saldo zu unseren Gunsten')>=0:
-                                    table.append([date,'\n'.join(text),amount])
+                            except (IndexError, ValueError):
+                                if line == '': continue
+                                if line.find('UEBERTRAG AUF NAECHSTE SEITE') >= 0 or line.find(
+                                        'Saldo zu unseren Gunsten') >= 0:
+                                    table.append([date, '\n'.join(text), amount])
                                     break
                                 text.append(line)
 
@@ -191,10 +189,10 @@ class MasterCard(DataPlugin):
             pass
 
         # crop and convert types
-        headers=['Datum','Text','Lastschrift']
-        rec=pd.DataFrame(table,columns=headers)
+        headers = ['Datum', 'Text', 'Lastschrift']
+        rec = pd.DataFrame(table, columns=headers)
         rec.Datum = pd.DatetimeIndex(rec.Datum).date
 
-        rec['Kategorie']=self.NOCATEGORY
+        rec['Kategorie'] = self.NOCATEGORY
 
         return rec

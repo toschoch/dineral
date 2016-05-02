@@ -1,19 +1,19 @@
 # encoding: utf-8
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:         qtimport
 #
 # Author:       tschoch
 # Created:      02.12.2015
 # Copyright:    (c) Sensirion AG 2015
 # Licence:      all rights reserved.
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
 __author__ = 'tschoch'
 __copyright__ = '(c) Sensirion AG 2015'
 
 """"""
 
-from PyQt5.QtCore import QThread,pyqtSignal,Qt
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QProgressDialog
 import pandas as pd
 import logging
@@ -33,19 +33,19 @@ class DataImport(QProgressDialog):
         self.setValue(100)
 
     def start(self, period_from, period_to):
-        kwargs = {'period_from':period_from, 'period_to':period_to}
-        process = ImportProcess(self.plugins,self.success,parent=self,**kwargs)
+        kwargs = {'period_from': period_from, 'period_to': period_to}
+        process = ImportProcess(self.plugins, self.success, parent=self, **kwargs)
         process.progressNotify.connect(self.setValue)
         process.progesssLabel.connect(self.setLabelText)
         process.progressClose.connect(self.cancel)
         process.setTerminationEnabled(True)
         self.canceled.connect(process.terminate)
         self.setValue(0)
-        #self.forceShow()
+        # self.forceShow()
         process.start()
 
-class ImportProcess(QThread):
 
+class ImportProcess(QThread):
     progressNotify = pyqtSignal(int)
     progesssLabel = pyqtSignal(unicode)
     progressClose = pyqtSignal()
@@ -63,15 +63,15 @@ class ImportProcess(QThread):
         for plugin in self.plugins:
             if not plugin.LOAD: continue
             log.info("load {}...".format(plugin.name()))
-            self.progesssLabel.emit(plugin.description()+'...')
+            self.progesssLabel.emit(plugin.description() + '...')
             d = plugin.load_data(callback=self.progressNotify.emit, **self.kwargs)
             data.append(d)
 
             self.progressNotify.emit(0)
         self.progressClose.emit()
-        if len(data)>0:
-            data = pd.concat(data,axis=0)
-            data.reset_index(inplace=True,drop=True)
+        if len(data) > 0:
+            data = pd.concat(data, axis=0)
+            data.reset_index(inplace=True, drop=True)
             if not data.empty:
                 log.info("Data successfully imported! ({} entries)".format(len(data)))
                 self.success.emit(data)

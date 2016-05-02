@@ -1,12 +1,12 @@
 # encoding: utf-8
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:         property
 #
 # Author:       tschoch
 # Created:      04.12.2015
 # Copyright:    (c) Sensirion AG 2015
 # Licence:      all rights reserved.
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
 __author__ = 'tschoch'
 __copyright__ = '(c) Sensirion AG 2015'
@@ -17,14 +17,16 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class LocationType(object):
     DIR = 1
     FILE = 0
 
+
 _PROPERTIESFILE = 'properties.json'
 
-class Property(LocationType):
 
+class Property(LocationType):
     TYPE = LocationType.FILE
 
     def __init__(self):
@@ -49,28 +51,27 @@ class Property(LocationType):
         return unicode(self.properties)
 
     def store(self):
-        import json,os
+        import json, os
         path, _ = os.path.split(__file__)
-        pFile = os.path.join(path,_PROPERTIESFILE)
-        with open(pFile,'r') as fp:
+        pFile = os.path.join(path, _PROPERTIESFILE)
+        with open(pFile, 'r') as fp:
             properties = json.load(fp)
-        with open(pFile,'w+') as fp:
+        with open(pFile, 'w+') as fp:
             properties[self.__class__.__name__] = self.properties
-            json.dump(properties,fp,indent=2)
-            log.info(u"stored property for {}: {}".format(self.__class__.__name__,self.properties))
+            json.dump(properties, fp, indent=2)
+            log.info(u"stored property for {}: {}".format(self.__class__.__name__, self.properties))
 
     def restore(self):
-        import json,os
+        import json, os
         path, _ = os.path.split(__file__)
-        pFile = os.path.join(path,_PROPERTIESFILE)
-        with open(pFile,'r') as fp:
+        pFile = os.path.join(path, _PROPERTIESFILE)
+        with open(pFile, 'r') as fp:
             properties = json.load(fp)
             self.properties = properties[self.__class__.__name__]
-            log.info(u"restored property for {}: {}".format(self.__class__.__name__,self.properties))
+            log.info(u"restored property for {}: {}".format(self.__class__.__name__, self.properties))
 
 
 class CachedProperty(Property):
-
     def __init__(self):
         Property.__init__(self)
         self._data = None
@@ -78,9 +79,8 @@ class CachedProperty(Property):
     @property
     def data(self, *args, **kwargs):
         if self._data is None:
-            self._data = self.load_data(*args,**kwargs)
+            self._data = self.load_data(*args, **kwargs)
         return self._data
-
 
     def load_data(self, *args, **kwargs):
         raise NotImplementedError

@@ -12,16 +12,15 @@ from abstract_plot import Plot
 
 import seaborn.apionly as sns
 
+
 class Pie(Plot):
-
     def plot(self, data, budget, ax, date_from, date_to):
-
         import numpy as np
 
-        I = (budget['Jahresbudget'] < 0) & (budget['Summe']>0)
-        sizes = (budget['Summe'][I]/budget.ix[I,'Summe'].sum())
+        I = (budget['Jahresbudget'] < 0) & (budget['Summe'] > 0)
+        sizes = (budget['Summe'][I] / budget.ix[I, 'Summe'].sum())
         I2 = sizes > 0.02
-        rest = 1.- sizes[I2].sum()
+        rest = 1. - sizes[I2].sum()
         sizes = sizes[I2].tolist()
         sizes.append(rest)
         # colors = sns.color_palette("Set2",len(budget)+1)
@@ -29,7 +28,6 @@ class Pie(Plot):
         selected_cats = budget['Kategorie'][I][I2].tolist()
         selected_colors = budget['colors'][I][I2].tolist()
 
-
-        ax.pie(sizes,explode=np.ones_like(sizes)*0.05,autopct='%1.0f%%',
-               labels=selected_cats+['Rest'],colors=selected_colors+[sns.xkcd_rgb['light grey']])
+        ax.pie(sizes, explode=np.ones_like(sizes) * 0.05, autopct='%1.0f%%',
+               labels=selected_cats + ['Rest'], colors=selected_colors + [sns.xkcd_rgb['light grey']])
         ax.axis('equal')

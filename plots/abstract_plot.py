@@ -11,8 +11,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-class Plot(object):
 
+class Plot(object):
     @classmethod
     def name(cls):
         return cls.__name__

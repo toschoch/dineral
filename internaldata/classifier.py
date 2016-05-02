@@ -13,8 +13,8 @@ from property import Property
 
 log = logging.getLogger(__name__)
 
-class Classifier(Property):
 
+class Classifier(Property):
     TYPE = Property.FILE
 
     def __init__(self):
@@ -26,7 +26,7 @@ class Classifier(Property):
         log.info("load classifier {}...".format(fname))
 
         import pickle
-        with open(fname,'rb') as fp:
+        with open(fname, 'rb') as fp:
             clf = pickle.load(fp)
 
         self._clf = clf

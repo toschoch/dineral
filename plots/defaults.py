@@ -9,8 +9,8 @@ Copyright (c) 2015. All rights reserved.
 
 from matplotlib.dates import DateFormatter, DayLocator
 
-def monthly_settings(ax):
 
+def monthly_settings(ax):
     fmt = DateFormatter('%B')
     loc = DayLocator(bymonthday=1)
     ax.xaxis.set_major_locator(loc)
@@ -22,7 +22,7 @@ def monthly_settings(ax):
 
     ylim = ax.get_ylim()
     if ylim[0] < 0:
-        ylim = (ylim[0]*1.2,ylim[1]*1.2)
+        ylim = (ylim[0] * 1.2, ylim[1] * 1.2)
     else:
-        ylim = (0,ylim[1]*1.2)
+        ylim = (0, ylim[1] * 1.2)
     ax.set_ylim(ylim)
