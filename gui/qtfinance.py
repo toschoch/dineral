@@ -201,6 +201,7 @@ class FinanceReport(FinanceSelector):
 
     def createReport(self):
 
+        import warnings
         from matplotlib.backends.backend_pdf import PdfPages
         from matplotlib import pyplot as plt
         from plots import reporter
@@ -217,12 +218,22 @@ class FinanceReport(FinanceSelector):
 
         log.info("Create PDF report '{}'...".format(fname))
         with PdfPages(fname) as pdf:
-            for i, plot in enumerate(reporter.plots):
-                plt.figure()
-                ax = plt.gca()
-                reporter.plot(plot, ax)
-                log.info(u"save '{}' on page {}...".format(plot, i + 1))
-                pdf.savefig()
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                for i, plot in enumerate(reporter.plots):
+                    plt.figure()
+                    ax = plt.gca()
+                    reporter.plot(plot, ax)
+                    log.info(u"save '{}' on page {}...".format(plot, i + 1))
+                    pdf.savefig()
+
+            log.info('set PDF properties...')
+            info = pdf.infodict()
+            info['Author'] ='T. Schoch'
+            info['Title']  ='Report MyFinances'
+            info['Subject']='Finance'
+            info['Creator']='MyFinances copyright TobiWorks'
+
 
         info = QtW.QMessageBox()
         info.setText("Report successfully created ({} pages)".format(i + 1))

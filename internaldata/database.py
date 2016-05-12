@@ -20,9 +20,16 @@ class Database(CachedProperty):
 
     def load_data(self):
         import numpy as np
-        fname = self.filename(self.FROM_BACKUP)
-        log.info("load database from {}...".format(fname))
-        data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True)
+        try:
+            fname = self.filename(self.FROM_BACKUP)
+            log.info("load database from {}...".format(fname))
+            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True)
+        except IOError as err:
+            log.error(str(err))
+            fname = self.filename(True)
+            log.info("load database from {}...".format(fname))
+            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True)
+
         if self.BACKUP and not self.FROM_BACKUP:
             log.debug("Save a backup copy of the database...")
             self.save_data(data, backup=True)
