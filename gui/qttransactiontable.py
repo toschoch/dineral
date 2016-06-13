@@ -159,6 +159,8 @@ class TransactionTable(DataFrameWidget):
         self.proxy.setSourceModel(self.dataModel)
         self.dataTable.setModel(self.proxy)
         self.dataTable.setItemDelegate(TransactionItemDelegate(self))
+
+        self.dataTable.verticalHeader().setVisible(False)
         self.dataTable.setStyleSheet("selection-background-color: transparent; selection-color:black")
 
         self.dataTable.setSelectionBehavior(QtW.QTableView.SelectRows)

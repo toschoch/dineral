@@ -51,4 +51,7 @@ class Expenses(DataPlugin):
         backup.Lastschrift = - backup.Lastschrift.astype(float)
         backup.sort_values('Datum', inplace=True)
 
+        # convert Text to unicode
+        backup['Text']=backup.Text.str.decode('utf-8').astype(unicode)
+
         return backup

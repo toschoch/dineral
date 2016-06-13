@@ -90,7 +90,7 @@ class FinanceDataImport(FinanceSelector):
 
         joined = data.join(db, how='inner', lsuffix='_data')[['Kategorie', 'Deleted']]
         joined.Kategorie = pd.Categorical(joined.Kategorie, data.Kategorie.cat.categories)
-        data.ix[joined.index, ['Kategorie', 'Deleted']] = joined
+        data.loc[:,['Kategorie', 'Deleted']] = joined
 
         data = pd.DataFrame(data[['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']])
         data.reset_index(inplace=True)
@@ -102,8 +102,7 @@ class FinanceDataImport(FinanceSelector):
         if I.any():
             log.info("classify imported data...")
             prediction = classes[clf.predict(data[I].Text)]
-            data.loc[I, 'Deleted'] = (prediction == 'Delete').values
-            prediction[prediction == 'Delete'] = np.NaN
+            data.loc[I, 'Deleted'] = (prediction == 'nan').values
             guessed = pd.Categorical(prediction, categories=data.Kategorie.cat.categories)
             data.loc[I, 'Kategorie'] = guessed
             log.info("categorized {} new entries...".format(len(guessed)))
