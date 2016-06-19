@@ -51,7 +51,6 @@ def calculate_summary(data, budget, date_from, date_to):
     budget['BudgetPeriode'] = budget.Jahresbudget * -(abs((date_from - date_to).days) + 1) / 365.
 
     Sum = data.sum()
-    Sum.index = Sum.index.str.decode('utf-8')
     budget['Summe'] = Sum
 
     # 1==bad, 2==good, 0==neutral

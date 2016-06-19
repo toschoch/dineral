@@ -29,7 +29,7 @@ def plot_income(ax, data, budget, category, title='Income', linecolor=sns.xkcd_r
     import matplotlib.transforms as mtransforms
     trans = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
 
-    icategory = category.encode('utf-8')
+    icategory = category
 
     ax = (-sign * data[icategory]).plot(ax=ax, linewidth=2, color=linecolor, marker='o')
 
@@ -52,7 +52,7 @@ def plot_income(ax, data, budget, category, title='Income', linecolor=sns.xkcd_r
 
     pbud = ax.axhline(-bud, color='g', alpha=0.4, linewidth=2, linestyle='--')
 
-    ax.legend([pavg, pbud], ['Average {0:.0f} CHF'.format(avg), 'Budget {0:.0f} CHF'.format(-bud)])
+    ax.legend([pavg, pbud], ['Average {0:.0f} CHF'.format(avg), 'Budget {0:.0f} CHF'.format(-bud)],loc='upper right')
 
     if ((-sign * data[icategory].dropna() >= 0)).all():
         ylim = ax.get_ylim()

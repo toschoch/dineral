@@ -19,7 +19,7 @@ class Cover(Plot):
         ax.yaxis.set_visible(False)
         text = u"Report MyFinances"
         text += '\n\n'
-        text += start.strftime('%d. %B %Y').decode('utf-8')
+        text += start.strftime('%d. %B %Y')
         text += " bis "
-        text += stop.strftime(u'%d. %B %Y').decode('utf-8')
+        text += stop.strftime(u'%d. %B %Y')
         ax.text(0.5, 0.5, text, transform=ax.transAxes, fontweight='bold', va='center', ha='center')
