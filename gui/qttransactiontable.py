@@ -78,10 +78,10 @@ class TransactionTableModel(DataFrameModel):
             else:
                 return DataFrameModel.data(self, index, role)
 
-    def setData(self, index, value, role):
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
-        return DataFrameModel.setData(self, index, value, role)
+    #def setData(self, index, value, role):
+        #if isinstance(value, unicode):
+        #    value = value.encode('utf-8')
+        #return DataFrameModel.setData(self, index, value, role)
 
 
 class TransactionTableView(QtW.QTableView):
@@ -123,7 +123,7 @@ class TransactionTableView(QtW.QTableView):
             smodel = model.sourceModel()
             sindex = model.mapToSource(index)
             categories = pd.Series(smodel.categories)
-            cat = categories[categories.str.decode('utf-8').str.lower().str.startswith(t)]
+            cat = categories[categories.str.lower().str.startswith(t)]
             if len(cat) > 0:
                 if t == self.last_key:
                     self.n_pressed += 1
@@ -132,7 +132,6 @@ class TransactionTableView(QtW.QTableView):
                 if self.n_pressed >= len(cat):
                     self.n_pressed = 0
                 cat = cat.iloc[self.n_pressed]
-                cat = unicode(cat, encoding='utf-8').encode('utf-8')
                 c = smodel.i_categorie
                 c_sindex = smodel.index(sindex.row(), c)
                 index = model.mapFromSource(c_sindex)

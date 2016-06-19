@@ -143,7 +143,7 @@ class ComboBoxDelegate(QItemDelegate):
         editor.setCurrentText(value)
 
     def setModelData(self, editor, model, index):
-        value = editor.currentText().encode('utf-8')
+        value = editor.currentText()#.encode('utf-8')
         if value == 'nan':
             value = NaN
         elif value.lower() == 'true':

@@ -41,8 +41,8 @@ class Expenses(DataPlugin):
 
         """
 
-        backup = pd.read_csv(os.path.join(self.properties, 'expenses_backup.csv'), sep=';', quotechar="'")
-        cats = pd.read_csv(os.path.join(self.properties, 'expenses_backup_categories.csv'), sep=';', quotechar="'")
+        backup = pd.read_csv(os.path.join(self.properties, 'expenses_backup.csv'), encoding='utf-8', sep=';', quotechar="'")
+        cats = pd.read_csv(os.path.join(self.properties, 'expenses_backup_categories.csv'), encoding='utf-8',sep=';', quotechar="'")
         backup = backup.merge(cats, left_on='catID', right_on='_id')
         backup = backup[['date', 'name', 'amount', 'note']].copy()
         backup.columns = ['Datum', 'Kategorie', 'Lastschrift', 'Text']
@@ -50,8 +50,5 @@ class Expenses(DataPlugin):
         backup.Datum = pd.DatetimeIndex(pd.to_datetime(backup.Datum)).date
         backup.Lastschrift = - backup.Lastschrift.astype(float)
         backup.sort_values('Datum', inplace=True)
-
-        # convert Text to unicode
-        backup['Text']=backup.Text.str.decode('utf-8').astype(unicode)
 
         return backup

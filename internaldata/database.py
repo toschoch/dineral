@@ -23,12 +23,12 @@ class Database(CachedProperty):
         try:
             fname = self.filename(self.FROM_BACKUP)
             log.info("load database from {}...".format(fname))
-            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True)
+            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
         except IOError as err:
             log.error(str(err))
             fname = self.filename(True)
             log.info("load database from {}...".format(fname))
-            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True)
+        data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
 
         if self.BACKUP and not self.FROM_BACKUP:
             log.debug("Save a backup copy of the database...")

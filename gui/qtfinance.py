@@ -102,9 +102,12 @@ class FinanceDataImport(FinanceSelector):
         if I.any():
             log.info("classify imported data...")
             prediction = classes[clf.predict(data[I].Text)]
-            data.loc[I, 'Deleted'] = (prediction == 'nan').values
+            data.loc[I, 'Deleted'] = (prediction == 'Delete').values
             guessed = pd.Categorical(prediction, categories=data.Kategorie.cat.categories)
-            data.loc[I, 'Kategorie'] = guessed
+            if I.all():
+                data['Kategorie'] = guessed
+            else:
+                data.loc[I, 'Kategorie'] = guessed
             log.info("categorized {} new entries...".format(len(guessed)))
 
         data.ix[data.Deleted, 'Kategorie'] = np.nan
