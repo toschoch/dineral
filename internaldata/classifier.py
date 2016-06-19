@@ -36,3 +36,27 @@ class Classifier(Property):
 
     def predict(self, *args, **kwargs):
         self._clf.predict(*args, **kwargs)
+
+    def date_training(self):
+        try:
+            return self._clf.TRAINING_DATE
+        except AttributeError:
+            return 'Unkown'
+
+    def training_samples(self):
+        try:
+            return self._clf.TRAINING_SAMPLES
+        except AttributeError:
+            return 'Unkown'
+
+    def test_samples(self):
+        try:
+            return self._clf.TEST_SAMPLES
+        except AttributeError:
+            return 'Unkown'
+
+    def test_score(self):
+        try:
+            return ", ".join(map("{:.2f}".format,[self._clf.SCORE[i].mean() for i in range(3)]))
+        except AttributeError:
+            return 'Unkown'
