@@ -11,6 +11,9 @@ import sys, logging
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt5.QtGui import QIcon
 
+import matplotlib as mpl
+mpl.use('Qt5Agg')
+
 import warnings
 
 with warnings.catch_warnings():

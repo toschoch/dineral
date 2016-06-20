@@ -13,7 +13,7 @@ from abstract_plot import Plot
 
 
 class Cover(Plot):
-    def plot(self, data, budget, ax, start, stop):
+    def plot(self, data, budget, ax, start, stop, *args):
         ax.set_frame_on(False)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)

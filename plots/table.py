@@ -14,7 +14,7 @@ import seaborn.apionly as sns
 
 
 class Summary(Plot):
-    def plot(self, data, budget, ax, date_from, date_to):
+    def plot(self, data, budget, ax, *args):
 
         clr = ax.patch.get_facecolor()
         ax.set_frame_on(False)
