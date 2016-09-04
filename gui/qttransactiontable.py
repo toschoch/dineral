@@ -7,10 +7,10 @@ Created by Tobias Schoch on 16.11.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PyQt5 import QtWidgets as QtW
-from PyQt5.QtWidgets import QWidget, QSizePolicy, QStyledItemDelegate
-from PyQt5.QtCore import Qt, QEvent, QVariant, QAbstractTableModel, QSortFilterProxyModel
-from PyQt5.QtGui import QKeyEvent, QColor
+from PySide import QtGui as QtW
+from PySide.QtGui import QWidget, QSizePolicy, QStyledItemDelegate, QSortFilterProxyModel
+from PySide.QtCore import Qt, QEvent, QAbstractTableModel
+from PySide.QtGui import QKeyEvent, QColor
 
 from seaborn.palettes import color_palette
 import pandas as pd
@@ -74,7 +74,7 @@ class TransactionTableModel(DataFrameModel):
         else:
             if self.df.columns[index.column()] == 'Lastschrift' and role == Qt.DisplayRole:
                 amount = self.df.ix[index.row(), index.column()]
-                return QVariant(u'{:.2f} CHF'.format(amount))
+                return u'{:.2f} CHF'.format(amount)
             else:
                 return DataFrameModel.data(self, index, role)
 
@@ -231,5 +231,5 @@ class TransactionItemDelegate(QStyledItemDelegate):
             QStyledItemDelegate.paint(self, painter, option, index)
 
 
-class TransactionComboBoxItemDelegate(TransactionItemDelegate, ComboBoxDelegate):
+class TransactionComboBoxItemDelegate(ComboBoxDelegate, TransactionItemDelegate):
     pass

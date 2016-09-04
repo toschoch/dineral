@@ -6,8 +6,8 @@ qtpandas.py
 Created by Tobias Schoch on 11.11.15.
 Copyright (c) 2015. All rights reserved.
 """
-from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
-from PyQt5.QtWidgets import QVBoxLayout, QTableView, QWidget, QSizePolicy, QItemDelegate, QApplication, \
+from PySide.QtCore import QAbstractTableModel, Qt, QModelIndex
+from PySide.QtGui import QVBoxLayout, QTableView, QWidget, QSizePolicy, QItemDelegate, QApplication, \
     QStyleOptionComboBox, QStyle, QComboBox
 from pandas import DataFrame, Categorical
 from numpy import NaN
@@ -32,25 +32,25 @@ class DataFrameModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
-            return QVariant()
+            return
 
         if orientation == Qt.Horizontal:
             try:
                 return self.df.columns.tolist()[section]
             except (IndexError,):
-                return QVariant()
+                return
         elif orientation == Qt.Vertical:
             try:
                 return self.df.index.tolist()[section]
             except (IndexError,):
-                return QVariant()
+                return
 
     def data(self, index, role=Qt.DisplayRole):
         if role != Qt.DisplayRole and role != Qt.EditRole:
-            return QVariant()
+            return
 
         if not index.isValid():
-            return QVariant()
+            return
 
         text = self.df.ix[index.row(), index.column()]
         try:
@@ -58,7 +58,7 @@ class DataFrameModel(QAbstractTableModel):
         except (UnicodeEncodeError, UnicodeDecodeError):
             pass
 
-        return QVariant(text)
+        return text
 
     def flags(self, index):
         flags = super(DataFrameModel, self).flags(index)
@@ -134,13 +134,13 @@ class ComboBoxDelegate(QItemDelegate):
         value = index.data(Qt.DisplayRole)
         editor = QComboBox(parent)
         editor.addItems(self.itemslist)
-        editor.setCurrentText(value)
+        editor.setCurrentIndex(self.itemslist.index(value))
         editor.installEventFilter(self)
         return editor
 
     def setEditorData(self, editor, index):
         value = index.data(Qt.DisplayRole)
-        editor.setCurrentText(value)
+        editor.setCurrentIndex(self.itemslist.index(value))
 
     def setModelData(self, editor, model, index):
         value = editor.currentText()#.encode('utf-8')

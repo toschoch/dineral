@@ -34,8 +34,8 @@ class Report(object):
         db = window.database.data
         budget = window.budget.data
 
-        date_from = window.main.report.period.dateFrom.selectedDate().toPyDate()
-        date_to = window.main.report.period.dateTo.selectedDate().toPyDate()
+        date_from = window.main.report.period.dateFrom.selectedDate().toPython()
+        date_to = window.main.report.period.dateTo.selectedDate().toPython()
 
         from statistics import calculate_monthly, calculate_summary
 

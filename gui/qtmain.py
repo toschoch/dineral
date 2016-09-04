@@ -7,9 +7,8 @@ Created by Tobias Schoch on 01.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PyQt5 import QtWidgets as QtW
-from PyQt5.QtWidgets import QWidget, QMainWindow
-from PyQt5.QtGui import QIcon
+from PySide import QtGui as QtW
+from PySide.QtGui import QWidget, QMainWindow, QIcon
 
 import plots
 
@@ -46,7 +45,7 @@ class FinanceMain(QMainWindow):
 
     def initMenu(self):
         menubar = self.menuBar()
-        entryMenu = menubar.addMenu('&Menü')
+        entryMenu = menubar.addMenu('&Menu')
         actionSettings = QtW.QAction('&Settings', self)
         actionSettings.triggered.connect(self.settings)
         actionQuit = QtW.QAction('&Quit', self)

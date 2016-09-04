@@ -13,8 +13,9 @@ __copyright__ = '(c) Sensirion AG 2015'
 
 """"""
 
-from PyQt5.QtCore import QThread, pyqtSignal, Qt
-from PyQt5.QtWidgets import QProgressDialog
+from PySide.QtCore import QThread, Signal, Qt
+from PySide.QtGui import QProgressDialog
+
 import pandas as pd
 import logging
 
@@ -22,7 +23,7 @@ log = logging.getLogger(__name__)
 
 
 class DataImport(QProgressDialog):
-    success = pyqtSignal(pd.DataFrame)
+    success = Signal(pd.DataFrame)
 
     def __init__(self, plugins, parent=None):
         QProgressDialog.__init__(self, None)
@@ -46,9 +47,9 @@ class DataImport(QProgressDialog):
 
 
 class ImportProcess(QThread):
-    progressNotify = pyqtSignal(int)
-    progesssLabel = pyqtSignal(unicode)
-    progressClose = pyqtSignal()
+    progressNotify = Signal(int)
+    progesssLabel = Signal(unicode)
+    progressClose = Signal()
 
     def __init__(self, plugins, success, parent=None, **kwargs):
         QThread.__init__(self, parent)
