@@ -105,7 +105,7 @@ class DataFrameWidget(QWidget):
     def getWidth(self):
 
         margs = self.layout().getContentsMargins()
-        w = margs[0] + margs[2] + 20
+        w = margs[0] + margs[2] + 40
         for i in range(self.dataModel.columnCount()):
             w += self.dataTable.columnWidth(i)
         return w
@@ -143,7 +143,7 @@ class ComboBoxDelegate(QItemDelegate):
         editor.setCurrentIndex(self.itemslist.index(value))
 
     def setModelData(self, editor, model, index):
-        value = editor.currentText()#.encode('utf-8')
+        value = editor.currentText()  # .encode('utf-8')
         if value == 'nan':
             value = NaN
         elif value.lower() == 'true':

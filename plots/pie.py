@@ -29,5 +29,6 @@ class Pie(Plot):
         selected_colors = budget['colors'][I][I2].tolist()
 
         ax.pie(sizes, explode=np.ones_like(sizes) * 0.05, autopct='%1.0f%%',
-               labels=selected_cats + ['Rest'], colors=selected_colors + [sns.xkcd_rgb['light grey']],wedgeprops={'alpha':0.9})
+               labels=selected_cats + ['Rest'], colors=selected_colors + [sns.xkcd_rgb['light grey']],
+               wedgeprops={'alpha': 0.9})
         ax.axis('equal')

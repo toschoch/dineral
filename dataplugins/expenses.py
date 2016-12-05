@@ -41,8 +41,10 @@ class Expenses(DataPlugin):
 
         """
 
-        backup = pd.read_csv(os.path.join(self.properties, 'expenses_backup.csv'), encoding='utf-8', sep=';', quotechar="'")
-        cats = pd.read_csv(os.path.join(self.properties, 'expenses_backup_categories.csv'), encoding='utf-8',sep=';', quotechar="'")
+        backup = pd.read_csv(os.path.join(self.properties, 'expenses_backup.csv'), encoding='utf-8', sep=';',
+                             quotechar="'")
+        cats = pd.read_csv(os.path.join(self.properties, 'expenses_backup_categories.csv'), encoding='utf-8', sep=';',
+                           quotechar="'")
         backup = backup.merge(cats, left_on='catID', right_on='_id')
         backup = backup[['date', 'name', 'amount', 'note']].copy()
         backup.columns = ['Datum', 'Kategorie', 'Lastschrift', 'Text']

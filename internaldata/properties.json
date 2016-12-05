@@ -1,5 +1,5 @@
 {
-  "Database": "/mnt/NAS/home/data/Projekte/Software Entwicklung/Python/MyFinances/internaldata/categorized.csv", 
+  "Database": "/mnt/Data/Eigene Dateien/Projekte/Software Entwicklung/Python/MyFinances/internaldata/categorized.csv", 
   "Budget": "/home/tobi/Finance/Budget", 
   "Expenses": "/home/tobi/Dropbox/expenses", 
   "MasterCard": "/home/tobi/Finance/e-Rechnungen/Mastercard", 

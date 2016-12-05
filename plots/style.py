@@ -8,6 +8,7 @@ Copyright (c) 2016. All rights reserved.
 """
 
 import matplotlib as mpl
+
 mpl.use('Qt5Agg')
 
 mpl.style.use(['seaborn-muted', 'seaborn-whitegrid'])

@@ -10,8 +10,9 @@ Copyright (c) 2015. All rights reserved.
 import sys, logging
 from PySide.QtGui import QApplication, QSystemTrayIcon, QIcon
 import matplotlib as mpl
+
 mpl.use('Qt4Agg')
-mpl.rcParams['backend.qt4']='PySide'
+mpl.rcParams['backend.qt4'] = 'PySide'
 
 import warnings
 

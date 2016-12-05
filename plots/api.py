@@ -48,13 +48,13 @@ class Report(object):
 
     def predictions(self, db):
 
-        data = db.ix[db.Datum<self._from,['Datum', 'Kategorie', 'Lastschrift']]
-        data.set_index('Datum',inplace=True,drop=True)
+        data = db.ix[db.Datum < self._from, ['Datum', 'Kategorie', 'Lastschrift']]
+        data.set_index('Datum', inplace=True, drop=True)
         data.index = pd.to_datetime(data.index)
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            data = data.groupby('Kategorie').resample('1 M',how='sum').unstack(0)['Lastschrift']
+            data = data.groupby('Kategorie').resample('1 M', how='sum').unstack(0)['Lastschrift']
         self._pred_mean = data.groupby(data.index.month).mean().fillna(0)
         self._pred_std = data.groupby(data.index.month).std().fillna(0)
 

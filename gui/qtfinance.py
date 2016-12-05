@@ -90,7 +90,7 @@ class FinanceDataImport(FinanceSelector):
 
         joined = data.join(db, how='inner', lsuffix='_data')[['Kategorie', 'Deleted']]
         joined.Kategorie = pd.Categorical(joined.Kategorie, data.Kategorie.cat.categories)
-        data.loc[:,['Kategorie', 'Deleted']] = joined
+        data.loc[:, ['Kategorie', 'Deleted']] = joined
 
         data = pd.DataFrame(data[['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']])
         data.reset_index(inplace=True)
@@ -231,11 +231,10 @@ class FinanceReport(FinanceSelector):
 
             log.info('set PDF properties...')
             info = pdf.infodict()
-            info['Author'] ='T. Schoch'
-            info['Title']  ='Report MyFinances'
-            info['Subject']='Finance'
-            info['Creator']='MyFinances copyright TobiWorks'
-
+            info['Author'] = 'T. Schoch'
+            info['Title'] = 'Report MyFinances'
+            info['Subject'] = 'Finance'
+            info['Creator'] = 'MyFinances copyright TobiWorks'
 
         info = QtW.QMessageBox()
         info.setText("Report successfully created ({} pages)".format(i + 1))

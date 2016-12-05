@@ -78,10 +78,10 @@ class TransactionTableModel(DataFrameModel):
             else:
                 return DataFrameModel.data(self, index, role)
 
-    #def setData(self, index, value, role):
-        #if isinstance(value, unicode):
-        #    value = value.encode('utf-8')
-        #return DataFrameModel.setData(self, index, value, role)
+                # def setData(self, index, value, role):
+                # if isinstance(value, unicode):
+                #    value = value.encode('utf-8')
+                # return DataFrameModel.setData(self, index, value, role)
 
 
 class TransactionTableView(QtW.QTableView):
@@ -145,7 +145,7 @@ class TransactionTableView(QtW.QTableView):
 
 class TransactionTable(DataFrameWidget):
     columns = ['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']
-    widths = [80, 280, 130, 70, 60, 130]
+    widths = [100, 280, 180, 110, 110, 230]
 
     def __init__(self, data=pd.DataFrame(columns=['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']),
                  parent=None):
@@ -173,10 +173,15 @@ class TransactionTable(DataFrameWidget):
         self.setDataFrame(data)
 
     def initUI(self):
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
         layout = QtW.QVBoxLayout()
         layout.addWidget(self.dataTable, 1)
         self.setLayout(layout)
+
+    def heightForWidth(self, width):
+        return width * 3
 
     def setDataFrame(self, data):
         set_index = True
@@ -201,7 +206,7 @@ class TransactionTable(DataFrameWidget):
 
         self.i_cat = self.dataModel.i_categorie
         if set_index: self.dataTable.setCurrentIndex(self.proxy.mapFromSource(self.dataModel.index(0, self.i_cat)))
-        self.dataTable.setColumnWidth(self.i_cat, 200)
+        # self.dataTable.setColumnWidth(self.i_cat, 200)
         h = self.getMaxRowHeight()
         for i in range(self.dataModel.rowCount()):
             self.dataTable.setRowHeight(i, h)
@@ -216,8 +221,8 @@ class TransactionTable(DataFrameWidget):
             if not self.dataTable.isColumnHidden(i):
                 self.dataTable.setColumnWidth(i, widths.next())
 
-        self.setFixedWidth(800)
-        self.setMinimumHeight(400)
+        self.setMinimumWidth(1100)
+        self.setMinimumHeight(600)
 
 
 class TransactionItemDelegate(QStyledItemDelegate):

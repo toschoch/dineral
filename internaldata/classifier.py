@@ -57,6 +57,6 @@ class Classifier(Property):
 
     def test_score(self):
         try:
-            return ", ".join(map("{:.2f}".format,[self._clf.SCORE[i].mean() for i in range(3)]))
+            return ", ".join(map("{:.2f}".format, [self._clf.SCORE[i].mean() for i in range(3)]))
         except AttributeError:
             return 'Unkown'

@@ -26,7 +26,6 @@ def plot(category, data, budget, axes, date_from, date_to, mean, std):
 
 
 def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor='#6ACC65', sign=1):
-
     from scipy.stats import norm
     import matplotlib.transforms as mtransforms
     trans = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
@@ -38,8 +37,8 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
     m = (-sign * mean[icategory])
     s = std[icategory].mean()
 
-    ax.fill_between(data.index, m+s, m-s, color=linecolor, alpha=0.2)
-    pred = ax.plot([],[],linewidth=10,color=linecolor, alpha=0.2)[0]
+    ax.fill_between(data.index, m + s, m - s, color=linecolor, alpha=0.2)
+    pred = ax.plot([], [], linewidth=10, color=linecolor, alpha=0.2)[0]
 
     avg = -sign * (data[icategory].mean())
     # sd = data[icategory].std()
@@ -55,7 +54,8 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
 
     pbud = ax.axhline(-bud, color='g', alpha=0.4, linewidth=2, linestyle='--')
 
-    ax.legend([pavg, pbud, pred], ['Average {0:.0f} CHF'.format(avg), 'Budget {0:.0f} CHF'.format(-bud), 'last years'],loc='upper right')
+    ax.legend([pavg, pbud, pred], ['Average {0:.0f} CHF'.format(avg), 'Budget {0:.0f} CHF'.format(-bud), 'last years'],
+              loc='upper right')
 
     if ((-sign * data[icategory].dropna() >= 0)).all():
         ylim = ax.get_ylim()
