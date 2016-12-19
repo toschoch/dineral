@@ -8,3 +8,4 @@ test.py
 data/*.pickle
 .*/
 /Finances Analysis.ipynb
+internaldata/*.csv
