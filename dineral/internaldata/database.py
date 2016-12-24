@@ -18,17 +18,23 @@ class Database(CachedProperty):
     FROM_BACKUP = False
     BACKUP = True
 
+    def get_size(self):
+        with self.set_relativepath():
+            return os.path.getsize(self.properties)
+
     def load_data(self):
         import numpy as np
         try:
             fname = self.filename(self.FROM_BACKUP)
             log.info("load database from {}...".format(fname))
-            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+            with self.set_relativepath():
+                data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
         except IOError as err:
             log.error(str(err))
             fname = self.filename(True)
             log.info("load database from {}...".format(fname))
-        data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+        with self.set_relativepath():
+            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
 
         if self.BACKUP and not self.FROM_BACKUP:
             log.debug("Save a backup copy of the database...")
@@ -56,7 +62,8 @@ class Database(CachedProperty):
         data.Text = data.Text.str.replace('\n', '\\\\')
 
         log.info("saved database to {}...".format(fname))
-        data.to_csv(fname, index=False, encoding='utf-8', sep=';', mode='w+')
+        with self.set_relativepath():
+            data.to_csv(fname, index=False, encoding='utf-8', sep=';', mode='w+')
         data.Kategorie = pd.Categorical(data.Kategorie)
         self._data = data
 

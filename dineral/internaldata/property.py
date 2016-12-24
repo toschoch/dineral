@@ -14,6 +14,7 @@ __copyright__ = '(c) Sensirion AG 2015'
 """"""
 
 import logging
+import contextlib, os
 
 log = logging.getLogger(__name__)
 
@@ -70,6 +71,16 @@ class Property(LocationType):
             self.properties = properties[self.__class__.__name__]
             log.info(u"restored property for {}: {}".format(self.__class__.__name__, self.properties))
 
+    @staticmethod
+    @contextlib.contextmanager
+    def set_relativepath():
+        curdir = os.getcwd()
+        os.chdir(os.path.split(__file__)[0])
+        try:
+            yield
+        finally:
+            os.chdir(curdir)
+
 
 class CachedProperty(Property):
     def __init__(self):
@@ -84,3 +95,5 @@ class CachedProperty(Property):
 
     def load_data(self, *args, **kwargs):
         raise NotImplementedError
+
+

@@ -206,8 +206,8 @@ class FinanceReport(FinanceSelector):
         import warnings
         from matplotlib.backends.backend_pdf import PdfPages
         from matplotlib import pyplot as plt
-        from plots import reporter
-        from plots.style import set_context
+        from ..plots import reporter
+        from ..plots.style import set_context
         set_context("notebook")
 
         window = self.window()
@@ -232,9 +232,9 @@ class FinanceReport(FinanceSelector):
             log.info('set PDF properties...')
             info = pdf.infodict()
             info['Author'] = 'T. Schoch'
-            info['Title'] = 'Report MyFinances'
+            info['Title'] = 'Report Dineral'
             info['Subject'] = 'Finance'
-            info['Creator'] = 'MyFinances copyright TobiWorks'
+            info['Creator'] = 'Dineral copyright TobiWorks'
 
         info = QtW.QMessageBox()
         info.setText("Report successfully created ({} pages)".format(i + 1))

@@ -17,7 +17,7 @@ class Cover(Plot):
         ax.set_frame_on(False)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
-        text = u"Report MyFinances"
+        text = u"Report Dineral"
         text += '\n\n'
         text += start.strftime('%d. %B %Y')
         text += " bis "

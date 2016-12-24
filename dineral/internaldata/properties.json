@@ -1,10 +1,10 @@
 {
-  "Database": "/mnt/Data/Eigene Dateien/Projekte/Software Entwicklung/Python/MyFinances/internaldata/categorized.csv", 
+  "Database": "categorized.csv",
   "Budget": "/home/tobi/Finance/Budget", 
   "Expenses": "/home/tobi/Dropbox/expenses", 
   "MasterCard": "/home/tobi/Finance/e-Rechnungen/Mastercard", 
   "PostFinance": "/home/tobi/Finance/Konto Dokumente/Kontos Post", 
   "Report": "/home/tobi/Dropbox/finance/report.pdf", 
   "Data": "/home/tobi/Dropbox/finance", 
-  "Classifier": "/home/tobi/PycharmProjects/MyFinances/internaldata/classifier.pickle"
+  "Classifier": "classifier.pickle"
 }

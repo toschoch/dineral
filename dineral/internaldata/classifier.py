@@ -26,10 +26,12 @@ class Classifier(Property):
         log.info("load classifier {}...".format(fname))
 
         import pickle, warnings
-        with open(fname, 'rb') as fp:
-            with warnings.catch_warnings():
-                warnings.simplefilter('ignore')
-                clf = pickle.load(fp)
+        with self.set_relativepath():
+            with open(fname, 'rb') as fp:
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore')
+                    clf = pickle.load(fp)
+
 
         self._clf = clf
         return clf

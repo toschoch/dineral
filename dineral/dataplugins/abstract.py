@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from internaldata import Property
+from ..internaldata import Property
 
 log = logging.getLogger(__name__)
 

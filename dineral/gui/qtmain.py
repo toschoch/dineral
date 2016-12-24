@@ -10,7 +10,7 @@ Copyright (c) 2015. All rights reserved.
 from PySide import QtGui as QtW
 from PySide.QtGui import QWidget, QMainWindow, QIcon
 
-import plots
+from ..plots import reporter
 
 from qtfinance import FinanceDataImport, FinanceReport
 from qtfinanceedit import FinanceTransactions
@@ -18,13 +18,13 @@ from qtfinanceview import FinanceView
 from qtsettings import Settings
 from qtinfo import Info
 
-from internaldata import Budget, Database, Classifier, Report, Data
+from ..internaldata import Budget, Database, Classifier, Report, Data
 
 
 class FinanceMain(QMainWindow):
     def __init__(self, plugins, **kwargs):
         QMainWindow.__init__(self)
-        self.setWindowTitle("MyFinances")
+        self.setWindowTitle("Dineral")
 
         self.plugins = plugins
         self.budget = Budget()
@@ -33,7 +33,7 @@ class FinanceMain(QMainWindow):
         self.report = Report()
         self.report_data_dir = Data()
 
-        self.setWindowIcon(QIcon(r'res/icon.png'))
+        self.setWindowIcon(QIcon(r'res/dineral.png'))
 
         self.main = FinanceMainWidget(parent=self, plugins=plugins, **kwargs)
 
@@ -85,10 +85,9 @@ class FinanceMain(QMainWindow):
         clf_info.exec_()
 
     def database_info(self):
-        import os
         db = self.database.data
         info = [['File:', self.database.properties],
-                ['Size:', "{} Bytes".format(os.path.getsize(self.database.properties))],
+                ['Size:', "{} Bytes".format(self.database.get_size())],
                 ['Entries:', "{}".format(len(db))],
                 ['Period:', "{} to {}".format(db.Datum.min(), db.Datum.max())]]
         db_info = Info(info=info, header='Database')
@@ -133,8 +132,8 @@ class FinanceMainWidget(QWidget):
 
     def contentChanged(self, i):
         if self.content.tabText(i) == 'View':
-            from plots import reporter
-            from plots.style import set_context
+            from ..plots import reporter
+            from ..plots.style import set_context
 
             set_context('paper')
 

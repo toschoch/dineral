@@ -10,7 +10,7 @@ Copyright (c) 2015. All rights reserved.
 from PySide import QtGui as QtW
 from PySide.QtGui import QWidget
 
-from plots import reporter
+from ..plots import reporter
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 

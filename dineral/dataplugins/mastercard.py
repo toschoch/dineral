@@ -115,7 +115,8 @@ class MasterCard(DataPlugin):
         """
 
         # parse pdf to text
-        os.system('./SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
+        with self.set_relativepath():
+            os.system('../bash/SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
         filename = filename.replace('.pdf', '.txt')
 
         column_headers = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Datum']
