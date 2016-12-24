@@ -32,7 +32,6 @@ def main():
 
     p=os.path.split(__file__)[0]
     p = os.path.join(p,r'res/dineral.png')
-    log.warn(p)
     icon = QIcon(p)
     trayIcon = QSystemTrayIcon(icon, app)
 
