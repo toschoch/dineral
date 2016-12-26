@@ -22,6 +22,12 @@ class Database(CachedProperty):
         with self.set_relativepath():
             return os.path.getsize(self.properties)
 
+    def create_blank_db(self):
+        fname = self.filename(False)
+        with self.set_relativepath():
+            with open(fname) as fp:
+                fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
+
     def load_data(self):
         import numpy as np
         try:
@@ -33,8 +39,16 @@ class Database(CachedProperty):
             log.error(str(err))
             fname = self.filename(True)
             log.info("load database from {}...".format(fname))
-        with self.set_relativepath():
-            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+            try:
+                with self.set_relativepath():
+                    data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+            except IOError as err:
+                log.info("No database found... create a blank database")
+                self.create_blank_db()
+                fname = self.filename(False)
+                self.FROM_BACKUP = False
+                with self.set_relativepath():
+                    data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
 
         if self.BACKUP and not self.FROM_BACKUP:
             log.debug("Save a backup copy of the database...")

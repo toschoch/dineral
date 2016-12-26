@@ -19,9 +19,6 @@ from qtimport import DataImport
 
 import pandas as pd
 
-clf_file = 'data/classifier.pickle'
-
-
 class FinanceDataImport(FinanceSelector):
     def __init__(self, plugins, parent=None):
         FinanceSelector.__init__(self, parent)

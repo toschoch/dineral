@@ -11,6 +11,7 @@ from PySide import QtGui as QtW
 from PySide.QtGui import QWidget
 
 from ..plots import reporter
+from ..plots.style import set_context
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
@@ -47,6 +48,8 @@ class FinanceView(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
     def PlotSelected(self, i=None):
+
+        set_context('paper')
 
         if not i:
             i = self.comboGraph.currentIndex()

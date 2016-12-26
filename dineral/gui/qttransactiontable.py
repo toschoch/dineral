@@ -180,9 +180,6 @@ class TransactionTable(DataFrameWidget):
         layout.addWidget(self.dataTable, 1)
         self.setLayout(layout)
 
-    def heightForWidth(self, width):
-        return width * 3
-
     def setDataFrame(self, data):
         set_index = True
         if data is None:
