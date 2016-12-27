@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from PySide import QtCore
-from PySide.QtGui import QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QDialogButtonBox
+from PySide.QtGui import QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QDialogButtonBox, QHBoxLayout, QComboBox
 
 
 class Info(QDialog):
@@ -40,6 +40,31 @@ class Info(QDialog):
         grp.setLayout(grplayout)
 
         layout.addWidget(grp)
+
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok, parent=parent)
+        layout.addWidget(self.buttons)
+
+        self.buttons.accepted.connect(self.close)
+
+        layout.setSizeConstraint(layout.SetFixedSize)
+        self.setLayout(layout)
+
+        self.setWindowTitle(title)
+
+
+class AccountSelector(QDialog):
+    def __init__(self, accounts, title='Select Account...', parent=None):
+        QDialog.__init__(self, parent)
+
+        layout = QVBoxLayout()
+        line = QHBoxLayout()
+
+        lbl =  QLabel('Account',self)
+        self.selectAccount = QComboBox(self)
+        self.selectAccount.addItems(accounts)
+        line.addWidget(lbl)
+        line.addWidget(self.selectAccount)
+        layout.addLayout(line)
 
         self.buttons = QDialogButtonBox(QDialogButtonBox.Ok, parent=parent)
         layout.addWidget(self.buttons)

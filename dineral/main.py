@@ -8,7 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 
 import sys, logging, os
-from PySide.QtGui import QApplication, QSystemTrayIcon, QIcon, QPixmap
+from PySide.QtGui import QApplication, QSystemTrayIcon, QIcon
 
 import warnings
 import matplotlib as mpl
@@ -18,7 +18,6 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", module="matplotlib")
     mpl.use('Qt4Agg')
     mpl.rcParams['backend.qt4'] = 'PySide'
-    from dataplugins import plugins
 
     from gui import FinanceMain
 
@@ -39,7 +38,7 @@ def main():
     app.setWindowIcon(icon)
 
     log.info("Start program...")
-    w = FinanceMain(plugins=plugins)
+    w = FinanceMain()
     w.show()
 
     sys.exit(app.exec_())

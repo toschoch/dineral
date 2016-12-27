@@ -100,3 +100,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+/dineral/internaldata/*.csv
+/dineral/internaldata/classifier.pickle
+/dineral/internaldata/properties.json

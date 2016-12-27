@@ -16,17 +16,28 @@ from qtfinance import FinanceDataImport, FinanceReport
 from qtfinanceedit import FinanceTransactions
 from qtfinanceview import FinanceView
 from qtsettings import Settings
-from qtinfo import Info
+from qtinfo import Info, AccountSelector
 
 from ..internaldata import Budget, Database, Classifier, Report, Data
+from ..internaldata.property import accounts, Property
+from ..dataplugins import plugins
 
 
 class FinanceMain(QMainWindow):
-    def __init__(self, plugins, **kwargs):
+    def __init__(self, **kwargs):
         QMainWindow.__init__(self)
-        self.setWindowTitle("Dineral")
 
-        self.plugins = plugins
+        available = accounts()
+        acc = AccountSelector(available.keys(),parent=self)
+        acc.exec_()
+
+        selected = acc.selectAccount.currentText()
+        Property._account = selected
+        plugin_names = [p.__name__ for p in plugins]
+
+        self.plugins = [p() for pn,p in zip(plugin_names, plugins) if pn in available[selected]]
+        self.setWindowTitle("Dineral - '{}'".format(p.account()))
+
         self.budget = Budget()
         self.database = Database()
         self.classifier = Classifier()
@@ -35,7 +46,7 @@ class FinanceMain(QMainWindow):
 
         self.setWindowIcon(QIcon(r'res/dineral.png'))
 
-        self.main = FinanceMainWidget(parent=self, plugins=plugins, **kwargs)
+        self.main = FinanceMainWidget(parent=self, plugins=self.plugins, **kwargs)
 
         self.setCentralWidget(self.main)
 

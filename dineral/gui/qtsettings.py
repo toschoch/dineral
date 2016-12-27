@@ -119,14 +119,14 @@ class QDataPluginsSettings(QtGui.QGroupBox):
         self.SetlabelWidth(w)
 
     def GetlabelWidth(self):
-        return max([p.label.width() for p in self.props])
+        return max([p.label.width() for p in self.props]+[300])
 
     def SetlabelWidth(self, width):
         for p in self.props:
             p.label.setFixedWidth(width)
 
     def GetOptimalEditWidth(self):
-        return max([p.lineWidth() for p in self.props])
+        return max([p.lineWidth() for p in self.props]+[300])
 
     def SetOptimalEditWidth(self):
         w = self.GetOptimalEditWidth()

@@ -25,7 +25,7 @@ class Database(CachedProperty):
     def create_blank_db(self):
         fname = self.filename(False)
         with self.set_relativepath():
-            with open(fname) as fp:
+            with open(fname,'w+') as fp:
                 fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
 
     def load_data(self):

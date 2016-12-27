@@ -23,15 +23,30 @@ class LocationType(object):
     DIR = 1
     FILE = 0
 
+def accounts():
+    import json, os
+    path, _ = os.path.split(__file__)
+    pFile = os.path.join(path, _PROPERTIESFILE)
+    with open(pFile, 'r') as fp:
+        properties = json.load(fp)
+        properties.keys()
+        return {k:v.keys() for k,v in properties.items()}
+
+
 
 _PROPERTIESFILE = 'properties.json'
-
 
 class Property(LocationType):
     TYPE = LocationType.FILE
 
+    _account = accounts().keys()[0]
+
     def __init__(self):
         self.restore()
+
+    @classmethod
+    def account(cls):
+        return cls._account
 
     @classmethod
     def name(cls):
@@ -58,9 +73,9 @@ class Property(LocationType):
         with open(pFile, 'r') as fp:
             properties = json.load(fp)
         with open(pFile, 'w+') as fp:
-            properties[self.__class__.__name__] = self.properties
+            properties[self._account][self.__class__.__name__] = self.properties
             json.dump(properties, fp, indent=2)
-            log.info(u"stored property for {}: {}".format(self.__class__.__name__, self.properties))
+            log.info(u"stored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
 
     def restore(self):
         import json, os
@@ -68,8 +83,8 @@ class Property(LocationType):
         pFile = os.path.join(path, _PROPERTIESFILE)
         with open(pFile, 'r') as fp:
             properties = json.load(fp)
-            self.properties = properties[self.__class__.__name__]
-            log.info(u"restored property for {}: {}".format(self.__class__.__name__, self.properties))
+            self.properties = properties[self._account][self.__class__.__name__]
+            log.info(u"restored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
 
     @staticmethod
     @contextlib.contextmanager

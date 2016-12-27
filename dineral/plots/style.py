@@ -8,8 +8,9 @@ Copyright (c) 2016. All rights reserved.
 """
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 
-mpl.style.use(['seaborn-muted', 'seaborn-whitegrid'])
+plt.style.use(['seaborn-muted', 'seaborn-whitegrid'])
 mpl.rcParams['grid.linestyle'] = ':'
 mpl.rcParams['grid.color'] = '.8'
 mpl.rcParams['legend.fancybox'] = True
