@@ -10,6 +10,7 @@ Copyright (c) 2016. All rights reserved.
 from __future__ import unicode_literals
 
 from abstract_plot import Plot
+from ..internaldata.property import Property
 
 
 class Cover(Plot):
@@ -17,7 +18,7 @@ class Cover(Plot):
         ax.set_frame_on(False)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
-        text = u"Report Dineral"
+        text = u'Report Dineral\n"{}"'.format(Property.account())
         text += '\n\n'
         text += start.strftime('%d. %B %Y')
         text += " bis "

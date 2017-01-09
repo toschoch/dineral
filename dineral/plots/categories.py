@@ -8,6 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 import seaborn.apionly as sns
 import matplotlib as mpl
+import pandas as pd
 
 from defaults import monthly_settings
 
@@ -34,10 +35,12 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
 
     ax = (-sign * data[icategory]).plot(ax=ax, linewidth=2, marker='', color=linecolor)
 
-    m = (-sign * mean[icategory])
-    s = std[icategory].mean()
+    if icategory in mean.index:
+        m = (-sign * mean[icategory])
+        s = std[icategory].mean()
 
-    ax.fill_between(data.index, m + s, m - s, color=linecolor, alpha=0.2)
+        if s>0:
+            ax.fill_between(data.index, m + s, m - s, color=linecolor, alpha=0.2)
     pred = ax.plot([], [], linewidth=10, color=linecolor, alpha=0.2)[0]
 
     avg = -sign * (data[icategory].mean())
