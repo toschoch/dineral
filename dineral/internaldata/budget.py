@@ -24,13 +24,13 @@ log = logging.getLogger(__name__)
 
 
 class Budget(CachedProperty):
-    TYPE = CachedProperty.DIR
-
-    FILENAME = 'Budget.ods'
+    TYPE = CachedProperty.FILE
 
     def representation(self):
-        location = os.path.join(self.properties, '{year}')
-        return os.path.join(location, self.FILENAME)
+        path, filename = os.path.split(self.properties)
+        path, year = os.path.split(path)
+        location = os.path.join(path, '{year}')
+        return os.path.join(location, filename)
 
     def load_data(self, year):
         fname = self.filename(year)
@@ -58,5 +58,9 @@ class Budget(CachedProperty):
             year = year % 100
         if lastyear > 99:
             lastyear = lastyear % 100
-        location = os.path.join(self.properties, '{}{}'.format(lastyear, year))
-        return os.path.join(location, self.FILENAME)
+
+        path,filename = os.path.split(self.properties)
+        path,_year = os.path.split(path)
+
+        location = os.path.join(path, '{}{}'.format(lastyear, year))
+        return os.path.join(location, filename)

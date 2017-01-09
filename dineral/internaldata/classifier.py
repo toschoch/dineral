@@ -13,6 +13,14 @@ from property import Property
 
 log = logging.getLogger(__name__)
 
+class DummyClassifier(object):
+
+    def __init__(self):
+        self.classes_names = ['None']
+
+    def predict(self,array):
+        return np.zeros_like(array)
+
 
 class Classifier(Property):
     TYPE = Property.FILE
@@ -21,23 +29,32 @@ class Classifier(Property):
         Property.__init__(self)
         self._clf = None
 
-    def load(self):
-        fname = self.properties
-        log.info("load classifier {}...".format(fname))
-
+    def read_clf(self,fname):
         import pickle, warnings
-        with self.set_relativepath():
+        try:
             with open(fname, 'rb') as fp:
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore')
                     clf = pickle.load(fp)
+        except IOError:
+            with self.set_relativepath():
+                with open(fname, 'rb') as fp:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter('ignore')
+                        clf = pickle.load(fp)
+        return clf
 
+    def load(self):
+        fname = self.properties
+        log.info("load classifier {}...".format(fname))
+
+        try:
+            clf = self.read_clf(fname)
+        except IOError:
+            clf = DummyClassifier()
 
         self._clf = clf
         return clf
-
-    def predict(self, *args, **kwargs):
-        self._clf.predict(*args, **kwargs)
 
     def date_training(self):
         try:

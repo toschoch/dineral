@@ -113,7 +113,7 @@ class Raiffeisen(DataPlugin):
             toadd = '\n' + toadd
 
             t['Text'] = (t.Text + toadd).fillna(t.Text)
-            t['Datum'] = pd.to_datetime(t.Datum)
+            t['Datum'] = pd.to_datetime(t.Datum,dayfirst=True).dt.date
             t['Saldo'] = t.Saldo.str.strip(' +').str.replace("'", "").astype(float)
             t['Betrag'] = t.Betrag.str.strip(' +').str.replace("'", "").astype(float)
             t['Betrag'] = t.Saldo.diff().fillna(t.Saldo - saldo)

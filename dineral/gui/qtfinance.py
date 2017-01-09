@@ -153,6 +153,8 @@ class FinanceReport(FinanceSelector):
         self.btnReport = QtW.QPushButton("Create Report", self)
         self.btnReport.clicked.connect(self.createReport)
 
+        self._recursionstop = False
+
         self.initUI()
         self.onDateSelected()
 
@@ -166,7 +168,9 @@ class FinanceReport(FinanceSelector):
 
         try:
             window.budget.load_data(selected_year)
-        except:
+            window.database.add_categories(window.budget.data.Kategorie.cat.categories)
+
+        except Exception as err:
             log.info(
                 "Budget for year '{}' does not yet exists. Assume reports about last year...".format(selected_year))
 
@@ -176,6 +180,10 @@ class FinanceReport(FinanceSelector):
                 to = QDate(selected_year - 1, 12, 31)
             else:
                 to = today
+            if selected_year<2011:
+                self._recursionstop = True
+            if self._recursionstop:
+                return
             self.period.dateTo.setSelectedDate(to)
             self.period.dateFrom.setSelectedDate(datefrom)
 

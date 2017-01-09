@@ -27,22 +27,13 @@ class FinanceMain(QMainWindow):
     def __init__(self, **kwargs):
         QMainWindow.__init__(self)
 
+        # run account selector
         available = accounts()
-        acc = AccountSelector(available.keys(),parent=self)
+        acc = AccountSelector(available.keys(), parent=self)
         acc.exec_()
-
         selected = acc.selectAccount.currentText()
-        Property._account = selected
-        plugin_names = [p.__name__ for p in plugins]
 
-        self.plugins = [p() for pn,p in zip(plugin_names, plugins) if pn in available[selected]]
-        self.setWindowTitle("Dineral - '{}'".format(p.account()))
-
-        self.budget = Budget()
-        self.database = Database()
-        self.classifier = Classifier()
-        self.report = Report()
-        self.report_data_dir = Data()
+        self.loadAccount(available, selected)
 
         self.setWindowIcon(QIcon(r'res/dineral.png'))
 
@@ -53,6 +44,22 @@ class FinanceMain(QMainWindow):
         self.initMenu()
 
         self.classifier_clf = self.classifier.load()
+
+    def loadAccount(self, available, selected):
+
+        Property._account = selected
+        plugin_names = [p.__name__ for p in plugins]
+
+        self.plugins = [p() for pn, p in zip(plugin_names, plugins) if pn in available[selected]]
+        self.setWindowTitle("Dineral - '{}'".format(p.account()))
+
+        self.budget = Budget()
+        self.database = Database()
+
+        self.classifier = Classifier()
+        self.report = Report()
+
+        self.report_data_dir = Data()
 
     def initMenu(self):
         menubar = self.menuBar()

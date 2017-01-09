@@ -28,6 +28,14 @@ class Database(CachedProperty):
             with open(fname,'w+') as fp:
                 fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
 
+    def read_data(self,fname):
+        try:
+            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+        except IOError:
+            with self.set_relativepath():
+                data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+        return data
+
     def load_data(self):
         import numpy as np
         try:
@@ -40,15 +48,13 @@ class Database(CachedProperty):
             fname = self.filename(True)
             log.info("load database from {}...".format(fname))
             try:
-                with self.set_relativepath():
-                    data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
-            except IOError as err:
+                data = self.read_data(fname)
+            except IOError:
                 log.info("No database found... create a blank database")
                 self.create_blank_db()
                 fname = self.filename(False)
                 self.FROM_BACKUP = False
-                with self.set_relativepath():
-                    data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+                data = self.read_data(fname)
 
         if self.BACKUP and not self.FROM_BACKUP:
             log.debug("Save a backup copy of the database...")
@@ -67,6 +73,13 @@ class Database(CachedProperty):
         data.Kategorie = pd.Categorical(data.Kategorie)
         self._data = data
         return data
+
+    def add_categories(self,categories):
+        data = self.data
+        newcats = pd.Index(categories).difference(data.Kategorie.cat.categories)
+        if len(newcats)>0:
+            data['Kategorie'] = data.Kategorie.cat.add_categories(newcats)
+        self._data = data
 
     def save_data(self, data, backup=False):
         data = data.reset_index(drop=True)
