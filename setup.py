@@ -13,7 +13,10 @@ def read(fname):
 install_requires = [
     'numpy>=1.7.0',
     'scipy>=0.9',
+    'PySide>=1.2.4',
+    'seaborn>=0.7.1',
     'matplotlib>=1.3.0',
+    'pyexcel_ods>=0.3.0',
     'pandas>=0.17.0',
     'scikit-learn>=0.18.1',
     'install_freedesktop'
@@ -31,7 +34,7 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='0.9.1',
+    version='0.9.2',
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
     description='This is a module which helps to quickly plot nice figures',

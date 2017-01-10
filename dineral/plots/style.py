@@ -20,7 +20,7 @@ mpl.rcParams['axes.grid'] = True
 mpl.rcParams['axes.edgecolor'] = '0.5'
 mpl.rcParams['image.cmap'] = 'viridis'
 mpl.rcParams['legend.edgecolor'] = '0.5'
-mpl.rcParams['figure.figsize'] = [4, 3]
+mpl.rcParams['figure.figsize'] = [8, 6]
 
 contexts = dict(paper=1.0, notebook=1.3, talk=1.6, poster=1.9)
 
@@ -61,4 +61,4 @@ def set_context(context='paper', scaling=1.0):
     return context_dict
 
 
-set_context('notebook')
+set_context('paper')

@@ -35,7 +35,7 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
 
     ax = (-sign * data[icategory]).plot(ax=ax, linewidth=2, marker='', color=linecolor)
 
-    if icategory in mean.index:
+    if icategory in mean.columns:
         m = (-sign * mean[icategory])
         s = std[icategory].mean()
 
