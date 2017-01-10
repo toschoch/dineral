@@ -34,7 +34,7 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='0.9.2',
+    version='1.0.3',
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
     description='This is a module which helps to quickly plot nice figures',
