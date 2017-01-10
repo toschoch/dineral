@@ -12,6 +12,7 @@ def read(fname):
 
 install_requires = [
     'numpy>=1.7.0',
+    'scipy>=0.9',
     'matplotlib>=1.3.0',
     'pandas>=0.17.0',
     'scikit-learn>=0.18.1',
