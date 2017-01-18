@@ -18,6 +18,15 @@ these can be installed via apt-get in unix systems
 ```bash
 apt-get install tesseract-ocr tesseract-ocr-en tesseract-ocr-de poppler-utils pkg-config
 ```
+or for mac
+```bash
+brew install poppler
+brew install tesseract
+brew install tesseract-en
+brew install tesseract-de
+```
+for details see https://github.com/tesseract-ocr/tesseract/wiki
+and http://brewformulas.org/Poppler
 
 ####Python Dependencies
 ```text
@@ -56,6 +65,7 @@ if __name__ == '__main__':
     
 ```
 
-in order to update the classifier
+in order to update the classifier look into the jupyter notebook
+classifier.py
 
 
