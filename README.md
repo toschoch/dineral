@@ -51,6 +51,7 @@ python setup.py install
 
 ##Usage
 
+### Start the programm
 start programm over bash script
 ```bash
 dineral
@@ -64,6 +65,21 @@ if __name__ == '__main__':
     main()
     
 ```
+
+### Account information
+Dineral offers to choose at program start between multiple accounts. Each account has to be configured in the 
+'properties.json' configuration file.
+
+This file is can be found under \<your python installation>\Lib\site-packages\dineral\internaldata\properties.json
+
+There is a template in the same directory that can be used (must be renamed)
+
+#### Minimum configuration
+##### Database
+path to *.csv file where data is stored
+
+##### Budget
+In order to specify account categories and to enable comparison with budget a file
 
 in order to update the classifier look into the jupyter notebook
 classifier.py
