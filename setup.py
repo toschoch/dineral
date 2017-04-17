@@ -19,7 +19,8 @@ install_requires = [
     'pyexcel_ods>=0.3.0',
     'pandas>=0.17.0',
     'scikit-learn>=0.18.1',
-    'install_freedesktop'
+    'install_freedesktop',
+    'unidecode'
 
 ]
 
