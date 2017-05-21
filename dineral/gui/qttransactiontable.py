@@ -145,7 +145,7 @@ class TransactionTableView(QtW.QTableView):
 
 class TransactionTable(DataFrameWidget):
     columns = ['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']
-    widths = [100, 280, 180, 110, 110, 230]
+    widths = [200, 480, 180, 140, 140, 330]
 
     def __init__(self, data=pd.DataFrame(columns=['Datum', 'Text', 'Lastschrift', 'Database', 'Deleted', 'Kategorie']),
                  parent=None):
@@ -218,8 +218,8 @@ class TransactionTable(DataFrameWidget):
             if not self.dataTable.isColumnHidden(i):
                 self.dataTable.setColumnWidth(i, widths.next())
 
-        self.setMinimumWidth(1100)
-        self.setMinimumHeight(600)
+        self.setMinimumWidth(1800)
+        self.setMinimumHeight(1200)
 
 
 class TransactionItemDelegate(QStyledItemDelegate):

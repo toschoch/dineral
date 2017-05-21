@@ -22,7 +22,7 @@ mpl.rcParams['image.cmap'] = 'viridis'
 mpl.rcParams['legend.edgecolor'] = '0.5'
 mpl.rcParams['figure.figsize'] = [8, 6]
 
-contexts = dict(paper=1.0, notebook=1.3, talk=1.6, poster=1.9)
+contexts = dict(paper=3.0, notebook=1.3, talk=1.6, poster=1.9)
 
 
 def set_context(context='paper', scaling=1.0):
@@ -55,6 +55,8 @@ def set_context(context='paper', scaling=1.0):
     # Scale all the parameters by the same factor depending on the context
     scaling = scaling * contexts[context]
     context_dict = {k: v * scaling for k, v in base_context.items()}
+
+    print context_dict
 
     mpl.rcParams.update(context_dict)
 
