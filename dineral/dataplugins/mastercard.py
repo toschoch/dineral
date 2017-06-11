@@ -61,7 +61,7 @@ class MasterCard(DataPlugin):
                 if month >= start and month <= stop:
                     files2load.append(fname)
 
-        resolutions = [200, 250, 300, 320]
+        resolutions = [350,320,250]
 
         prog = 0
         if len(files2load) > 0:
@@ -82,6 +82,7 @@ class MasterCard(DataPlugin):
                 try:
                     newrows = self.load_MasterCardExtract(fname, resolution)  # try with resolution
                     succeeded = True
+                    break
                 except Exception as err:
                     exceptions.append(err)
                 prog += dprog
@@ -159,7 +160,7 @@ class MasterCard(DataPlugin):
                             continue
 
                         # except saldovortrag and ESR-ZAHLUNG
-                        if line.find('SALDOVORTRAG') >= 0 or line.find('IHRE ESR-ZAHLUNG') >= 0:
+                        if line.find('SALDOVORTRAG') >= 0 or line.replace(' ','').find('IHREESR-ZAHLUNG') >= 0 :
                             line = it.next()
                             continue
 
@@ -180,8 +181,9 @@ class MasterCard(DataPlugin):
 
                             except (IndexError, ValueError):
                                 if line == '': continue
-                                if line.find('UEBERTRAG AUF NAECHSTE SEITE') >= 0 or line.find(
-                                        'Saldo zu unseren Gunsten') >= 0:
+                                if (line.find('UEBERTRAG AUF NAECHSTE SEITE') >= 0) \
+                                    or (line.find('Saldo zu unseren Gunsten') >= 0) \
+                                    or (line.find('Kartentotal')>=0):
                                     table.append([date, '\n'.join(text), amount])
                                     break
                                 text.append(line)

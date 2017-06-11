@@ -35,7 +35,7 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='1.0.3',
+    version='1.0.4',
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
     description='This is a module which helps to quickly plot nice figures',
@@ -51,7 +51,7 @@ setup(
     extras_require=extras_require,
     test_suite='nose.collector',
     data_files=[
-        ('share/icons/hicolor/scalable/apps', ['dineral/res/dineral.png']),
+        ('res', ['dineral/res/dineral.png']),
     ],
     entry_points = {
             'console_scripts': ['dineral=dineral.main:main']
