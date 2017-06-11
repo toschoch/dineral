@@ -61,7 +61,7 @@ class MasterCard(DataPlugin):
                 if month >= start and month <= stop:
                     files2load.append(fname)
 
-        resolutions = [350,320,250]
+        resolutions = [600]
 
         prog = 0
         if len(files2load) > 0:
@@ -160,7 +160,7 @@ class MasterCard(DataPlugin):
                             continue
 
                         # except saldovortrag and ESR-ZAHLUNG
-                        if line.find('SALDOVORTRAG') >= 0 or line.replace(' ','').find('IHREESR-ZAHLUNG') >= 0 :
+                        if line.find('SALDOVORTRAG') >= 0 or line.replace(' ','').find('ESR-ZAHLUNG') >= 0 :
                             line = it.next()
                             continue
 

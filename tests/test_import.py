@@ -27,7 +27,7 @@ class Dineral(unittest.TestCase):
         MasterCard._account = accounts().keys()[-1]
         p = MasterCard()
         print p._account
-        data = p.load_data(datetime.date(2017,5,1),datetime.date(2017,6,2))
+        data = p.load_data(datetime.date(2017,4,1),datetime.date(2017,5,31))
         print data.Text
 
 
