@@ -10,7 +10,7 @@ Copyright (c) 2015. All rights reserved.
 from PySide import QtGui as QtW
 from PySide.QtGui import QWidget, QMainWindow, QIcon
 
-from ..plots import reporter
+from dineral.plots import reporter
 
 from qtfinance import FinanceDataImport, FinanceReport
 from qtfinanceedit import FinanceTransactions
@@ -18,9 +18,9 @@ from qtfinanceview import FinanceView
 from qtsettings import Settings
 from qtinfo import Info, AccountSelector
 
-from ..internaldata import Budget, Database, Classifier, Report, Data
-from ..internaldata.property import accounts, Property
-from ..dataplugins import plugins
+from dineral.internaldata import Budget, Database, Classifier, Report, Data
+from dineral.internaldata.property import accounts, Property
+from dineral.dataplugins import plugins
 
 
 class FinanceMain(QMainWindow):

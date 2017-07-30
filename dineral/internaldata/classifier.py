@@ -8,6 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 import logging
 import numpy as np
+import pkg_resources
 
 from property import Property
 
@@ -31,26 +32,25 @@ class Classifier(Property):
 
     def read_clf(self,fname):
         import pickle, warnings
-        try:
-            with open(fname, 'rb') as fp:
-                with warnings.catch_warnings():
-                    warnings.simplefilter('ignore')
-                    clf = pickle.load(fp)
-        except IOError:
-            with self.set_relativepath():
-                with open(fname, 'rb') as fp:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter('ignore')
-                        clf = pickle.load(fp)
+        with open(fname, 'rb') as fp:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                clf = pickle.load(fp)
         return clf
+
+    def default_property(self):
+        return 'res/classifiers/{}.pickle'.format(self._slugify(unicode(self._account)))
 
     def load(self):
         fname = self.properties
+        if pkg_resources.resource_exists('dineral',fname):
+            fname = pkg_resources.resource_filename('dineral',fname)
         log.info("load classifier {}...".format(fname))
 
         try:
             clf = self.read_clf(fname)
         except IOError:
+            log.warn('could not find a suitable classifier, create a dummy classifier...')
             clf = DummyClassifier()
 
         self._clf = clf

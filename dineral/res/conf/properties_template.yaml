@@ -1,0 +1,22 @@
+Account1:
+  Database: path_where_data_is_going_to_be_stored.csv, # optional: otherwise pkgdir
+  Budget: path_to_my_budget.ods, # must be specified
+  Report: path_where_the_report_is_going_to_be_stored.pdf, # optional: default is homedir
+  Data: path_to_summary_data_destiantion_folder, # optional: default is homedir
+  Classifier: path_to_where_my_classifier_is_stored.pickle, , # optional: default is pkgdir
+
+  Raiffeisen: folder_with_my_account_extracts,
+  # ... specify the dataplugins needed ..
+  Expenses: folder_with_data_from_expenses,
+  MasterCard: folder_with_master_card_account_extracts,
+  PostFinance: folder_with_postfinance_accoutn_extracts
+
+#Account2:
+#  Database: ...csv,
+#  Budget: ...ods,
+#  Report: ...pdf,
+#  Data: ...,
+#  Classifier: ....pickle
+#  ...
+  
+

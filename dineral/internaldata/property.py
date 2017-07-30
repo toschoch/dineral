@@ -14,27 +14,45 @@ __copyright__ = '(c) Sensirion AG 2015'
 """"""
 
 import logging
-import contextlib, os
+import json, os, yaml
+import pkg_resources
 
 log = logging.getLogger(__name__)
+
+_CUSTOMCONFIG = '~/.dineral.yaml'
+_CUSTOMCONFIG = os.path.expanduser(_CUSTOMCONFIG)
+
+def assure_user_config():
+    # create user configuration if not existing
+    if not os.path.exists(_CUSTOMCONFIG) or not os.path.isfile(_CUSTOMCONFIG):
+        if pkg_resources.resource_exists('dineral','res/conf/properties.json'):
+            config = json.load(pkg_resources.resource_stream('dineral','res/conf/properties.json'))
+        else:
+            config = yaml.load(pkg_resources.resource_stream('dineral','res/conf/properties_template.yaml'))
+        with open(_CUSTOMCONFIG,'w+') as fp:
+            yaml.dump(config,fp, default_flow_style=False)
+
+assure_user_config()
+
+def load_config():
+    with open(_CUSTOMCONFIG,'r') as fp:
+        config = yaml.load(fp)
+    return config
+
+def save_config(config):
+    with open(_CUSTOMCONFIG,'w') as fp:
+        yaml.dump(config,fp, default_flow_style=False)
+
+def accounts():
+    config = load_config()
+    config.keys()
+    return {k:v.keys() for k,v in config.items()}
 
 
 class LocationType(object):
     DIR = 1
     FILE = 0
 
-def accounts():
-    import json, os
-    path, _ = os.path.split(__file__)
-    pFile = os.path.join(path, _PROPERTIESFILE)
-    with open(pFile, 'r') as fp:
-        properties = json.load(fp)
-        properties.keys()
-        return {k:v.keys() for k,v in properties.items()}
-
-
-
-_PROPERTIESFILE = 'properties.json'
 
 class Property(LocationType):
     TYPE = LocationType.FILE
@@ -63,38 +81,39 @@ class Property(LocationType):
     def __str__(self):
         return self.representation()
 
+    @staticmethod
+    def _slugify(value):
+        """
+        Normalizes string, converts to lowercase, removes non-alpha characters,
+        and converts spaces to hyphens.
+        """
+        import unicodedata, re
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+        value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
+        value = unicode(re.sub('[-\s]+', '-', value))
+        return value
+
     def representation(self):
         return unicode(self.properties)
 
+    def default_property(self):
+        log.error('No default property defined for "{}"...'.format(self.__class__.__name__))
+        raise NotImplementedError()
+
     def store(self):
-        import json, os
-        path, _ = os.path.split(__file__)
-        pFile = os.path.join(path, _PROPERTIESFILE)
-        with open(pFile, 'r') as fp:
-            properties = json.load(fp)
-        with open(pFile, 'w+') as fp:
-            properties[self._account][self.__class__.__name__] = self.properties
-            json.dump(properties, fp, indent=2)
-            log.info(u"stored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
+        config = load_config()
+        config[self._account][self.__class__.__name__] = self.properties
+        save_config(config)
+        log.info(u"stored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
 
     def restore(self):
-        import json, os
-        path, _ = os.path.split(__file__)
-        pFile = os.path.join(path, _PROPERTIESFILE)
-        with open(pFile, 'r') as fp:
-            properties = json.load(fp)
-            self.properties = properties[self._account][self.__class__.__name__]
-            log.info(u"restored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
-
-    @staticmethod
-    @contextlib.contextmanager
-    def set_relativepath():
-        curdir = os.getcwd()
-        os.chdir(os.path.split(__file__)[0])
-        try:
-            yield
-        finally:
-            os.chdir(curdir)
+        config = load_config()
+        if config[self._account].has_key(self.__class__.__name__):
+            self.properties = config[self._account][self.__class__.__name__]
+        else:
+            self.properties = self.default_property()
+            self.store()
+        log.info(u"restored property for account {}: {} -> {}".format(self._account,self.__class__.__name__, self.properties))
 
 
 class CachedProperty(Property):
