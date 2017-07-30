@@ -10,19 +10,11 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-install_requires = [
-    'numpy>=1.7.0',
-    'scipy>=0.9',
-    'PySide>=1.2.4',
-    'seaborn>=0.7.1',
-    'matplotlib>=1.3.0',
-    'pyexcel_ods>=0.3.0',
-    'pandas>=0.17.0',
-    'scikit-learn>=0.18.1',
-    'install_freedesktop',
-    'unidecode'
+with open('requirements.txt') as fp:
+    install_requires = fp.readlines()
 
-]
+with open('readme.txt') as fp:
+    readme = fp.read()
 
 test_requires = [
     'pylint>=1.0.0',
@@ -35,16 +27,15 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='1.0.4',
+    version='1.1.0',
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
-    description='This is a module which helps to quickly plot nice figures',
+    description=readme,
     license='public',
     keywords='finance budget gui report',
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
-    package_data={'dineral': ['res/*.png','bash/*.sh','internaldata/classifier.pickle',
-                              'internaldata/categorized.csv','internaldata/properties.json']},
+    package_data={'dineral': ['res/*.png','bash/*.sh','res/classifiers','res/conf','res/data']},
     long_description=read('README.md'),
     install_requires=install_requires,
     tests_require=test_requires,

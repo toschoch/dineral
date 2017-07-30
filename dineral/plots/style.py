@@ -56,8 +56,6 @@ def set_context(context='paper', scaling=1.0):
     scaling = scaling * contexts[context]
     context_dict = {k: v * scaling for k, v in base_context.items()}
 
-    print context_dict
-
     mpl.rcParams.update(context_dict)
 
     return context_dict

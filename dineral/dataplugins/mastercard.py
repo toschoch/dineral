@@ -57,10 +57,10 @@ class MasterCard(DataPlugin):
                 name, _ = os.path.splitext(name)
 
                 try:
-                    month = datetime.strptime(name.encode('utf-8'), '%Y/%B').date()
+                    month = datetime.strptime(name, '%Y/%B').date()
                 except ValueError:
                     name = name.split('/')[-1]
-                    month = datetime.strptime(name.encode('utf-8'), '%Y-%m').date()
+                    month = datetime.strptime(name, '%Y-%m').date()
 
                 if month >= start and month <= stop:
                     files2load.append(fname)
@@ -123,7 +123,7 @@ class MasterCard(DataPlugin):
         align = [0, 0, 1, 1, 1, 2]
 
         # find bash script
-        pdf2text = pkg_resources.resource_filename('/bash/SecuredPDF2txt.sh')
+        pdf2text = pkg_resources.resource_filename('dineral','/bash/SecuredPDF2txt.sh')
 
         # create temporary directory, with cleanup
         with TemporaryDirectory() as tmp:
