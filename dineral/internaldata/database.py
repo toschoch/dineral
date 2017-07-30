@@ -28,7 +28,8 @@ class Database(CachedProperty):
             fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
 
     def default_property(self):
-        return 'res/data/{}.csv'.format(self._slugify(unicode(self._account)))
+        fname = 'res/data/{}.csv'.format(self._slugify(unicode(self._account)))
+        return fname
 
     def read_data(self,fname):
         data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
