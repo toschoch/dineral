@@ -13,7 +13,11 @@ from abstract import DataPlugin
 import os, codecs, locale, fnmatch
 from datetime import datetime
 import pandas as pd
-from utils import firstOf
+from utils import firstOf, TemporaryDirectory
+
+import pkg_resources
+import subprocess
+
 import logging
 
 log = logging.getLogger(__name__)
@@ -115,19 +119,23 @@ class MasterCard(DataPlugin):
 
         """
 
-        # parse pdf to text
-        with self.set_relativepath():
-            os.system('../bash/SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
-        filename = filename.replace('.pdf', '.txt')
-
         column_headers = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Datum']
         align = [0, 0, 1, 1, 1, 2]
 
-        with codecs.open(filename, 'r', 'utf-8') as fp:
-            lines = fp.read().splitlines()
+        # find bash script
+        pdf2text = pkg_resources.resource_filename('/bash/SecuredPDF2txt.sh')
 
-        # remove the text file
-        os.remove(filename)
+        # create temporary directory, with cleanup
+        with TemporaryDirectory() as tmp:
+
+            # parse pdf to text
+            subprocess.call([pdf2text,filename.encode('utf-8'),str(resolution)])
+            #os.system('../bash/SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
+            filename = filename.replace('.pdf', '.txt')
+
+            with codecs.open(filename, 'r', 'utf-8') as fp:
+                lines = fp.read().splitlines()
+
 
         table = []
 
