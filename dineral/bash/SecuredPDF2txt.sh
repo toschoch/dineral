@@ -1,7 +1,7 @@
 #!/bin/bash
 
-trunk="${1%.pdf}"
-convert -density $2 $1 "$trunk.png" &> /dev/null
+trunk="${2%.pdf}"
+convert -density $3 $1 "$trunk.png" &> /dev/null
 textfile="$trunk.txt"
 touch $textfile
 echo ''>$textfile

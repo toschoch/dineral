@@ -65,7 +65,7 @@ class MasterCard(DataPlugin):
                 if month >= start and month <= stop:
                     files2load.append(fname)
 
-        resolutions = [600]
+        resolutions = [400,500,600]
 
         prog = 0
         if len(files2load) > 0:
@@ -128,12 +128,16 @@ class MasterCard(DataPlugin):
         # create temporary directory, with cleanup
         with TemporaryDirectory() as tmp:
 
-            # parse pdf to text
-            subprocess.call([pdf2text,filename.encode('utf-8'),str(resolution)])
-            #os.system('../bash/SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
-            filename = filename.replace('.pdf', '.txt')
+            # local filename
+            _, target = os.path.split(filename)
 
-            with codecs.open(filename, 'r', 'utf-8') as fp:
+            # parse pdf to text
+            subprocess.call([pdf2text,filename.encode('utf-8'), target.encode('utf-8'),str(resolution)], cwd=tmp)
+            #os.system('../bash/SecuredPDF2txt.sh ' + filename.encode('utf-8') + ' ' + str(resolution))
+            target = os.path.join(tmp,target.replace('.pdf', '.txt'))
+
+
+            with codecs.open(target, 'r', 'utf-8') as fp:
                 lines = fp.read().splitlines()
 
 

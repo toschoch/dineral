@@ -27,7 +27,7 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='1.1.0',
+    version='1.1.1',
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
     license='public',
