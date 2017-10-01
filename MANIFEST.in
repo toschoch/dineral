@@ -1,0 +1,7 @@
+include requirements.txt
+include CHANGELOG.rst
+include dineral/res/*
+include dineral/res/classifiers/*
+include dineral/res/conf/*
+include dineral/bash/*
+include README.md
