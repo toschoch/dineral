@@ -1,0 +1,5 @@
+include requirements.txt
+include CHANGELOG.rst
+include dineral/res/*
+include dineral/bash/*
+include README.md

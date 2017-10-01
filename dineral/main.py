@@ -20,6 +20,7 @@ with warnings.catch_warnings():
     mpl.rcParams['backend.qt4'] = 'PySide'
 
     from gui import FinanceMain
+    from version import __version__
 
 def main():
 
@@ -38,7 +39,7 @@ def main():
     app.setWindowIcon(icon)
 
     log.info("Start program...")
-    w = FinanceMain()
+    w = FinanceMain(version=__version__)
     w.show()
 
     app.exec_()
