@@ -1,7 +1,9 @@
-import os
+import os, re
 
 from setuptools import setup, find_packages
 
+
+here = os.path.abspath(os.path.dirname(__file__))
 
 # Utility function to read the README.md file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -16,6 +18,12 @@ with open('requirements.txt') as fp:
 with open('readme.txt') as fp:
     readme = fp.read()
 
+# get the dependencies and installs
+with open(os.path.join(here, 'CHANGELOG.rst')) as f:
+    changelog_txt = f.read()
+    changelog = changelog_txt.split('\n')
+    version = changelog[[i-1 for i, l in enumerate(changelog) if re.match("-+",l)][-1]]
+
 test_requires = [
     'pylint>=1.0.0',
     'nosexcover>=1.0.0',
@@ -27,7 +35,7 @@ extras_require = {
 
 setup(
     name='dineral',
-    version='1.1.1',
+    version=version,
     author='Tobias Schoch',
     author_email='tobias.schoch@vtxmail.ch',
     license='public',
@@ -40,7 +48,7 @@ setup(
                               'res/conf',
                               'res/conf/properties_template.yaml',
                               'res/data/*']},
-    long_description=read('README.md'),
+    long_description=read('README.md')+changelog_txt,
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require=extras_require,
