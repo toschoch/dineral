@@ -15,6 +15,7 @@ from abstract import DataPlugin
 import subprocess
 import codecs, os, datetime, glob
 import pandas as pd
+from utils import TemporaryDirectory
 
 
 class PostFinance(DataPlugin):
@@ -85,19 +86,24 @@ class PostFinance(DataPlugin):
             (pandas DataFrame) table with data columns: date, description, amount
 
         """
-        subprocess.call(['pdftotext', '-layout', filename])
 
-        filename = filename.replace('.pdf', '.txt')
+        # create temporary directory, with cleanup
+        with TemporaryDirectory() as tmp:
+
+            _, fname = os.path.split(filename)
+            txtfile = os.path.join(tmp,fname.replace('.pdf','.txt'))
+
+            subprocess.call(['pdftotext', '-layout', filename, txtfile], cwd=tmp)
+
+
+            with codecs.open(txtfile, 'rb', 'utf-8') as fp:
+
+                lines = fp.read().splitlines()
+
+            lines = map(unicode, lines)
 
         column_headers = ['Datum', 'Text', 'Gutschrift', 'Lastschrift', 'Valuta', 'Saldo']
         align = [0, 0, 1, 1, 1, 2]
-
-        with codecs.open(filename, 'rb', 'utf-8') as fp:
-
-            lines = fp.read().splitlines()
-
-        lines = map(unicode, lines)
-        os.remove(filename)
 
         table = []
 
