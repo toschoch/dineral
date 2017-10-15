@@ -19,6 +19,7 @@ import pkg_resources
 import subprocess
 
 import logging
+import re
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class MasterCard(DataPlugin):
             dprog = 0
 
         if len(files2load) > 0:
-            log.info(u"load files: {}".format(", ".join(files2load)))
+            log.info("load files: {}".format(", ".join(files2load)))
         else:
             log.warn("No MasterCard account extracts found for selected period!")
 
@@ -82,19 +83,22 @@ class MasterCard(DataPlugin):
 
             exceptions = []
             succeeded = False
-            for resolution in resolutions:
-                try:
-                    newrows = self.load_MasterCardExtract(fname, resolution)  # try with resolution
-                    succeeded = True
-                    break
-                except Exception as err:
-                    exceptions.append(err)
-                prog += dprog
-                if callback is not None:
-                    callback(prog)
 
-            if not succeeded:
-                raise exceptions[-1]
+            newrows = self.load_MasterCardExtract_without_ocr(fname)
+
+            # for resolution in resolutions:
+            #     try:
+            #         newrows = self.load_MasterCardExtract(fname, resolution)  # try with resolution
+            #         succeeded = True
+            #         break
+            #     except Exception as err:
+            #         exceptions.append(err)
+            #     prog += dprog
+            #     if callback is not None:
+            #         callback(prog)
+
+            # if not succeeded:
+            #     raise exceptions[-1]
 
             new.append(newrows)
 
@@ -104,6 +108,82 @@ class MasterCard(DataPlugin):
             return pd.concat(new, axis=0)
         else:
             return pd.DataFrame(columns=self.DEFAULTDATACOLUMNS)
+
+    def load_MasterCardExtract_without_ocr(self, filename):
+        """
+        load data from a pdf file
+        Args:
+            filename: (str) path to file to be loaded
+
+        Returns:
+            (pandas.Dataframe) table with transaction data
+        """
+        # create temporary directory, with cleanup
+        with TemporaryDirectory() as tmp:
+
+            # local filename
+            _, target = os.path.split(filename)
+            target = os.path.join(tmp,target.replace('.pdf', '.txt'))
+
+            subprocess.call(['pdftotext', '-layout', filename, target], cwd=tmp)
+
+
+            with codecs.open(target, 'rb', 'utf-8') as fp:
+
+                lines = fp.read().splitlines()
+
+        lines = map(unicode, lines)
+
+
+        newentry = re.compile("([0-9]{2,2}.[0-9]{2,2}.[0-9]{2,2}) ([\w\s-]+) ([A-Z]{3,3} [0-9]+.[0-9]{2,2})? \W* ([0-9]+.[0-9]{2,2})[\s0-9.]*",re.UNICODE)
+
+        table = []
+        it = iter(lines)
+
+        try:
+            while True:
+
+                line = it.next()
+
+                line = line.strip()
+                m = newentry.match(line)
+                while not m:
+                    line = it.next().strip()
+                    m = newentry.match(line)
+
+                date = m.group(1)
+                text = m.group(2).strip()
+                if m.group(3):
+                    text += ' ' + m.group(3).strip()
+                amount = m.group(4)
+
+                line = it.next().strip()
+
+                while line<>'':
+                    text += '\n'+line
+                    line = it.next().strip()
+
+                if text.lower().startswith('saldovortrag'): continue
+                if text.lower().startswith('ihre esr-zahlung'): continue
+
+                table.append([date,text,amount])
+
+
+
+
+        except StopIteration:
+            pass
+
+        # convert types
+        rec = pd.DataFrame(table, columns=['Datum', 'Text', 'Lastschrift'])
+        rec['Datum'] = rec['Datum'].apply(lambda s: datetime.strptime(s, '%d.%m.%y'))
+        rec.Datum = pd.DatetimeIndex(rec.Datum).date
+        rec['Lastschrift'] = rec['Lastschrift'].astype(float)
+
+        rec['Kategorie'] = self.NOCATEGORY
+
+        return rec
+
 
     def load_MasterCardExtract(self, filename, resolution):
         """ loads data from a pdf file and parses the information respect to the format description
