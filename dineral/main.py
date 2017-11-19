@@ -31,7 +31,7 @@ def main():
     app = QApplication(sys.argv)
 
     p=os.path.split(__file__)[0]
-    p = os.path.join(p,r'res/dineral.png')
+    p = os.path.join(p,r'res/dineral.png')w
     icon = QIcon(p)
     trayIcon = QSystemTrayIcon(icon, app)
 
@@ -46,3 +46,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    import pandas.tseries.converter as c
+
+    c.PandasAutoDateLocator
