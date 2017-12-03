@@ -16,6 +16,7 @@ __copyright__ = '(c) Sensirion AG 2015'
 import logging
 import json, os, yaml
 import pkg_resources
+from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class LocationType(object):
 class Property(LocationType):
     TYPE = LocationType.FILE
 
-    _account = accounts().keys()[0]
+    _account = list(accounts().keys())[0]
 
     def __init__(self):
         self.restore()
@@ -89,12 +90,12 @@ class Property(LocationType):
         """
         import unicodedata, re
         value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-        value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-        value = unicode(re.sub('[-\s]+', '-', value))
+        value = str(re.sub('[^\w\s-]', '', value).strip().lower())
+        value = str(re.sub('[-\s]+', '-', value))
         return value
 
     def representation(self):
-        return unicode(self.properties)
+        return str(self.properties)
 
     def default_property(self):
         log.error('No default property defined for "{}"...'.format(self.__class__.__name__))
@@ -108,7 +109,7 @@ class Property(LocationType):
 
     def restore(self):
         config = load_config()
-        if config[self._account].has_key(self.__class__.__name__):
+        if self.__class__.__name__ in config[self._account]:
             self.properties = config[self._account][self.__class__.__name__]
         else:
             self.properties = self.default_property()

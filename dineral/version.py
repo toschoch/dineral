@@ -1,3 +1,7 @@
 import pkg_resources
 
-__version__ = str(pkg_resources.get_distribution("dineral")).split(' ')[-1]
+try:
+    __version__ = str(pkg_resources.get_distribution("dineral")).split(' ')[-1]
+
+except pkg_resources.DistributionNotFound:
+    __version__ = 'dev'

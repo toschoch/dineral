@@ -10,22 +10,11 @@ Copyright (c) 2016. All rights reserved.
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-plt.style.use(['seaborn-muted', 'seaborn-whitegrid'])
-mpl.rcParams['grid.linestyle'] = ':'
-mpl.rcParams['grid.color'] = '.8'
-mpl.rcParams['legend.fancybox'] = True
-mpl.rcParams['legend.frameon'] = True  # whether or not to draw a frame around legend
-mpl.rcParams['legend.numpoints'] = 2  # whether or not to draw a frame around legend
-mpl.rcParams['axes.grid'] = True
-mpl.rcParams['axes.edgecolor'] = '0.5'
-mpl.rcParams['image.cmap'] = 'viridis'
-mpl.rcParams['legend.edgecolor'] = '0.5'
-mpl.rcParams['figure.figsize'] = [8, 6]
 
 contexts = dict(paper=3.0, notebook=1.3, talk=1.6, poster=1.9)
 
-
 def set_context(context='paper', scaling=1.0):
+
     if context not in contexts.keys():
         raise ValueError("context must be in %s" % ", ".join(contexts))
 
@@ -60,5 +49,17 @@ def set_context(context='paper', scaling=1.0):
 
     return context_dict
 
+def set_style():
+    plt.style.use(['seaborn-muted', 'seaborn-whitegrid'])
+    mpl.rcParams['grid.linestyle'] = ':'
+    mpl.rcParams['grid.color'] = '.8'
+    mpl.rcParams['legend.fancybox'] = True
+    mpl.rcParams['legend.frameon'] = True  # whether or not to draw a frame around legend
+    mpl.rcParams['legend.numpoints'] = 2  # whether or not to draw a frame around legend
+    mpl.rcParams['axes.grid'] = True
+    mpl.rcParams['axes.edgecolor'] = '0.5'
+    mpl.rcParams['image.cmap'] = 'viridis'
+    mpl.rcParams['legend.edgecolor'] = '0.5'
+    mpl.rcParams['figure.figsize'] = [8, 6]
 
-set_context('paper')
+    set_context('paper')

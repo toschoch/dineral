@@ -1,1 +1,1 @@
-from qtmain import FinanceMain
+

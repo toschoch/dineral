@@ -11,12 +11,13 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from abstract import DataPlugin
+from .abstract import DataPlugin
 import subprocess
 import re, os, datetime, glob
 import pandas as pd
 from io import StringIO
 import codecs
+from builtins import str
 
 
 class Raiffeisen(DataPlugin):
@@ -102,7 +103,7 @@ class Raiffeisen(DataPlugin):
             page = lines[s + 2:e]
             saldo = float(lines[s + 1].split('  ')[-1].strip('\n +').replace("'", ""))
 
-            s = StringIO(unicode("\n".join(page)))
+            s = StringIO(str("\n".join(page)))
 
             t = pd.read_table(s, sep='\s{2,}', header=None)
             t.columns = ['Datum', 'Text', 'Betrag', 'Valuta', 'Saldo']

@@ -9,8 +9,9 @@ Copyright (c) 2015. All rights reserved.
 import logging
 import numpy as np
 import pkg_resources
+from builtins import str
 
-from property import Property
+from .property import Property
 
 log = logging.getLogger(__name__)
 
@@ -39,12 +40,12 @@ class Classifier(Property):
         return clf
 
     def default_property(self):
-        return 'res/classifiers/{}.pickle'.format(self._slugify(unicode(self._account)))
+        return 'res/classifiers/{}.pickle'.format(self._slugify(str(self._account)))
 
     def load(self):
         fname = self.properties
-        if pkg_resources.resource_exists('dineral',fname):
-            fname = pkg_resources.resource_filename('dineral',fname)
+        # if pkg_resources.resource_exists('dineral',fname):
+        #     fname = pkg_resources.resource_filename('dineral',fname)
         log.info("load classifier {}...".format(fname))
 
         try:

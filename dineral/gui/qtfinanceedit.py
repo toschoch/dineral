@@ -11,10 +11,10 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from PySide import QtGui as QtW
-from PySide.QtGui import QWidget
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtWidgets import QWidget
 
-from qttransactiontable import TransactionTable
+from .qttransactiontable import TransactionTable
 
 
 class FinanceTransactions(QWidget):

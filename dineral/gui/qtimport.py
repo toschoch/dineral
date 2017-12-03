@@ -13,8 +13,10 @@ __copyright__ = '(c) Sensirion AG 2015'
 
 """"""
 
-from PySide.QtCore import QThread, Signal, Qt
-from PySide.QtGui import QProgressDialog
+from PyQt5.QtCore import QThread, Signal, Qt
+from PyQt5.QtWidgets import QProgressDialog
+
+from builtins import str
 
 import pandas as pd
 import logging
@@ -48,7 +50,7 @@ class DataImport(QProgressDialog):
 
 class ImportProcess(QThread):
     progressNotify = Signal(int)
-    progesssLabel = Signal(unicode)
+    progesssLabel = Signal(str)
     progressClose = Signal()
 
     def __init__(self, plugins, success, parent=None, **kwargs):

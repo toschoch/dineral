@@ -7,9 +7,9 @@ Created by Tobias Schoch on 01.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PySide import QtGui as QtW
-from PySide.QtGui import QWidget
-from PySide.QtCore import QDate
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import QDate
 
 
 class QDateRange(QWidget):
@@ -82,7 +82,7 @@ class FinanceSelector(QWidget):
         date_to = self.period.dateTo.selectedDate()
         date_from = self.period.dateFrom.selectedDate()
 
-        if date_from.year() <> date_to.year():
+        if date_from.year() != date_to.year():
             if sender is self.period.dateTo:
                 self.period.dateFrom.setSelectedDate(QDate(date_to.year(), 1, 1))
             elif sender is self.period.dateFrom:

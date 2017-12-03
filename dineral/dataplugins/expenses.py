@@ -7,7 +7,7 @@ Created by Tobias Schoch on 01.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from abstract import DataPlugin
+from .abstract import DataPlugin
 import os
 import pandas as pd
 

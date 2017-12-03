@@ -6,11 +6,13 @@ qtpandas.py
 Created by Tobias Schoch on 11.11.15.
 Copyright (c) 2015. All rights reserved.
 """
-from PySide.QtCore import QAbstractTableModel, Qt, QModelIndex
-from PySide.QtGui import QVBoxLayout, QTableView, QWidget, QSizePolicy, QItemDelegate, QApplication, \
+from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
+from PyQt5.QtWidgets import QVBoxLayout, QTableView, QWidget, QSizePolicy, QItemDelegate, QApplication, \
     QStyleOptionComboBox, QStyle, QComboBox
 from pandas import DataFrame, Categorical
 from numpy import NaN
+
+from builtins import str
 
 
 class DataFrameModel(QAbstractTableModel):
@@ -54,7 +56,7 @@ class DataFrameModel(QAbstractTableModel):
 
         text = self.df.ix[index.row(), index.column()]
         try:
-            text = unicode(text)
+            text = str(text)
         except (UnicodeEncodeError, UnicodeDecodeError):
             pass
 

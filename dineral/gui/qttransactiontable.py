@@ -7,15 +7,16 @@ Created by Tobias Schoch on 16.11.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PySide import QtGui as QtW
-from PySide.QtGui import QWidget, QSizePolicy, QStyledItemDelegate, QSortFilterProxyModel
-from PySide.QtCore import Qt, QEvent, QAbstractTableModel
-from PySide.QtGui import QKeyEvent, QColor
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtWidgets import QWidget, QSizePolicy, QStyledItemDelegate
+from PyQt5.QtCore import Qt, QEvent, QAbstractTableModel, QSortFilterProxyModel
+from PyQt5.QtGui import QKeyEvent, QColor
+
 
 from seaborn.palettes import color_palette
 import pandas as pd
 
-from qtpandas import DataFrameWidget, DataFrameModel, ComboBoxDelegate
+from .qtpandas import DataFrameWidget, DataFrameModel, ComboBoxDelegate
 
 
 class TransactionTableModel(DataFrameModel):
@@ -35,7 +36,7 @@ class TransactionTableModel(DataFrameModel):
         self.i_deleted = columns.index('Deleted')
         self.i_categorie = columns.index('Kategorie')
         self.i_database = columns.index('Database')
-        convert_color = lambda lst: [map(lambda x: int(255 * x), c) + [160] for c in lst]
+        convert_color = lambda lst: [list(map(lambda x: int(255 * x), c)) + [160] for c in lst]
         if data.empty:
             self.categories = []
             self.colors = color_palette('Set2', n_colors=1)
@@ -116,7 +117,7 @@ class TransactionTableView(QtW.QTableView):
             model.setData(index, not eval(value), Qt.EditRole)
             for i in range(model.columnCount()):
                 self.update(model.index(index.row(), i))
-        elif event.text() <> "":
+        elif event.text() != "":
             t = event.text()
             index = self.currentIndex()
             model = self.model()
@@ -216,7 +217,7 @@ class TransactionTable(DataFrameWidget):
         widths = iter(self.widths)
         for i in range(self.dataModel.columnCount()):
             if not self.dataTable.isColumnHidden(i):
-                self.dataTable.setColumnWidth(i, widths.next())
+                self.dataTable.setColumnWidth(i, next(widths))
 
         self.setMinimumWidth(1800)
         self.setMinimumHeight(1200)

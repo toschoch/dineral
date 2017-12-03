@@ -8,7 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 from __future__ import unicode_literals
 
-from abstract_plot import Plot
+from .abstract_plot import Plot
 
 import seaborn.apionly as sns
 

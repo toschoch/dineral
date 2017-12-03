@@ -9,7 +9,7 @@ Copyright (c) 2016. All rights reserved.
 
 from __future__ import unicode_literals
 
-from abstract_plot import Plot
+from .abstract_plot import Plot
 from ..internaldata.property import Property
 
 

@@ -8,7 +8,8 @@ Copyright (c) 2016. All rights reserved.
 """
 import logging
 import numpy as np
-from property import Property
+from .property import Property
+from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class Report(Property):
 
 
     def default_property(self):
-        return '~/Report_Dineral_{}.pdf'.format(self._slugify(unicode(self._account)))
+        return '~/Report_Dineral_{}.pdf'.format(self._slugify(str(self._account)))
 
 
 class Data(Property):
@@ -27,4 +28,4 @@ class Data(Property):
 
 
     def default_property(self):
-        return '~/dineral_data_{}.csv'.format(self._slugify(unicode(self._account)))
+        return '~/dineral_data_{}.csv'.format(self._slugify(str(self._account)))

@@ -7,9 +7,9 @@ Created by Tobias Schoch on 01.01.16.
 Copyright (c) 2016. All rights reserved.
 """
 
-from table import Summary
-from pie import Pie
-from cover import Cover
+from .table import Summary
+from .pie import Pie
+from .cover import Cover
 import logging
 import pandas as pd
 
@@ -34,10 +34,10 @@ class Report(object):
         db = window.database.data
         budget = window.budget.data
 
-        date_from = window.main.report.period.dateFrom.selectedDate().toPython()
-        date_to = window.main.report.period.dateTo.selectedDate().toPython()
+        date_from = window.main.report.period.dateFrom.selectedDate().toPyDate()
+        date_to = window.main.report.period.dateTo.selectedDate().toPyDate()
 
-        from statistics import calculate_monthly, calculate_summary
+        from .statistics import calculate_monthly, calculate_summary
 
         self._monthly_sum = calculate_monthly(db, date_from=date_from, date_to=date_to)
         self._budget = calculate_summary(self._monthly_sum, budget, date_from=date_from, date_to=date_to)
@@ -71,7 +71,7 @@ class Report(object):
 
     def plot(self, category, axes):
 
-        from categories import plot
+        from .categories import plot
 
         budget = self._budget
         monthly_sum = self._monthly_sum

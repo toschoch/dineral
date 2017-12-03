@@ -11,11 +11,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from PySide import QtGui as QtW
-from PySide.QtCore import QDate
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtCore import QDate
 
-from qtutils import QCheckBoxGroup, FinanceSelector
-from qtimport import DataImport
+from .qtutils import QCheckBoxGroup, FinanceSelector
+from .qtimport import DataImport
 
 import pandas as pd
 
@@ -56,8 +56,8 @@ class FinanceDataImport(FinanceSelector):
 
     def importData(self):
 
-        start = self.period.dateFrom.selectedDate().toPython()
-        stop = self.period.dateTo.selectedDate().toPython()
+        start = self.period.dateFrom.selectedDate().toPyDate()
+        stop = self.period.dateTo.selectedDate().toPyDate()
 
         self.selectedPeriod = (start, stop)
 

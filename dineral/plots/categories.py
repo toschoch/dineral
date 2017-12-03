@@ -10,7 +10,7 @@ import seaborn.apionly as sns
 import matplotlib as mpl
 import pandas as pd
 
-from defaults import monthly_settings
+from .defaults import monthly_settings
 
 import logging
 

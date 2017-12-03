@@ -18,7 +18,8 @@ import pandas as pd, os
 import pyexcel_ods
 import datetime
 import seaborn.apionly as sns
-from property import CachedProperty
+from .property import CachedProperty
+from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class Budget(CachedProperty):
         data = data['Kategorien']
         columns = data.pop(0)
         data = pd.DataFrame(data, columns=columns)
-        data['Kategorie'] = data['Kategorie'].astype(unicode)
+        data['Kategorie'] = data['Kategorie'].astype(str)
         data['Kategorie'] = pd.Categorical(data['Kategorie'])
         data = data.set_index('Kategorie', drop=False)
         data.sort_index(inplace=True)

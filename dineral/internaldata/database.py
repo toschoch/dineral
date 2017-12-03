@@ -8,8 +8,9 @@ Copyright (c) 2015. All rights reserved.
 """
 import logging
 import pandas as pd, os
-from property import CachedProperty
+from .property import CachedProperty
 import pkg_resources
+from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class Database(CachedProperty):
             fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
 
     def default_property(self):
-        fname = 'res/data/{}.csv'.format(self._slugify(unicode(self._account)))
+        fname = 'res/data/{}.csv'.format(self._slugify(str(self._account)))
         return fname
 
     def read_data(self,fname):
@@ -97,6 +98,6 @@ class Database(CachedProperty):
         else:
             fname, ext = os.path.splitext(self.properties)
             fname = "{}_backup{}".format(fname, ext)
-        if pkg_resources.resource_exists('dineral',fname):
-            fname = pkg_resources.resource_filename('dineral',fname)
+        #if pkg_resources.resource_exists('dineral',fname):
+        #    fname = pkg_resources.resource_filename('dineral',fname)
         return fname

@@ -8,18 +8,19 @@ Copyright (c) 2015. All rights reserved.
 """
 from __future__ import unicode_literals
 
-from abstract import DataPlugin
+from .abstract import DataPlugin
 
 import os, codecs, locale, fnmatch
 from datetime import datetime
 import pandas as pd
-from utils import firstOf, TemporaryDirectory
+from .utils import firstOf, TemporaryDirectory
 
 import pkg_resources
 import subprocess
 
 import logging
 import re
+from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ class MasterCard(DataPlugin):
 
                 lines = fp.read().splitlines()
 
-        lines = map(unicode, lines)
+        lines = map(str, lines)
 
 
         newentry = re.compile("([0-9]{2,2}.[0-9]{2,2}.[0-9]{2,2}) ([\D\s-]+) ([A-Z]{3,3} [0-9]+.[0-9]{2,2})? \W* ([0-9]+.[0-9]{2,2})[\s0-9.]*",re.UNICODE)
@@ -143,12 +144,12 @@ class MasterCard(DataPlugin):
         try:
             while True:
 
-                line = it.next()
+                line = next(it)
 
                 line = line.strip()
                 m = newentry.match(line)
                 while not m:
-                    line = it.next().strip()
+                    line = next(it).strip()
                     m = newentry.match(line)
 
                 date = m.group(1)
@@ -157,11 +158,11 @@ class MasterCard(DataPlugin):
                     text += ' ' + m.group(3).strip()
                 amount = m.group(4)
 
-                line = it.next().strip()
+                line = next(it).strip()
 
-                while line<>'':
+                while line!='':
                     text += '\n'+line
-                    line = it.next().strip()
+                    line = next(it).strip()
 
                 if text.lower().startswith('saldovortrag'): continue
                 if text.lower().startswith('ihre esr-zahlung'): continue
@@ -228,7 +229,7 @@ class MasterCard(DataPlugin):
         try:
             while True:
 
-                line = it.next()
+                line = next(it)
 
                 # search for column headers
                 col_index = [line.find(col) for col in column_headers]
@@ -236,8 +237,8 @@ class MasterCard(DataPlugin):
                 # if column headers found -> store indices
                 if min(col_index) >= 0:
 
-                    line = it.next()
-                    line = it.next()
+                    line = next(it)
+                    line = next(it)
 
                     # while no new page started, first character not space
                     while line.find('UEBERTRAG AUF NAECHSTE SEITE') < 0 or line.find('Saldo zu unseren Gunsten') < 0:
@@ -248,12 +249,12 @@ class MasterCard(DataPlugin):
                             date = datetime.strptime(date, "%d.%m.%y")
 
                         except (IndexError, ValueError):
-                            line = it.next()
+                            line = next(it)
                             continue
 
                         # except saldovortrag and ESR-ZAHLUNG
                         if line.find('SALDOVORTRAG') >= 0 or line.replace(' ','').find('ESR-ZAHLUNG') >= 0 :
-                            line = it.next()
+                            line = next(it)
                             continue
 
                         text = [u' '.join(line.split(' ')[1:-2])]
@@ -262,12 +263,12 @@ class MasterCard(DataPlugin):
 
                         # try to parse date
                         while True:
-                            line = it.next()
+                            line = next(it)
                             try:
                                 d = line.split(' ')[0]
                                 d = datetime.strptime(d, "%d.%m.%y")
 
-                                table.append([date, unicode(u'\n'.join(text)), amount])
+                                table.append([date, str(u'\n'.join(text)), amount])
 
                                 break
 

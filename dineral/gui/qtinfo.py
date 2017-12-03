@@ -17,8 +17,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from PySide import QtCore
-from PySide.QtGui import QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QDialogButtonBox, QHBoxLayout, QComboBox
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QDialogButtonBox, QHBoxLayout, QComboBox
 
 
 class Info(QDialog):

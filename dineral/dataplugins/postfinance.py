@@ -11,11 +11,12 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from abstract import DataPlugin
+from .abstract import DataPlugin
 import subprocess
 import codecs, os, datetime, glob
 import pandas as pd
-from utils import TemporaryDirectory
+from .utils import TemporaryDirectory
+from builtins import str
 
 
 class PostFinance(DataPlugin):
@@ -100,7 +101,7 @@ class PostFinance(DataPlugin):
 
                 lines = fp.read().splitlines()
 
-            lines = map(unicode, lines)
+            lines = map(str, lines)
 
         column_headers = ['Datum', 'Text', 'Gutschrift', 'Lastschrift', 'Valuta', 'Saldo']
         align = [0, 0, 1, 1, 1, 2]
@@ -112,7 +113,7 @@ class PostFinance(DataPlugin):
         try:
             while True:
 
-                line = it.next()
+                line = next(it)
 
                 # search for column headers
                 col_index = [line.find(col) for col in column_headers]
@@ -120,18 +121,18 @@ class PostFinance(DataPlugin):
                 # if column headers found -> store indices
                 if min(col_index) >= 0:
 
-                    line = it.next()
+                    line = next(it)
 
                     # while no new page started, first character not space
                     while (len(line) == 0 or line[0] == ' '):
 
-                        line = it.next()
+                        line = next(it)
                         if line.strip().startswith('Bitte') or line == '':
                             break
 
                         # while no new entry started
                         dataentry = [[] for col in column_headers]
-                        while line <> '' and line[0] == ' ':
+                        while line != '' and line[0] == ' ':
 
                             # parse columns
                             for i, col in enumerate(column_headers):
@@ -146,16 +147,16 @@ class PostFinance(DataPlugin):
                                     J = I + len(col)
 
                                 data = line.__getitem__(slice(I, J)).strip()
-                                if data <> '': dataentry[i].append(data)
+                                if data != '': dataentry[i].append(data)
 
-                            line = it.next()
+                            line = next(it)
 
                         row = ['\n'.join(col) for col in dataentry]
 
                         # copy date to each line
                         if row[0] == '':
                             for date in reversed(table):
-                                if date[0] <> '':
+                                if date[0] != '':
                                     break
                             row[0] = date[0]
 
@@ -170,13 +171,13 @@ class PostFinance(DataPlugin):
         out_columns = ['Datum', 'Text', 'Lastschrift']
         date = [datetime.datetime.strptime(d_str, '%d.%m.%y') for d_str in rec.Datum]
         import numpy as np
-        amount = np.array([float(f_str.replace(' ', '')) if f_str <> '' else 0. for f_str in rec.Lastschrift])
-        amount += np.array([-float(f_str.replace(' ', '')) if f_str <> '' else 0. for f_str in rec.Gutschrift])
+        amount = np.array([float(f_str.replace(' ', '')) if f_str != '' else 0. for f_str in rec.Lastschrift])
+        amount += np.array([-float(f_str.replace(' ', '')) if f_str != '' else 0. for f_str in rec.Gutschrift])
         text = [t_str for t_str in rec.Text]
-        I = amount <> 0.
+        I = amount != 0.
         rec = pd.DataFrame(dict(zip(out_columns, [date, text, amount])))[I]
 
-        I = (rec.Text <> 'Total')
+        I = (rec.Text != 'Total')
 
         rec = pd.DataFrame(rec[I], columns=out_columns)
         rec.Datum = pd.DatetimeIndex(rec.Datum).date
@@ -254,7 +255,7 @@ class PostFinance(DataPlugin):
         try:
             while True:
 
-                line = it.next()
+                line = next(it)
 
                 if line.lstrip().startswith('Total'):
                     break
@@ -269,15 +270,15 @@ class PostFinance(DataPlugin):
                 # if column headers found -> store indices
                 if min(col_index) >= 0:
 
-                    line = it.next()
-                    line = it.next()
-                    line = it.next()
+                    line = next(it)
+                    line = next(it)
+                    line = next(it)
 
                     # while no new page started, first character not space
                     while not line.lstrip().startswith('Total'):
 
                         if line == '':
-                            line = it.next()
+                            line = next(it)
                             continue
 
                         # while no new entry started
@@ -285,12 +286,12 @@ class PostFinance(DataPlugin):
                         dataentry[2] = float(line[col_index[6]:].replace(' ', ''))
                         dataentry[0] = data
                         firstline = False
-                        line = it.next()
+                        line = next(it)
                         while not line.lstrip().startswith('CHF') and len(line) > 0:
                             # parse columns
                             dataentry[1].append(line.strip().replace('   ', ''))
 
-                            line = it.next()
+                            line = next(it)
 
                         dataentry[1] = '\n'.join(dataentry[1])
 

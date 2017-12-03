@@ -7,11 +7,11 @@ Created by Tobias Schoch on 03.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PySide import QtGui as QtW
-from PySide.QtGui import QWidget
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtWidgets import QWidget
 
-from dineral.plots import reporter
-from dineral.plots.style import set_context
+from ..plots import reporter
+from ..plots.style import set_context
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 

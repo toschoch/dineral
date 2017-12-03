@@ -8,7 +8,11 @@ Copyright (c) 2015. All rights reserved.
 """
 
 import sys, logging, os
-from PySide.QtGui import QApplication, QSystemTrayIcon, QIcon
+from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
+from PyQt5.QtGui import QIcon
+
+from dineral.gui.qtmain import FinanceMain
+from dineral.version import __version__
 
 import warnings
 import matplotlib as mpl
@@ -16,11 +20,9 @@ import matplotlib as mpl
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
     warnings.filterwarnings("ignore", module="matplotlib")
-    mpl.use('Qt4Agg')
-    mpl.rcParams['backend.qt4'] = 'PySide'
+    mpl.use('Qt5Agg')
+    #mpl.rcParams['backend.qt4'] = 'PyQt5'
 
-    from gui import FinanceMain
-    from version import __version__
 
 def main():
 

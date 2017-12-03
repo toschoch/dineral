@@ -7,21 +7,23 @@ Created by Tobias Schoch on 01.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 
-from PySide import QtGui as QtW
-from PySide.QtGui import QWidget, QMainWindow, QIcon
+from PyQt5 import QtWidgets as QtW
+from PyQt5.QtWidgets import QWidget, QMainWindow
+from PyQt5.QtGui import QIcon
 
-from dineral.plots import reporter
+from ..plots import reporter
 
-from qtfinance import FinanceDataImport, FinanceReport
-from qtfinanceedit import FinanceTransactions
-from qtfinanceview import FinanceView
-from qtsettings import Settings
-from qtinfo import Info, AccountSelector
+from .qtfinance import FinanceDataImport, FinanceReport
+from .qtfinanceedit import FinanceTransactions
+from .qtfinanceview import FinanceView
+from .qtsettings import Settings
+from .qtinfo import Info, AccountSelector
 
-from dineral.internaldata import Budget, Database, Classifier, Report, Data
-from dineral.internaldata.property import accounts, Property
-from dineral.dataplugins import plugins
+from ..internaldata import Budget, Database, Classifier, Report, Data
+from ..internaldata.property import accounts, Property
+from ..dataplugins import plugins
 
+from builtins import str
 
 class FinanceMain(QMainWindow):
     def __init__(self, **kwargs):
@@ -53,7 +55,7 @@ class FinanceMain(QMainWindow):
         plugin_names = [p.__name__ for p in plugins]
 
         self.plugins = [p() for pn, p in zip(plugin_names, plugins) if pn in available[selected]]
-        self.setWindowTitle("Dineral ({}) - '{}'".format(self.version,p.account()))
+        self.setWindowTitle("Dineral ({}) - '{}'".format(self.version,self.plugins[0].account()))
 
         self.budget = Budget()
         self.database = Database()
@@ -96,7 +98,7 @@ class FinanceMain(QMainWindow):
     def classifier_info(self):
         info = [['Type', str(self.classifier_clf._final_estimator)],
                 ['File:', self.classifier.properties],
-                ['Classes:', u", ".join(map(unicode, self.classifier_clf.classes_names))],
+                ['Classes:', u", ".join(map(str, self.classifier_clf.classes_names))],
                 ['Trained:',
                  str(self.classifier.date_training()) + ' on {} samples'.format(self.classifier.training_samples())],
                 ['Score (precision, recall, f1):',

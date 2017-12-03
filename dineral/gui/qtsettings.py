@@ -17,8 +17,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-import PySide.QtGui as QtGui
-from PySide.QtGui import QFont, QFontMetrics
+import PyQt5.QtWidgets as QtGui
+from PyQt5.QtGui import QFont, QFontMetrics
 
 
 class DataPluginProperty(QtGui.QWidget):
