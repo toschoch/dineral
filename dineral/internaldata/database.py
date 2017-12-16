@@ -25,15 +25,15 @@ class Database(CachedProperty):
 
     def create_blank_db(self):
         fname = self.filename(False)
-        with open(fname,'w+') as fp:
-            fp.write("Datum;Deleted;Hash;Kategorie;Lastschrift;Text\n")
+        empty = pd.DataFrame(columns=["Datum","Deleted","Hash","Kategorie","Lastschrift","Text"])
+        empty.to_feather(fname)
 
     def default_property(self):
-        fname = 'res/data/{}.csv'.format(self._slugify(str(self._account)))
+        fname = 'res/data/{}.feather'.format(self._slugify(str(self._account)))
         return fname
 
     def read_data(self,fname):
-        data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+        data = pd.read_feather(fname)
         return data
 
     def load_data(self):
@@ -41,7 +41,7 @@ class Database(CachedProperty):
         try:
             fname = self.filename(self.FROM_BACKUP)
             log.info("load database from {}...".format(fname))
-            data = pd.read_csv(fname, delimiter=";", parse_dates=['Datum'], dayfirst=True, encoding='utf-8')
+            data = pd.read_feather(fname)
         except IOError as err:
             log.error(str(err))
             fname = self.filename(True)
