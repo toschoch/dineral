@@ -37,67 +37,32 @@ class Database(CachedProperty):
         return data
 
     def load_data(self):
-        import numpy as np
+
         try:
-            fname = self.filename(self.FROM_BACKUP)
+            fname = self.properties
             log.info("load database from {}...".format(fname))
             data = pd.read_feather(fname)
         except IOError as err:
             log.error(str(err))
-            fname = self.filename(True)
-            log.info("load database from {}...".format(fname))
-            try:
-                data = self.read_data(fname)
-            except IOError:
-                log.info("No database found... create a blank database")
-                self.create_blank_db()
-                fname = self.filename(False)
-                self.FROM_BACKUP = False
-                data = self.read_data(fname)
+            log.info("Database not found... create a blank database")
+            self.create_blank_db()
+            fname = self.properties
+            data = self.read_data(fname)
 
-        if self.BACKUP and not self.FROM_BACKUP:
-            log.debug("Save a backup copy of the database...")
-            self.save_data(data, backup=True)
-
-        data.Text = data.Text.str.replace('\\', '\n')
-        data.Text = data.Text.str.replace('\n\n', '\n')
-        data.ix[data.Deleted, 'Kategorie'] = np.nan
-
-        if 'Unterkategorie' in data.columns:
-            del data['Unterkategorie']
-
-        # make categories
-        import datetime
-        data.Datum = data.Datum.apply(lambda x: datetime.date(x.year, x.month, x.day))
-        data.Kategorie = pd.Categorical(data.Kategorie)
         self._data = data
         return data
 
-    def add_categories(self,categories):
+    def add_categories(self, categories):
         data = self.data
         newcats = pd.Index(categories).difference(data.Kategorie.cat.categories)
         if len(newcats)>0:
             data['Kategorie'] = data.Kategorie.cat.add_categories(newcats)
         self._data = data
 
-    def save_data(self, data, backup=False):
+    def save_data(self, data):
         data = data.reset_index(drop=True)
-        if backup and self.FROM_BACKUP:
-            raise Warning("Database was loaded from backup. Potential dataloss!!")
-        fname = self.filename(backup)
-        data.Text = data.Text.str.replace('\n', '\\\\')
+
+        fname = self.properties
 
         log.info("saved database to {}...".format(fname))
-        data.to_csv(fname, index=False, encoding='utf-8', sep=';', mode='w+')
-        data.Kategorie = pd.Categorical(data.Kategorie)
-        self._data = data
-
-    def filename(self, backup=False):
-        if not backup:
-            fname =  self.properties
-        else:
-            fname, ext = os.path.splitext(self.properties)
-            fname = "{}_backup{}".format(fname, ext)
-        #if pkg_resources.resource_exists('dineral',fname):
-        #    fname = pkg_resources.resource_filename('dineral',fname)
-        return fname
+        data.to_feather(fname)

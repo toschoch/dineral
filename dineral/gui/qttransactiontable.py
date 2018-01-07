@@ -219,8 +219,8 @@ class TransactionTable(DataFrameWidget):
             if not self.dataTable.isColumnHidden(i):
                 self.dataTable.setColumnWidth(i, next(widths))
 
-        self.setMinimumWidth(1800)
-        self.setMinimumHeight(1200)
+        self.setMinimumWidth(1200)
+        self.setMinimumHeight(800)
 
 
 class TransactionItemDelegate(QStyledItemDelegate):
