@@ -19,7 +19,7 @@ with open('requirements.txt') as fp:
 with open(os.path.join(here, 'CHANGELOG.rst')) as f:
     changelog_txt = f.read()
     changelog = changelog_txt.split('\n')
-    version = changelog[[i-1 for i, l in enumerate(changelog) if re.match("-+",l)][-1]]
+    version = changelog[[i-1 for i, l in enumerate(changelog) if re.match("-+",l)][0]]
 
 test_requires = [
     'pylint>=1.0.0',

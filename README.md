@@ -12,21 +12,16 @@ git clone git@github.com:toschoch/dineral.git
 Most of the dataplugins (PostFinance, etc.) depend on the unix commandline tools
 ```text
 pdftotext
-tesseract
 ```
 these can be installed via apt-get in unix systems
 ```bash
-apt-get install tesseract-ocr tesseract-ocr-en tesseract-ocr-de poppler-utils pkg-config
+apt-get install poppler-utils pkg-config
 ```
 or for mac
 ```bash
 brew install poppler
-brew install tesseract
-brew install tesseract-en
-brew install tesseract-de
 ```
-for details see https://github.com/tesseract-ocr/tesseract/wiki
-and http://brewformulas.org/Poppler
+http://brewformulas.org/Poppler
 
 ####Python Dependencies
 ```text
