@@ -6,7 +6,7 @@ mastercard.py
 Created by Tobias Schoch on 02.12.15.
 Copyright (c) 2015. All rights reserved.
 """
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
 
 from abstract import DataPlugin
 
@@ -56,7 +56,7 @@ class MasterCard(DataPlugin):
                 fname = os.path.join(root, filename)
                 name = '/'.join(fname.split('/')[-2:])
                 name, _ = os.path.splitext(name)
-
+                name = name.encode('utf-8')
                 try:
                     month = datetime.strptime(name, '%Y/%B').date()
                 except ValueError:
