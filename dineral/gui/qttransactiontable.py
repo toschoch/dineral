@@ -158,7 +158,7 @@ class TransactionTable(DataFrameWidget):
         self.proxy = QSortFilterProxyModel()
         self.proxy.setSourceModel(self.dataModel)
         self.dataTable.setModel(self.proxy)
-        self.dataTable.setItemDelegate(TransactionItemDelegate(self))
+        #self.dataTable.setItemDelegate(TransactionItemDelegate(self))
 
         self.dataTable.verticalHeader().setVisible(False)
         self.dataTable.setStyleSheet("selection-background-color: transparent; selection-color:black")
@@ -219,20 +219,9 @@ class TransactionTable(DataFrameWidget):
             if not self.dataTable.isColumnHidden(i):
                 self.dataTable.setColumnWidth(i, next(widths))
 
-        self.setMinimumWidth(1200)
+        self.setMinimumWidth(1800)
         self.setMinimumHeight(800)
 
 
-class TransactionItemDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
-
-        try:
-            bg_color = index.data(Qt.BackgroundColorRole)
-            painter.fillRect(option.rect, bg_color)
-            QStyledItemDelegate.paint(self, painter, option, index)
-        except TypeError:
-            QStyledItemDelegate.paint(self, painter, option, index)
-
-
-class TransactionComboBoxItemDelegate(ComboBoxDelegate, TransactionItemDelegate):
+class TransactionComboBoxItemDelegate(ComboBoxDelegate):#, TransactionItemDelegate):
     pass

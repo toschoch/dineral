@@ -127,8 +127,8 @@ class FinanceDataImport(FinanceSelector):
         import warnings
 
         def hash(row):
-            h = hashlib.md5(unidecode(row['Datum'].strftime('%d-%m-%Y').decode('utf-8')) + ' ' + unidecode(
-                row['Text']) + ' ' + 'CHF {0:.0f}'.format(row['Lastschrift'])).hexdigest()
+            h = hashlib.md5((unidecode(row['Datum'].strftime('%d-%m-%Y')) + ' ' + unidecode(
+                row['Text']) + ' ' + 'CHF {0:.0f}'.format(row['Lastschrift'])).encode('utf-8')).hexdigest()
             return pd.Series({'Hash': h})
 
         with warnings.catch_warnings():

@@ -57,7 +57,7 @@ class MasterCard(DataPlugin):
                 fname = os.path.join(root, filename)
                 name = '/'.join(fname.split('/')[-2:])
                 name, _ = os.path.splitext(name)
-                name = name.encode('utf-8')
+                #name = name.encode('utf-8')
                 try:
                     month = datetime.strptime(name, '%Y/%B').date()
                 except ValueError:

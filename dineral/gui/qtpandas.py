@@ -70,7 +70,7 @@ class DataFrameModel(QAbstractTableModel):
     def setData(self, index, value, role):
         row = self.df.index[index.row()]
         col = self.df.columns[index.column()]
-        self.df.set_value(row, col, value)
+        self.df.at[row, col]=value
         return True
 
     def rowCount(self, index=QModelIndex()):
