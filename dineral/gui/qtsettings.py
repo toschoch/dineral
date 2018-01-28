@@ -52,7 +52,7 @@ class DataPluginProperty(QtGui.QWidget):
 
         old = self.plugin.properties
         if self.plugin.type() == self.plugin.FILE:
-            new, _ = QtGui.QFileDialog.getOpenFileName(self, "Select {} location".format(self.plugin.name()))
+            new, _ = QtGui.QFileDialog.getSaveFileName(self, "Select {} location".format(self.plugin.name()))
         elif self.plugin.type() == self.plugin.DIR:
             new = QtGui.QFileDialog.getExistingDirectory(self, "Select {} location".format(self.plugin.name()), old)
         else:

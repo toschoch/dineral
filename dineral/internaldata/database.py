@@ -24,8 +24,10 @@ class Database(CachedProperty):
         return os.path.getsize(self.properties)
 
     def create_blank_db(self):
-        fname = self.filename(False)
-        empty = pd.DataFrame(columns=["Datum","Deleted","Hash","Kategorie","Lastschrift","Text"])
+        fname = self.properties
+        empty = pd.DataFrame([[pd.to_datetime("1-1-1971"),True,'xxx','Deleted',0,'Dummy']],
+                             columns=["Datum","Deleted","Hash","Kategorie","Lastschrift","Text"])
+        empty['Kategorie'] = empty.Kategorie.astype('category')
         empty.to_feather(fname)
 
     def default_property(self):
@@ -61,6 +63,7 @@ class Database(CachedProperty):
 
     def save_data(self, data):
         data = data.reset_index(drop=True)
+        data['Kategorie'] = data.Kategorie.astype('category')
 
         fname = self.properties
 

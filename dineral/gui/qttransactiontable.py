@@ -205,9 +205,9 @@ class TransactionTable(DataFrameWidget):
         self.i_cat = self.dataModel.i_categorie
         if set_index: self.dataTable.setCurrentIndex(self.proxy.mapFromSource(self.dataModel.index(0, self.i_cat)))
         # self.dataTable.setColumnWidth(self.i_cat, 200)
-        h = self.getMaxRowHeight()
-        for i in range(self.dataModel.rowCount()):
-            self.dataTable.setRowHeight(i, h)
+        # h = self.getMaxRowHeight()
+        # for i in range(self.dataModel.rowCount()):
+        #     self.dataTable.setRowHeight(i, h)
 
         if set_index: self.dataTable.sortByColumn(self.dataModel.i_datum, Qt.AscendingOrder)
         self.setSizes()
