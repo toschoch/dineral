@@ -80,6 +80,8 @@ def calculate_summary(data, budget, date_from, date_to):
     budget['RelativeDifferenz'] = ((budget.Summe - budget.BudgetPeriode) / budget.BudgetPeriode)
     budget['Differenz'] = -(budget.Summe - budget.BudgetPeriode) * np.sign(budget.Jahresbudget)
     budget['TeilVomJahresbudget'] = -budget.Summe / budget.Jahresbudget
+    budget.loc[budget.index[(np.sign(budget.BudgetPeriode)!=np.sign(budget.Summe))|(budget.BudgetPeriode==0)],
+               ['RelativeDifferenz','TeilVomJahresbudget']]=np.inf
 
     I2 = np.lexsort((np.abs(budget['Summe']), budget['Jahresbudget'] > 0))[::-1]
     budget = budget.iloc[I2]

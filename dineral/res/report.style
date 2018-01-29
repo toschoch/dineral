@@ -1,0 +1,5 @@
+grid.linestyle : :
+grid.color : .8
+legend.fancybox : True
+legend.frameon : True
+axes.grid : True

@@ -1,6 +1,6 @@
 from .style import set_style
 from .api import Report
 
-set_style()
+#set_style()
 
 reporter = Report()

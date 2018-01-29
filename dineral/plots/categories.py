@@ -33,7 +33,7 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
 
     icategory = category
 
-    ax = (-sign * data[icategory]).plot(ax=ax, linewidth=2, marker='', color=linecolor)
+    ax = (-sign * data[icategory]).plot(ax=ax, marker='', color=linecolor)
 
     if icategory in mean.columns:
         m = (-sign * mean[icategory])
@@ -49,13 +49,13 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
 
     c_avg = sns.xkcd_rgb['pastel red']
 
-    pavg = ax.axhline(avg, color=c_avg, alpha=0.4, linewidth=2, linestyle='--', label='average')
+    pavg = ax.axhline(avg, color=c_avg, alpha=0.4, linestyle='--', label='average')
 
     ax.set_title(title + ' ' + category)
 
     bud = -sign * (budget.ix[category, 'Jahresbudget'] / 12.).squeeze()
 
-    pbud = ax.axhline(-bud, color='g', alpha=0.4, linewidth=2, linestyle='--')
+    pbud = ax.axhline(-bud, color='g', alpha=0.4, linestyle='--')
 
     ax.legend([pavg, pbud, pred], ['Average {0:.0f} CHF'.format(avg), 'Budget {0:.0f} CHF'.format(-bud), 'last years'],
               loc='upper right')

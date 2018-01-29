@@ -11,7 +11,7 @@ from PyQt5 import QtWidgets as QtW
 from PyQt5.QtWidgets import QWidget
 
 from ..plots import reporter
-from ..plots.style import set_context
+from ..plots.style import set_style
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
@@ -32,6 +32,7 @@ class FinanceView(QWidget):
 
         self.initUI()
 
+
     def initUI(self):
 
         vlayout = QtW.QVBoxLayout(self)
@@ -49,7 +50,7 @@ class FinanceView(QWidget):
 
     def PlotSelected(self, i=None):
 
-        set_context('paper')
+        set_style('gui')
 
         if not i:
             i = self.comboGraph.currentIndex()
@@ -87,9 +88,9 @@ class FinanceGraph(FigureCanvasQTAgg):
     def wheelEvent(self, event):
         pass
         # x = event.x()
-        # # flipy so y=0 is bottom of canvas
+        # flipy so y=0 is bottom of canvas
         # y = self.figure.bbox.height - event.y()
-        # # from QWheelEvent::delta doc
+        # from QWheelEvent::delta doc
         # steps = event.delta()/120
         # if (event.orientation() == QtCore.Qt.Vertical):
         #     FigureCanvasBase.scroll_event(self, x, y, steps)

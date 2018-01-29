@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 from .abstract_plot import Plot
 
 import seaborn.apionly as sns
+import numpy as np
 
 
 class Summary(Plot):
@@ -30,9 +31,20 @@ class Summary(Plot):
             eff = -row['Summe']
             bud_prop = -row['BudgetPeriode']
 
+            teilvomjahr = row['TeilVomJahresbudget']
+            if not np.isfinite(teilvomjahr):
+                teilvomjahr = "-"
+            else:
+                teilvomjahr = "{0:.0%}".format(teilvomjahr)
+
+            reldiff = row['RelativeDifferenz']
+            if not np.isfinite(reldiff):
+                reldiff = "-"
+            else:
+                reldiff = "{0:.0%}".format(reldiff)
+
             dtable.append([row['Kategorie'], "{0:d}".format(int(eff)), "{0:d}".format(int(bud_prop)),
-                           "{0:d}".format(int(row['Differenz'])), "{0:.0%}".format(row['RelativeDifferenz']),
-                           "{0:.0%}".format(row['TeilVomJahresbudget'])])
+                           "{0:d}".format(int(row['Differenz'])), reldiff, teilvomjahr])
 
         dtable.append([""] * len(columns))
         bilanz = -budget['Summe'].sum()
@@ -50,14 +62,16 @@ class Summary(Plot):
         goodcolor = sns.xkcd_rgb['medium green']
         badcolor = sns.xkcd_rgb['pale red']
 
+        # header row
         for i in range(len(columns)):
             cell = cells[0, i]
             cell.set_facecolor(headercolor)
             cell.set_alpha(0.4)
-            cell.set_height(0.07)
+            cell.set_height(0.1)
             cell.set_lw(0.1)
             cell.set_fontsize(15)
 
+        # rows
         for j in range(1, len(budget) + 1):
 
             goodbad = budget.GutSchlecht.iloc[j - 1]
@@ -73,11 +87,14 @@ class Summary(Plot):
                 cell.set_facecolor(color)
                 cell.set_alpha(0.4)
                 cell.set_lw(0.3)
+                cell.set_height(0.035)
 
+        #
         for i in range(len(columns)):
             cell = cells[len(dtable) - 1, i]
             cell.set_lw(0)
 
+        # last row
         for i in range(len(columns)):
             cell = cells[len(dtable), i]
             if i % 2 == 0:
@@ -92,3 +109,4 @@ class Summary(Plot):
 
             cell.set_alpha(0.4)
             cell.set_lw(0.3)
+            cell.set_height(0.035)

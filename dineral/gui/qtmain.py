@@ -155,9 +155,9 @@ class FinanceMainWidget(QWidget):
     def contentChanged(self, i):
         if self.content.tabText(i) == 'View':
             from ..plots import reporter
-            from ..plots.style import set_context
+            from ..plots.style import set_style
 
-            set_context('paper')
+            set_style('gui')
 
             self.control.setCurrentWidget(self.report)
 

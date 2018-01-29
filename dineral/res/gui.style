@@ -1,0 +1,19 @@
+
+axes.titlesize : 24
+axes.labelsize : 20
+legend.fontsize : 18
+lines.linewidth : 6
+font.size : 14
+lines.markersize : 10
+xtick.labelsize : 16
+ytick.labelsize : 16
+grid.linestyle : :
+grid.color : .8
+legend.fancybox : True
+legend.frameon : True
+axes.grid : True
+legend.numpoints : 2
+axes.edgecolor : 0.5
+image.cmap : viridis
+legend.edgecolor : 0.5
+figure.figsize : 8, 6

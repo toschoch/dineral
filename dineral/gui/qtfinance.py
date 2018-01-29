@@ -212,8 +212,8 @@ class FinanceReport(FinanceSelector):
         from matplotlib.backends.backend_pdf import PdfPages
         from matplotlib import pyplot as plt
         from ..plots import reporter
-        from ..plots.style import set_context
-        set_context("notebook")
+        from ..plots.style import set_style
+        set_style("report")
 
         window = self.window()
 
