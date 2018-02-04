@@ -30,6 +30,8 @@ test_requires = [
 extras_require = {
 }
 
+print(find_packages())
+
 setup(
     name='dineral',
     version=version,
@@ -37,7 +39,7 @@ setup(
     author_email='tobias.schoch@vtxmail.ch',
     license='public',
     keywords='finance budget gui report',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(),
     include_package_data=True,
     package_data={'dineral': ['res',
                               'bash/SecuredPDF2txt.sh',
