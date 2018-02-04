@@ -11,6 +11,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+import locale
 from .abstract import DataPlugin
 import subprocess
 import re, os, datetime, glob
@@ -18,6 +19,7 @@ import pandas as pd
 from io import StringIO
 import codecs
 from builtins import str
+import pathlib
 
 
 class Raiffeisen(DataPlugin):
@@ -31,10 +33,12 @@ class Raiffeisen(DataPlugin):
         end = period_to.year
 
         new = []
-        extracts_path = os.path.join(self.properties)
+        extracts_path = pathlib.Path(os.path.join(self.properties))
         matches = glob.glob(os.path.join(extracts_path, '*.pdf'))
 
         log.info('matches: {}'.format(matches))
+
+        locale.setlocale(locale.LC_TIME, 'de_CH.UTF-8')
 
         files2load = []
         for fname in matches:
@@ -47,6 +51,30 @@ class Raiffeisen(DataPlugin):
                 files2load.append(fname)
             log.info('checked {}'.format(fname))
 
+        for subdir in extracts_path.iterdir():
+            if subdir.is_dir():
+                if re.match("[0-9]{4}",subdir.name):
+                    year = datetime.datetime.strptime(subdir.name, "%Y").date()
+                    if year.year >= start and year.year <= end:
+                        p = re.compile(r"(Kontoauszug )?(\w+)( - CH[0-9]+ - [0-9]{4}-[0-9]{2}-[0-9]{2})?.pdf")
+                        for fname in subdir.glob("*.pdf"):
+                            try:
+                                datetime.datetime.strptime(fname.stem, "%B").date()
+                                month = fname.stem
+                            except:
+                                m = p.match(fname.name)
+                                if m:
+                                    month = m.group(2)
+                                else:
+                                    continue
+                            month = datetime.datetime.strptime("{}-{}".format(year.year,month), "%Y-%B").date()
+                            if month >= period_from and month <= period_to:
+                                files2load.append(str(fname))
+
+
+        locale.setlocale(locale.LC_TIME, '')
+
+
         prog = 0
         if len(files2load) > 0:
             dprog = 100. / len(files2load)
@@ -54,7 +82,7 @@ class Raiffeisen(DataPlugin):
             dprog = 0
 
         if len(files2load) < 1:
-            log.warn("No Raiffeisen account extracts found for selected period!")
+            log.warning("No Raiffeisen account extracts found for selected period!")
         else:
             log.info("load files: {}".format(", ".join(files2load)))
 
@@ -103,7 +131,7 @@ class Raiffeisen(DataPlugin):
             page = lines[s + 2:e]
             saldo = float(lines[s + 1].split('  ')[-1].strip('\n +').replace("'", ""))
 
-            s = StringIO(str("\n".join(page)))
+            s = StringIO(str("".join(page)))
 
             t = pd.read_table(s, sep='\s{2,}', header=None)
             t.columns = ['Datum', 'Text', 'Betrag', 'Valuta', 'Saldo']
