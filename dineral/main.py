@@ -10,6 +10,7 @@ Copyright (c) 2015. All rights reserved.
 import sys, logging, os
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt5.QtGui import QIcon
+import pkg_resources
 
 from dineral.gui.qtmain import FinanceMain
 from dineral.version import __version__
@@ -32,8 +33,11 @@ def main():
 
     app = QApplication(sys.argv)
 
-    p=os.path.split(__file__)[0]
-    p = os.path.join(p,r'res/dineral.png')
+    try:
+        p = pkg_resources.resource_filename('dineral','res/dineral.png')
+    except:
+        p=os.path.split(__file__)[0]
+        p = os.path.join(p,r'res/dineral.png')
     icon = QIcon(p)
     trayIcon = QSystemTrayIcon(icon, app)
 
