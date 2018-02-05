@@ -12,11 +12,13 @@ import logging
 log = logging.getLogger(__name__)
 
 import locale
+from pandas.io.parsers import FixedWidthReader
 from .abstract import DataPlugin
 import subprocess
 import re, os, datetime, glob
 import pandas as pd
 from io import StringIO
+import numpy as np
 import codecs
 from builtins import str
 import pathlib
@@ -56,7 +58,7 @@ class Raiffeisen(DataPlugin):
                 if re.match("[0-9]{4}",subdir.name):
                     year = datetime.datetime.strptime(subdir.name, "%Y").date()
                     if year.year >= start and year.year <= end:
-                        p = re.compile(r"(Kontoauszug )?(\w+)( - CH[0-9]+ - [0-9]{4}-[0-9]{2}-[0-9]{2})?.pdf")
+                        p = re.compile(r"(Kontoauszug )?(\w+)( [0-9]{4} - CH[0-9]+ - [0-9]{4}-[0-9]{2}-[0-9]{2})?.pdf")
                         for fname in subdir.glob("*.pdf"):
                             try:
                                 datetime.datetime.strptime(fname.stem, "%B").date()
@@ -127,27 +129,45 @@ class Raiffeisen(DataPlugin):
                                    re.match('^\s+(Übertrag|Umsatz)\s+[0-9\'.+\s]*$', line)])[1::2]
 
         data = []
+        colspecs = None
         for s, e in zip(starts, ends):
             page = lines[s + 2:e]
             saldo = float(lines[s + 1].split('  ')[-1].strip('\n +').replace("'", ""))
 
+            if len(page)<1:
+                continue
+
             s = StringIO(str("".join(page)))
 
-            t = pd.read_table(s, sep='\s{2,}', header=None)
-            t.columns = ['Datum', 'Text', 'Betrag', 'Valuta', 'Saldo']
-            toadd = t.Datum[pd.isnull(t.Text)]
-            t = t[~pd.isnull(t.Text)].copy()
+            if colspecs is None:
+                fwr = FixedWidthReader(s,colspecs='infer', delimiter=' ',comment='#')
+                colspecs = fwr.colspecs
+                s = StringIO(str("".join(page)))
 
-            toadd.index -= 1
-            toadd = '\n' + toadd
-
-            t['Text'] = (t.Text + toadd).fillna(t.Text)
-            t['Datum'] = pd.to_datetime(t.Datum,dayfirst=True).dt.date
-            t['Saldo'] = t.Saldo.str.strip(' +').str.replace("'", "").astype(float)
-            t['Betrag'] = t.Betrag.str.strip(' +').str.replace("'", "").astype(float)
-            t['Betrag'] = t.Saldo.diff().fillna(t.Saldo - saldo)
+            t = pd.read_fwf(s, header=None, colspecs=colspecs)
             data.append(t)
-        data = pd.concat(data).reset_index(drop=True).drop(['Saldo','Valuta'],axis=1).rename(columns={'Betrag':'Lastschrift'})
+        t = pd.concat(data,axis=0).reset_index(drop=True)
+        cols = t.columns.tolist()
+        tomerge = len(cols)-6
+        text = t.iloc[:, 1:1 + tomerge].fillna("").astype(str).apply(" ".join,axis=1)
+        t = t.drop(labels=list(range(1,1+tomerge)),axis=1)
+        t.columns = ['Datum', 'Belastungen', 'Gutschriften', 'Valuta', 'Saldo',
+                   'Sign']  # ''Text', 'Betrag', 'Valuta', 'Saldo']
+        t['Text'] = text
+
+        toadd = t.Text.iloc[:-1].groupby((~pd.isnull(t.Datum)).cumsum()).agg("\n".join).reset_index(drop=True)
+        t = t[~pd.isnull(t.Datum)].copy().reset_index(drop=True)
+        t['Text'] = toadd
+
+        t['Datum'] = pd.to_datetime(t.Datum,dayfirst=True).dt.date
+        t['Valuta'] = pd.to_datetime(t.Valuta,dayfirst=True).dt.date
+        t['Saldo'] = t.Saldo.str.strip(' +').str.replace("'", "").astype(float)
+        t = t.rename(columns={'Gutschriften':'Betrag'})
+        t['Betrag'] = t.Betrag.str.replace("'", "").astype(float)
+        t['Belastungen'] = -t.Belastungen.str.replace("'", "").astype(float)
+        t['Betrag'] = t['Betrag'].fillna(t.Belastungen)
+        #t['Betrag'] = t.Saldo.diff().fillna(t.Saldo - saldo)
+        data = t.drop(['Saldo','Valuta','Belastungen','Sign'],axis=1).rename(columns={'Betrag':'Lastschrift'})
 
         data['Kategorie'] = self.NOCATEGORY
         data['Lastschrift'] *= -1
