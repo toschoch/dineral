@@ -1,6 +1,10 @@
 ===============================
 Dineral
 ===============================
+v1.1.6
+--------------------------
+* Raiffeissen account monthly/yearly
+
 v1.1.5
 --------------------------
 * Database in feather format
