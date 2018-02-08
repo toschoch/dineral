@@ -8,6 +8,7 @@ Copyright (c) 2015. All rights reserved.
 """
 from __future__ import unicode_literals
 import logging
+from tempfile import TemporaryDirectory
 
 log = logging.getLogger(__name__)
 
@@ -115,12 +116,17 @@ class Raiffeisen(DataPlugin):
             (pandas DataFrame) table with data columns: date, description, amount
 
         """
-        subprocess.call(['pdftotext', '-layout', filename])
 
-        filename = filename.replace('.pdf', '.txt')
+        # create temporary directory, with cleanup
+        with TemporaryDirectory() as tmp:
 
-        with codecs.open(filename, 'rb', 'utf-8') as fp:
-            lines = fp.readlines()
+            _, fname = os.path.split(filename)
+            txtfile = os.path.join(tmp, fname.replace('.pdf', '.txt'))
+
+            subprocess.call(['pdftotext', '-layout', filename, txtfile], cwd=tmp)
+
+            with codecs.open(txtfile, 'rb', 'utf-8') as fp:
+                lines = fp.readlines()
 
         starts = [i for i, line in enumerate(lines) if
                   re.match('^\s+Datum\s+Text\s+Belastungen\s+Gutschriften\s+Valuta\s+Saldo\s*$', line)]
