@@ -43,15 +43,6 @@ class Raiffeisen(DataPlugin):
         locale.setlocale(locale.LC_TIME, 'de_CH.UTF-8')
 
         files2load = []
-        for fname in matches:
-
-            _, name = os.path.split(fname)
-            name, _ = os.path.splitext(name)
-
-            year = datetime.datetime.strptime(name, 'Auszug Jahr %Y').date()
-            if year.year >= start and year.year <= end:
-                files2load.append(fname)
-            log.info('checked {}'.format(fname))
 
         for subdir in extracts_path.iterdir():
             if subdir.is_dir():
@@ -72,6 +63,15 @@ class Raiffeisen(DataPlugin):
                             month = datetime.datetime.strptime("{}-{}".format(year.year,month), "%Y-%B").date()
                             if month >= period_from and month <= period_to:
                                 files2load.append(str(fname))
+
+        if len(files2load)<1:
+            for fname in extracts_path.iterdir():
+                if fname.is_file():
+                    if re.match('Auszug Jahr [0-9]{4}',fname.stem):
+                        year = datetime.datetime.strptime(fname.stem, 'Auszug Jahr %Y').date()
+                        if year.year >= start and year.year <= end:
+                            files2load.append(fname)
+                        log.info('checked {}'.format(fname))
 
 
         locale.setlocale(locale.LC_TIME, '')
