@@ -54,7 +54,8 @@ class Budget(CachedProperty):
         return datetime.date(self._year, 1, 1)
 
     def filename(self, year):
-        lastyear = year - 1
+        lastyear = year
+        year = year + 1
         if year > 99:
             year = year % 100
         if lastyear > 99:
