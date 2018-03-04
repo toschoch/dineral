@@ -1,6 +1,11 @@
 ===============================
 Dineral
 ===============================
+v1.2.1
+--------------------------
+* Fixed bug loading the budget
+* Fixed scaling bug
+
 v1.2.0
 --------------------------
 * Raiffeissen account monthly/yearly

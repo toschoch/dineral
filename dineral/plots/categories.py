@@ -27,13 +27,11 @@ def plot(category, data, budget, axes, date_from, date_to, mean, std):
 
 
 def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor='#6ACC65', sign=1):
-    from scipy.stats import norm
-    import matplotlib.transforms as mtransforms
-    trans = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
 
     icategory = category
 
     ax = (-sign * data[icategory]).plot(ax=ax, marker='', color=linecolor)
+    ax.set_xlim(data.index[0],data.index[-1])
 
     if icategory in mean.columns:
         m = (-sign * mean[icategory])
