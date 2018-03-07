@@ -1,0 +1,5 @@
+pipeline:
+  build:
+    image: alpine-python
+    commands:
+      - python setup.py bdist_wheel
