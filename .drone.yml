@@ -1,5 +1,5 @@
 pipeline:
   build:
-    image: jfloff/alpine-python
+    image: jfloff/alpine-python:3.4
     commands:
       - python setup.py bdist_wheel
