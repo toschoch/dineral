@@ -1,5 +1,18 @@
 pipeline:
-	build:
-  		image: jfloff/alpine-python:3.4
-  		commands:
-    		- python setup.py bdist_wheel
+  clone:
+    image: plugins/git
+    tags: true
+
+  build:
+    image: python:3
+    commands:
+      - python setup.py bdist_wheel
+      - python setup.py test
+
+  publish:
+    image: python:3
+    devpi:
+      server: http://192.168.0.40:3141/
+      index: dietzi/stable
+      username: dietzi
+      password: dietzi
