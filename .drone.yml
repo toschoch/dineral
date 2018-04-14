@@ -10,9 +10,8 @@ pipeline:
 #      - python setup.py test
 
   publish:
-    image: plugins/devpi
-    devpi:
-      server: http://192.168.0.40:3141/
-      index: dietzi/stable
-      username: dietzi
-      password: dietzi
+    image: plugins/drone-devpi
+    server: http://192.168.0.40:3141/
+    index: dietzi/stable
+    username: dietzi
+    password: dietzi
