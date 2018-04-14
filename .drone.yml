@@ -10,8 +10,9 @@ pipeline:
 #      - python setup.py test
 
   publish:
-    image: apihackers/drone-devpi
-    server: http://192.168.0.40:3141/
-    index: dietzi/stable
-    username: dietzi
-    password: dietzi
+    devpi:
+      image: apihackers/drone-devpi
+      server: http://192.168.0.40:3141/
+      index: dietzi/stable
+      username: dietzi
+      password: dietzi
