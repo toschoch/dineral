@@ -7,41 +7,14 @@ Clone repo from git
 ```bash
 git clone git@github.com:toschoch/dineral.git
 ```
-
-####External Dependencies
-Most of the dataplugins (PostFinance, etc.) depend on the unix commandline tools
-```text
-pdftotext
-```
-these can be installed via apt-get in unix systems
-```bash
-apt-get install poppler-utils pkg-config
-```
-or for mac
-```bash
-brew install poppler
-```
-http://brewformulas.org/Poppler
-
-####Python Dependencies
-```text
-numpy
-scipy
-scikit-learn
-```
-Unfortunately pip/setuptools dependencies on numpy and scipy do not work out of the box.Therefore one has to install these dependencies in the following order:
-```bash
-pip install numpy
-``` 
-```bash
-pip install scipy
-```
-```bash
-pip install scikit-learn
-```
+install with setuptools
 ```bash
 python setup.py install
 ```
+
+
+####External Dependencies
+As the PostFinance extracts are now text aware, tesseract ocr is not needed anymore. There are no more external dependencies.
 
 
 ##Usage
@@ -63,11 +36,10 @@ if __name__ == '__main__':
 
 ### Account information
 Dineral offers to choose at program start between multiple accounts. Each account has to be configured in the 
-'properties.json' configuration file.
+'.dineral.yaml' configuration file.
 
-This file is can be found under \<your python installation>\Lib\site-packages\dineral\internaldata\properties.json
-
-There is a template in the same directory that can be used (must be renamed)
+After the first start of the program (that might fail due to a missing configuration file)
+a sample configuration file will be created in your userhome directory (e.g. ~/.dineral.yaml).
 
 #### Minimum configuration
 ##### Database
