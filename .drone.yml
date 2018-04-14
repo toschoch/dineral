@@ -11,8 +11,8 @@ pipeline:
 
   publish:
     image: shocki/drone-devpi
-    devpi:
-      server: http://192.168.0.40:3141/
-      index: dietzi/stable
-      username: dietzi
-      password: dietzi
+    pull: true
+    server: http://192.168.0.40:3141/
+    index: dietzi/stable
+    username: dietzi
+    password: dietzi
