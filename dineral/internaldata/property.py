@@ -128,6 +128,9 @@ class CachedProperty(Property):
             self._data = self.load_data(*args, **kwargs)
         return self._data
 
+    def reload_data(self, *args, **kwargs):
+        self._data = self.load_data(*args, **kwargs)
+
     def load_data(self, *args, **kwargs):
         raise NotImplementedError
 

@@ -163,6 +163,9 @@ class FinanceMainWidget(QWidget):
 
             window = self.window()
 
+            # reload database
+            window.database.reload_data()
+
             reporter.statistics(window)
 
             self.graphview.comboGraph.clear()
