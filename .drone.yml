@@ -28,4 +28,3 @@ pipeline:
     when:
       event: tag
       status: success
-      branch: master
