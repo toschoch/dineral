@@ -4,7 +4,7 @@ Reads bank and credit card extracts provided by plugins and automatically catego
 ## Installation
 ### Download
 Clone repo from git
-```bash
+```text
 git clone git@github.com:toschoch/dineral.git
 ```
 install with setuptools
