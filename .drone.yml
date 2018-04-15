@@ -19,6 +19,6 @@ pipeline:
     username: dietzi
     password: dietzi
 
-#    when:
-#      event: tag
-#      branch: master
+    when:
+      event: tag
+      branch: master

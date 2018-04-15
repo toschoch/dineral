@@ -53,7 +53,7 @@ setup(
                               'res/conf',
                               'res/conf/properties_template.yaml',
                               'res/data/*']},
-    long_description=read('README.md')+changelog_txt,
+    long_description=read('README.md'),
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require=extras_require,
