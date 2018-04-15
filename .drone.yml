@@ -26,6 +26,6 @@ pipeline:
     username: dietzi
     password: dietzi
     when:
-      branch: master
       event: tag
-    
+      status: success
+      branch: master
