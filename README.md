@@ -65,7 +65,8 @@ classifier.py
 
 Change-Log
 ----------
-##### v1.2.3
+##### v1.2.4
+* fixed update recently stored entries before report
 * fixed missing entries (with numbers in transaction text) from mastercard extracts
 * included change-log
 
