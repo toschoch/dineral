@@ -13,11 +13,22 @@ python setup.py install
 ```
 
 
-####External Dependencies
-As the PostFinance extracts are now text aware, tesseract ocr is not needed anymore. There are no more external dependencies.
+#### External Dependencies
+As the PostFinance extracts are now text aware, tesseract ocr is not needed anymore. 
+However Dineral still depends on the `pdftotext` command line tool (see [here](https://en.wikipedia.org/wiki/Pdftotext)) from the [poppler-utils](https://linuxappfinder.com/package/poppler-utils) apps.
+
+Install them under linux with 
+```bash
+apt-get install poppler-utils
+```  
+If you have a mac, use brew
+```bash
+brew install poppler
+```
+and under windows you can try [http://blog.alivate.com.au/poppler-windows/] (good luck!)
 
 
-##Usage
+## Usage
 
 ### Start the programm
 start programm over bash script
@@ -52,3 +63,27 @@ in order to update the classifier look into the jupyter notebook
 classifier.py
 
 
+Change-Log
+----------
+##### v1.2.3
+* fixed missing entries (with numbers in transaction text) from mastercard extracts
+* included change-log
+
+##### v1.2.1
+* Fixed bug loading the budget
+* Fixed scaling bug
+
+##### v1.2.0
+* Raiffeissen account monthly/yearly
+
+##### v1.1.5
+* Database in feather format
+* PyQt5 HiDpi Display
+
+##### v1.1.3
+* Mastercard plugin works now without OCR (more reliable)
+* Temporary files are all in temp dir
+
+##### v1.1.2
+* supports multiple accounts
+* YAML configuration format

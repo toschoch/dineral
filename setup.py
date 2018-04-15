@@ -16,10 +16,16 @@ with open('requirements.txt') as fp:
     install_requires = fp.readlines()
 
 # get the dependencies and installs
-with open(os.path.join(here, 'CHANGELOG.rst')) as f:
-    changelog_txt = f.read()
-    changelog = changelog_txt.split('\n')
-    version = changelog[[i-1 for i, l in enumerate(changelog) if re.match("-+",l)][0]]
+changelog = read('README.md').splitlines()
+for i,line in enumerate(changelog):
+    if line.startswith('Change-Log'):
+        line = changelog[i+1]
+        j = 1
+        while line.strip()=='' or line.startswith('---'):
+            j += 1
+            line = changelog[j]
+        version = line.strip('# ')
+        break
 
 test_requires = [
     'pylint>=1.0.0',
