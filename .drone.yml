@@ -6,7 +6,6 @@ pipeline:
   build:
     image: python:3
     commands:
-      - python setup.py test
       - python setup.py bdist_wheel
       - python setup.py sdist
       - python setup.py sdist --formats=zip
@@ -24,7 +23,7 @@ pipeline:
   staging:
     image: shocki/drone-devpi
     server: http://192.168.0.40:3141/
-    index: dietzi/stable
+    index: dietzi/staging
     username: dietzi
     password: dietzi
     when:

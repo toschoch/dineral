@@ -23,7 +23,7 @@ for i,line in enumerate(changelog):
         j = 1
         while line.strip()=='' or line.startswith('---'):
             j += 1
-            line = changelog[j]
+            line = changelog[i+j]
         version = line.strip('# ')
         break
 
