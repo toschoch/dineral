@@ -10,16 +10,6 @@ pipeline:
       - python setup.py sdist
       - python setup.py sdist --formats=zip
 
-  release:
-    image: shocki/drone-devpi
-    server: http://192.168.0.40:3141/
-    index: dietzi/stable
-    username: dietzi
-    password: dietzi
-    when:
-      event: tag
-      branch: master
-
   staging:
     image: shocki/drone-devpi
     server: http://192.168.0.40:3141/
@@ -28,3 +18,14 @@ pipeline:
     password: dietzi
     when:
       branch: master
+
+  release:
+    image: shocki/drone-devpi
+    server: http://192.168.0.40:3141/
+    index: dietzi/stable
+    username: dietzi
+    password: dietzi
+    when:
+      branch: master
+      event: tag
+    
