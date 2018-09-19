@@ -50,6 +50,7 @@ class FinanceTransactions(QWidget):
         db.sort_values('Datum', inplace=True)
 
         main.database.save_data(db)
+        main.database.reload_data()
 
         self.clear()
 

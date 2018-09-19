@@ -55,7 +55,7 @@ class PostFinance(DataPlugin):
             dprog = 0
 
         if len(files2load) < 1:
-            log.warn("No PostFinances account extracts found for selected period!")
+            log.warning("No PostFinances account extracts found for selected period!")
         else:
             log.info("load files: {}".format(", ".join(files2load)))
 
@@ -66,11 +66,7 @@ class PostFinance(DataPlugin):
             if callback is not None:
                 callback(prog)
 
-        if len(new) > 0:
-            data = pd.concat(new, axis=0)
-            log.info("loaded {} entries for PostFinance extracts".format(len(data)))
-            data = self.expand_EFinance(data)
-        else:
+        if len(new) == 0:
             data = pd.DataFrame(columns=self.DEFAULTDATACOLUMNS)
 
         return data
@@ -205,13 +201,12 @@ class PostFinance(DataPlugin):
         new = []
         for i, row in data[I].iterrows():
 
-            try:
-                confirmation_path = os.path.join(self.properties, self.Confirmation_Path)
-                pdffile = glob.glob(os.path.join(confirmation_path, row['Datum'].strftime('%Y-%m-%d') + u'.pdf'))[0]
+            confirmation_path = os.path.join(self.properties, self.Confirmation_Path)
+            pdffiles = glob.glob(os.path.join(confirmation_path, row['Datum'].strftime('%Y-%m-%d') + u'*.pdf'))
+
+            for pdffile in pdffiles:
                 newrows = self.load_PostFinancePaymentConfirmation(pdffile)
                 new.append(newrows)
-            except IndexError:
-                pass
 
         new.append(data[np.logical_not(I)])
 

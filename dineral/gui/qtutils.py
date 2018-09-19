@@ -27,8 +27,8 @@ class QDateRange(QWidget):
 
         layout.addWidget(QtW.QLabel("From", self), 0, 0)
         layout.addWidget(self.dateFrom, 1, 0)
-        layout.addWidget(QtW.QLabel("To", self), 0, 1)
-        layout.addWidget(self.dateTo, 1, 1)
+        layout.addWidget(QtW.QLabel("To", self), 2, 0)
+        layout.addWidget(self.dateTo, 3, 0)
         grp.setLayout(layout)
 
         layout = QtW.QHBoxLayout(self)
