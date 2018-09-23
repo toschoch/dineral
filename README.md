@@ -65,6 +65,9 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.5
+* fixed width issue, removed additional extract parsing, and reload db after save
+
 ##### v1.2.4
 * fixed update recently stored entries before report
 * fixed missing entries (with numbers in transaction text) from mastercard extracts
