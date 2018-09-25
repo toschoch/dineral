@@ -1,4 +1,4 @@
-image: python_build
+image: abstruse_builder
 
 before_script: pip install -r requirements.txt
 
