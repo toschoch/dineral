@@ -65,6 +65,11 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.6
+* fixed bug in postfinance plugin
+* other builder image
+* first test with abstruse.yml
+
 ##### 1.2.5
 * fixed width issue, removed additional extract parsing, and reload db after save
 
