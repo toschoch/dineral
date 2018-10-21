@@ -66,7 +66,9 @@ class PostFinance(DataPlugin):
             if callback is not None:
                 callback(prog)
 
-        if len(new) == 0:
+        if len(new) > 0:
+            data = pd.concat(new, axis=0)
+        else:
             data = pd.DataFrame(columns=self.DEFAULTDATACOLUMNS)
 
         return data
