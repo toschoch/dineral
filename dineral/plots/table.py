@@ -43,8 +43,8 @@ class Summary(Plot):
             else:
                 reldiff = "{0:.0%}".format(reldiff)
 
-            dtable.append([row['Kategorie'], "{0:d}".format(int(eff)), "{0:d}".format(int(bud_prop)),
-                           "{0:d}".format(int(row['Differenz'])), reldiff, teilvomjahr])
+            dtable.append([row['Kategorie'], "{0:.0f}".format(eff), "{0:.0f}".format(bud_prop),
+                           "{0:.0f}".format(row['Differenz']), reldiff, teilvomjahr])
 
         dtable.append([""] * len(columns))
         bilanz = -budget['Summe'].sum()

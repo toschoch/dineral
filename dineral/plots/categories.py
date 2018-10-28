@@ -7,8 +7,7 @@ Created by Tobias Schoch on 27.12.15.
 Copyright (c) 2015. All rights reserved.
 """
 import seaborn.apionly as sns
-import matplotlib as mpl
-import pandas as pd
+import numpy as np
 
 from .defaults import monthly_settings
 
@@ -19,16 +18,22 @@ log = logging.getLogger(__name__)
 
 def plot(category, data, budget, axes, date_from, date_to, mean, std):
     if (budget.ix[category, 'Jahresbudget'] > 0).squeeze():
-        plot_income(axes, data, budget, category, mean, std)
+        plot_income(axes, data, budget, category, mean, std, date_to=date_to)
     else:
-        plot_expense(axes, data, budget, category, mean, std)
+        plot_expense(axes, data, budget, category, mean, std, date_to=date_to)
 
     monthly_settings(axes)
 
 
-def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor='#6ACC65', sign=1):
+def plot_income(ax, data, budget, category, mean, std, title='Income',
+                linecolor='#6ACC65', sign=1, date_to=None):
 
     icategory = category
+
+    data = data.copy()
+    if icategory not in data:
+        data[icategory] = np.nan
+    data.loc[data.index<=date_to,:] = data.loc[data.index<=date_to,:].fillna(0)
 
     ax = (-sign * data[icategory]).plot(ax=ax, marker='', color=linecolor)
     ax.set_xlim(data.index[0],data.index[-1])
@@ -65,5 +70,5 @@ def plot_income(ax, data, budget, category, mean, std, title='Income', linecolor
         ax.axhline(0, color='black', linestyle='-', linewidth=0.8, alpha=0.5)
 
 
-def plot_expense(ax, data, budget, category, mean, std):
-    plot_income(ax, data, budget, category, mean, std, title='Expense', linecolor='#4878CF', sign=-1)
+def plot_expense(ax, data, budget, category, mean, std, date_to):
+    plot_income(ax, data, budget, category, mean, std, title='Expense', linecolor='#4878CF', sign=-1, date_to=date_to)
