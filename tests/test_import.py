@@ -22,14 +22,14 @@ class Dineral(unittest.TestCase):
         from dineral.dataplugins.mastercard import MasterCard
         import datetime
 
-        print accounts()
+        print(accounts())
 
-        MasterCard._account = accounts().keys()[-1]
+        MasterCard._account = list(accounts().keys())[-1]
         p = MasterCard()
-        print p._account
-        data = p.load_data(datetime.date(2017,6,1),datetime.date(2017,9,28))
+        print(p._account)
+        data = p.load_data(datetime.date(2019, 3, 1),datetime.date(2019, 4, 30))
         data.sort_values(by=['Datum'],inplace=True,ascending=True)
-        print data
+        print(data)
 
 
 if __name__ == '__main__':
