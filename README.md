@@ -65,6 +65,11 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.7
+* added new mastercard extract format
+* try jenkinsfile
+* fixed robustness for no data
+
 ##### 1.2.6
 * fixed bug in postfinance plugin
 * other builder image
