@@ -27,7 +27,7 @@ class Dineral(unittest.TestCase):
         MasterCard._account = list(accounts().keys())[-1]
         p = MasterCard()
         print(p._account)
-        data = p.load_data(datetime.date(2019, 3, 1),datetime.date(2019, 4, 30))
+        data = p.load_data(datetime.date(2019, 6, 1),datetime.date(2019, 6, 30))
         data.sort_values(by=['Datum'],inplace=True,ascending=True)
         print(data)
 
