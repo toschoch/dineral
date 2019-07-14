@@ -65,6 +65,9 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.8
+* fixed regex for mastercard
+
 ##### 1.2.7
 * added new mastercard extract format
 * try jenkinsfile
