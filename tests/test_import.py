@@ -34,7 +34,6 @@ class Dineral(unittest.TestCase):
 
 
     def test_raiffeisen(self):
-        from dineral.internaldata.property import accounts
         from dineral.dataplugins.raiffeisen import Raiffeisen
         import datetime
 
@@ -45,6 +44,16 @@ class Dineral(unittest.TestCase):
         data.sort_values(by=['Datum'],inplace=True,ascending=True)
         print(data)
 
+    def test_raiffeisen2(self):
+        from dineral.dataplugins.raiffeisen import Raiffeisen
+        import datetime
+
+        Raiffeisen._account = 'Mietkonto Dietzingerstrasse'
+        p = Raiffeisen()
+
+        data = p.load_data(datetime.date(2019, 5, 1),datetime.date(2019, 5, 30))
+        data.sort_values(by=['Datum'],inplace=True,ascending=True)
+        print(data)
 
 
 

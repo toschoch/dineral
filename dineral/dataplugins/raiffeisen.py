@@ -146,13 +146,17 @@ class Raiffeisen(DataPlugin):
         colspecs = None
         for s, e in zip(starts, ends):
             page = lines[s[0] + 2:e]
+            has_valuta = s[1].group(5) is not None
 
             if len(page) < 1:
                 continue
 
             entries = []
             for i, line in enumerate(page):
-                m = re.match(r'^\s+([0-9]{2}\.[0-9]{2}\.[0-9]{2})\s+(.+)\s{2,}([0-9\'.]+)\s+([0-9\'.]+)$', line)
+                if has_valuta:
+                    m = re.match(r'^\s+([0-9]{2}\.[0-9]{2}\.[0-9]{2})\s+(.+)\s{2,}([0-9\'.]+)\s+([0-9]{2}\.[0-9]{2}\.[0-9]{2})\s+([0-9\'.]+)$', line)
+                else:
+                    m = re.match(r'^\s+([0-9]{2}\.[0-9]{2}\.[0-9]{2})\s+(.+)\s{2,}([0-9\'.]+)\s+([0-9\'.]+)$', line)
                 if m:
                     entries.append((i, m))
 
@@ -171,15 +175,24 @@ class Raiffeisen(DataPlugin):
                 else:
                     gutschrift = float(m.group(3).replace("'", ""))
 
-                t = [pd.to_datetime(m.group(1)), text, belastung, gutschrift, float(m.group(4).replace("'", ""))]
+                valuta = pd.NaT
+                saldo = np.NAN
+                if has_valuta:
+                    saldo = float(m.group(5).replace("'", ""))
+                    if m.group(4) is not None:
+                        valuta = pd.to_datetime(m.group(4))
+                else:
+                    saldo = float(m.group(4).replace("'", ""))
+
+                t = [pd.to_datetime(m.group(1)), text, belastung, gutschrift, valuta, saldo]
                 data.append(t)
         t = pd.DataFrame(data)
-        t.columns = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Saldo']
+        t.columns = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Valuta', 'Saldo']
 
         t = t.rename(columns={'Gutschriften': 'Betrag'})
         t['Belastungen'] = -t.Belastungen
         t['Betrag'] = t['Betrag'].fillna(t.Belastungen)
-        data = t.drop(['Saldo', 'Belastungen'], axis=1).rename(columns={'Betrag': 'Lastschrift'})
+        data = t.drop(['Saldo', 'Belastungen', 'Valuta'], axis=1).rename(columns={'Betrag': 'Lastschrift'})
 
         data['Kategorie'] = self.NOCATEGORY
         data['Lastschrift'] *= -1
