@@ -65,6 +65,12 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.9
+* added version in logs
+* fixed bug in raiffeisen import
+* update README.md for tag v1.2.9
+* Raiffeisen extracts. Adapted to 2019 format
+
 ##### 1.2.8
 * fixed regex for mastercard
 
