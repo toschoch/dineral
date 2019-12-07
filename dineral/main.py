@@ -44,7 +44,7 @@ def main():
     app.setApplicationName('Dineral')
     app.setWindowIcon(icon)
 
-    log.info("Start program...")
+    log.info("Start program (version={})...".format(__version__))
     w = FinanceMain(version=__version__)
     w.show()
 
