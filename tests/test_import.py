@@ -5,7 +5,7 @@
 # file:    test_import.py
 # author:  tobi
 # created: 24.12.16
-# ----------------------------------datetime
+# ----------------------------------
 __author__ = 'tobi'
 __copyright__ = 'Copyright TobyWorks, 2016'
 
@@ -16,6 +16,7 @@ class Dineral(unittest.TestCase):
     def test_import(self):
         from dineral.main import main
         #main()
+
 
     def test_mastercard(self):
         from dineral.internaldata.property import accounts
@@ -30,6 +31,23 @@ class Dineral(unittest.TestCase):
         data = p.load_data(datetime.date(2019, 6, 1),datetime.date(2019, 6, 30))
         data.sort_values(by=['Datum'],inplace=True,ascending=True)
         print(data)
+
+
+    def test_raiffeisen(self):
+        from dineral.internaldata.property import accounts
+        from dineral.dataplugins.raiffeisen import Raiffeisen
+        import datetime
+
+        Raiffeisen._account = 'Mietkonto Dietzingerstrasse'
+        p = Raiffeisen()
+
+        data = p.load_data(datetime.date(2019, 6, 1),datetime.date(2019, 6, 30))
+        data.sort_values(by=['Datum'],inplace=True,ascending=True)
+        print(data)
+
+
+
+
 
 
 if __name__ == '__main__':
