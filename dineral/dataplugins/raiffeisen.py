@@ -174,7 +174,7 @@ class Raiffeisen(DataPlugin):
                 t = [pd.to_datetime(m.group(1)), text, belastung, gutschrift, float(m.group(4).replace("'", ""))]
                 data.append(t)
         t = pd.DataFrame(data)
-        t.columns = ['Datum', 'Test', 'Belastungen', 'Gutschriften', 'Saldo']
+        t.columns = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Saldo']
 
         t = t.rename(columns={'Gutschriften': 'Betrag'})
         t['Belastungen'] = -t.Belastungen
