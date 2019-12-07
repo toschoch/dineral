@@ -65,6 +65,9 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.9
+* Raiffeisen extracts. Adapted to 2019 format
+
 ##### 1.2.8
 * fixed regex for mastercard
 
