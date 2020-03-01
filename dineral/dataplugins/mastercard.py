@@ -133,7 +133,7 @@ class MasterCard(DataPlugin):
                 text = m.group(3).strip()
                 if m.group(4):
                     text += ' ' + m.group(4).strip()
-                amount = m.group(5)
+                amount = m.group(5).replace("'","")
 
                 text = re.sub(' {2,}', ' ', text)
 
