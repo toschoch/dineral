@@ -65,6 +65,11 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.12
+* fix amount convertion bug for amounts >1000 in mastercard import
+* Merge branch 'master' of github.com:toschoch/dineral
+* made raiffaisen compatible again with valuta column
+
 ##### 1.2.11
 * made raiffaisen compatible again with valuta column
 * update README.md for tag v1.2.10
