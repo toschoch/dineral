@@ -90,8 +90,8 @@ class Property(LocationType):
         """
         import unicodedata, re
         value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-        value = str(re.sub('[^\w\s-]', '', value).strip().lower())
-        value = str(re.sub('[-\s]+', '-', value))
+        value = str(re.sub(r'[^\w\s-]', '', value).strip().lower())
+        value = str(re.sub(r'[-\s]+', '-', value))
         return value
 
     def representation(self):

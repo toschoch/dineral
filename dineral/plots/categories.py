@@ -6,7 +6,7 @@ categories.py
 Created by Tobias Schoch on 27.12.15.
 Copyright (c) 2015. All rights reserved.
 """
-import seaborn.apionly as sns
+import seaborn as sns
 import numpy as np
 
 from .defaults import monthly_settings

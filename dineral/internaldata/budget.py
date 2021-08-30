@@ -17,7 +17,7 @@ import logging
 import pandas as pd, os
 import pyexcel_ods
 import datetime
-import seaborn.apionly as sns
+import seaborn as sns
 from .property import CachedProperty
 from builtins import str
 

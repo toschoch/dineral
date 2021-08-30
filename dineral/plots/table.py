@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 from .abstract_plot import Plot
 
-import seaborn.apionly as sns
+import seaborn as sns
 import numpy as np
 
 

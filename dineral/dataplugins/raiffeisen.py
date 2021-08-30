@@ -140,7 +140,7 @@ class Raiffeisen(DataPlugin):
                 starts.append((i, m))
 
         ends = ([starts[0][0] + 1] + [i for i, line in enumerate(lines) if
-                                      re.match('^\s+(Übertrag|Umsatz)\s+[0-9\'.+\s]*$', line)])[1::2]
+                                      re.match(r'^\s+(Übertrag|Umsatz)\s+[0-9\'.+\s]*$', line)])[1::2]
 
         data = []
         colspecs = None

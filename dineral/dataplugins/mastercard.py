@@ -185,7 +185,7 @@ class MasterCard(DataPlugin):
         lines = map(str, lines)
 
 
-        newentry = re.compile("([0-9]{2,2}.[0-9]{2,2}.[0-9]{2,2}) (.+?(?= {2,2})) ([A-Z]{3,3} [0-9]+.[0-9]{2,2})? \W* ([0-9]+.[0-9]{2,2})[\s0-9.]*",re.UNICODE)
+        newentry = re.compile(r"([0-9]{2,2}.[0-9]{2,2}.[0-9]{2,2}) (.+?(?= {2,2})) ([A-Z]{3,3} [0-9]+.[0-9]{2,2})? \W* ([0-9]+.[0-9]{2,2})[\s0-9.]*",re.UNICODE)
 
         table = []
         it = iter(lines)
