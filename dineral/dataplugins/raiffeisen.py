@@ -184,7 +184,7 @@ class Raiffeisen(DataPlugin):
                 else:
                     saldo = float(m.group(4).replace("'", ""))
 
-                t = [pd.to_datetime(m.group(1)), text, belastung, gutschrift, valuta, saldo]
+                t = [pd.to_datetime(m.group(1), dayfirst=True, yearfirst=False), text, belastung, gutschrift, valuta, saldo]
                 data.append(t)
         t = pd.DataFrame(data)
         t.columns = ['Datum', 'Text', 'Belastungen', 'Gutschriften', 'Valuta', 'Saldo']
