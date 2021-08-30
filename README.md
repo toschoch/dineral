@@ -65,6 +65,9 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.13
+* fixed date parsing in raiffeisen extracts
+
 ##### 1.2.9
 * update README.md for tag v1.2.12
 * fix amount convertion bug for amounts >1000 in mastercard import
