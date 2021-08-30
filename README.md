@@ -65,6 +65,9 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.14
+* fix some warnings and the classifier ipynb
+
 ##### 1.2.13
 * fixed date parsing in raiffeisen extracts
 
