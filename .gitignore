@@ -1,3 +1,6 @@
+
+tests/data/**
+
 test.py
 .idea/*
 *~
