@@ -125,7 +125,7 @@ class PostFinance(DataPlugin):
                     while (len(line) == 0 or line[0] == ' '):
 
                         line = next(it)
-                        if line.strip().startswith('Bitte') or line == '':
+                        if line.strip().startswith('Bitte') or line.strip().startswith("Datenschutz") or line == '':
                             break
 
                         # while no new entry started
