@@ -65,6 +65,10 @@ classifier.py
 
 Change-Log
 ----------
+##### 1.2.15
+* fix bug with a newer postfinance file
+* remove Jenkinsfile and add test data dir to ignore
+
 ##### 1.2.14
 * fix some warnings and the classifier ipynb
 
